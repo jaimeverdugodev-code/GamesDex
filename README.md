@@ -16,6 +16,3 @@ Developed as a Final Degree Project (TFG) for Multiplatform Application Developm
 * **Frontend:** Angular, Ionic Framework, SCSS
 * **Backend (BaaS):** Firebase (Authentication, Cloud Firestore)
 * **External APIs:** RAWG API, Hugging Face Inference API (for recommendations)
-
-## 🚀 Getting Started
-*(Instructions on how to clone, install dependencies (`npm install`), and run the project locally (`ionic serve`) will go here as development progresses).*
