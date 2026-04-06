@@ -68,3 +68,19 @@ testem.log
 # System files
 .DS_Store
 Thumbs.db
+# Firebase
+.firebase/
+firebase-debug.log
+firestore-debug.log
+ui-debug.log
+
+# Capacitor (Android/iOS)
+# Solo ignoramos los recursos generados, NO las carpetas /android o /ios si las creas
+/android/build/
+/android/app/build/
+/android/app/src/main/assets/public
+/ios/App/public
+/ios/App/build
+
+# Docs (Asegúrate de que NO esté ignorado)
+# !/Docs/  <-- Si por algún error pusieras un ignore global de archivos .md, esta línea los protegería.
