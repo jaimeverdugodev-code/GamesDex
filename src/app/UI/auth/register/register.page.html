@@ -1,0 +1,121 @@
+<ion-content>
+  <div class="login-wrapper">
+    
+    <div class="bg-decorations">
+      <div class="glow-circle top-right"></div>
+      <div class="glow-circle bottom-left"></div>
+    </div>
+
+    <div class="content-container">
+      
+      <div class="header-section">
+        <div class="logo-box">
+          <ion-icon name="game-controller" class="logo-icon"></ion-icon>
+        </div>
+        <h1>Únete a la comunidad</h1>
+        <p>Crea tu cuenta y empieza a jugar</p>
+      </div>
+
+      <div class="form-card">
+        <form (ngSubmit)="onSubmit()" novalidate>
+          
+          <div class="input-group">
+            <label for="username">Nombre de usuario</label>
+            <input 
+              id="username" name="username" type="text" 
+              [(ngModel)]="username" placeholder="ProGamer123"
+              class="custom-input"
+            />
+          </div>
+
+          <div class="input-group">
+            <label for="email">Email</label>
+            <input 
+              id="email" name="email" type="email" 
+              [(ngModel)]="email" placeholder="tu@email.com"
+              class="custom-input"
+            />
+          </div>
+
+          <div class="input-group">
+            <label for="password">Contraseña</label>
+            <div class="password-wrapper">
+              <input 
+                id="password" name="password" [type]="showPassword ? 'text' : 'password'" 
+                [(ngModel)]="password" placeholder="••••••••"
+                class="custom-input"
+              />
+              <button type="button" class="btn-icon" (click)="togglePassword()">
+                <ion-icon [name]="showPassword ? 'eye-off-outline' : 'eye-outline'"></ion-icon>
+              </button>
+            </div>
+            
+            <div class="strength-meter" *ngIf="password">
+              <div class="bars">
+                <div class="bar" [style.background-color]="passwordStrength.strength >= 1 ? passwordStrength.color : '#374151'"></div>
+                <div class="bar" [style.background-color]="passwordStrength.strength >= 2 ? passwordStrength.color : '#374151'"></div>
+                <div class="bar" [style.background-color]="passwordStrength.strength >= 3 ? passwordStrength.color : '#374151'"></div>
+              </div>
+              <p class="strength-label" [style.color]="passwordStrength.color">
+                Seguridad: {{ passwordStrength.label }}
+              </p>
+            </div>
+          </div>
+
+          <div class="input-group">
+            <label for="confirmPassword">Confirmar contraseña</label>
+            <div class="password-wrapper">
+              <input 
+                id="confirmPassword" name="confirmPassword" [type]="showConfirmPassword ? 'text' : 'password'" 
+                [(ngModel)]="confirmPassword" placeholder="••••••••"
+                class="custom-input"
+              />
+              <button type="button" class="btn-icon" (click)="toggleConfirmPassword()">
+                <ion-icon [name]="showConfirmPassword ? 'eye-off-outline' : 'eye-outline'"></ion-icon>
+              </button>
+            </div>
+          </div>
+
+          <div class="terms-group">
+            <label class="checkbox-label">
+              <div class="checkbox-wrapper">
+                <input type="checkbox" name="terms" [(ngModel)]="agreedToTerms" class="custom-checkbox" />
+                <ion-icon name="checkmark-outline" class="check-icon" *ngIf="agreedToTerms"></ion-icon>
+              </div>
+              <span>
+                Acepto los <a class="link-primary">términos y condiciones</a> y la <a class="link-primary">política de privacidad</a>
+              </span>
+            </label>
+          </div>
+
+          <div class="error-msg" *ngIf="errorMessage">
+            {{ errorMessage }}
+          </div>
+
+          <button type="submit" class="btn-submit" [disabled]="isLoading">
+            <ion-spinner name="crescent" *ngIf="isLoading"></ion-spinner>
+            <span *ngIf="!isLoading">Crear Cuenta</span>
+          </button>
+        </form>
+
+        <div class="divider">
+          <div class="line"></div>
+          <span>O regístrate con</span>
+          <div class="line"></div>
+        </div>
+
+        <div class="social-login">
+          <button type="button" class="btn-social" (click)="registerWithGoogle()">
+            <ion-icon name="logo-google" style="color: #4285F4;"></ion-icon>
+            <span>Google</span>
+          </button>
+        </div>
+      </div>
+
+      <p class="register-prompt">
+        ¿Ya tienes cuenta? <a routerLink="/login" class="link-primary bold">Inicia sesión</a>
+      </p>
+
+    </div>
+  </div>
+</ion-content>

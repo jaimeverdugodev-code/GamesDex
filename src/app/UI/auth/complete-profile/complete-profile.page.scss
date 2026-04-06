@@ -1,0 +1,162 @@
+@use '../login/login.page.scss';
+
+/* Perfil completo */
+.profile-container {
+  max-width: 32rem; 
+}
+
+.scrollable-card {
+  max-height: 85vh;
+  overflow-y: auto;
+  
+  &::-webkit-scrollbar { width: 6px; }
+  &::-webkit-scrollbar-thumb { background: #374151; border-radius: 4px; }
+}
+
+/* Avatar Preview y Subida */
+.avatar-preview-container {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 2rem;
+
+  .avatar-circle {
+    width: 7rem;
+    height: 7rem;
+    border-radius: 50%;
+    background-color: #1e1e1e; 
+    border: 2px solid #374151;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: visible; /* Permite que el botón de cámara flote sobre el borde */
+    position: relative;
+    cursor: pointer;
+    transition: all 0.3s;
+    
+    &:hover {
+      border-color: #bb86fc;
+      transform: scale(1.02);
+    }
+
+    &.has-photo {
+      background-color: black;
+      border-color: #4b5563;
+    }
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 50%; /* CRÍTICO: Mantiene la imagen circular con overflow:visible */
+    }
+
+    .avatar-placeholder {
+      color: #4b5563; 
+      ion-icon { font-size: 3.5rem; }
+    }
+
+    /* Botón flotante de cámara (opaco y neón) */
+    .camera-btn {
+      position: absolute;
+      bottom: 0.25rem;
+      right: 0.25rem;
+      background-color: #bb86fc; /* Lila neón opaco */
+      color: #121212;
+      width: 2.25rem;
+      height: 2.25rem;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 3px solid #1e1e1e; /* Crea separación visual de la foto */
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+      z-index: 10;
+      
+      ion-icon { font-size: 1.125rem; }
+    }
+  }
+}
+
+/* Inputs mejorados con Iconos */
+.input-with-icon {
+  position: relative;
+  display: flex;
+  align-items: center;
+
+  ion-icon {
+    position: absolute;
+    left: 1rem;
+    color: #9ca3af;
+    font-size: 1.25rem;
+  }
+
+  &.align-top ion-icon { top: 0; }
+
+  .custom-input { padding-left: 2.75rem; }
+  .textarea { resize: none; line-height: 1.5; }
+}
+
+/* Géneros */
+.genres-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+  justify-content: center;
+}
+
+.genre-badge {
+  background-color: #121212;
+  border: 1px solid #374151;
+  color: #d1d5db;
+  padding: 0.5rem 1rem;
+  border-radius: 999px;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+
+  &:hover { border-color: #bb86fc; color: white; }
+  &.selected {
+    background-color: rgba(187, 134, 252, 0.15);
+    border-color: #bb86fc;
+    color: #bb86fc;
+    font-weight: 600;
+  }
+}
+
+.selection-counter {
+  text-align: center; font-size: 0.875rem; color: #ef4444; margin-bottom: 1.5rem; transition: color 0.3s;
+  &.valid { color: #03dac6; }
+}
+
+/* ESTILOS DEL MODAL DEL RECORTE (NUEVO) */
+.cropper-modal {
+  --background: oklch(0.205 0 0); /* Fondo oscuro específico del sidebar */
+  --border-radius: var(--radius-lg);
+
+  ion-toolbar {
+    --background: oklch(0.205 0 0);
+    --border-color: #374151;
+    --color: white;
+  }
+}
+
+.cropper-component {
+  max-height: 40vh;
+  margin-top: 1rem;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: center;
+  ion-button {
+    --background: #bb86fc;
+    --color: #121212;
+    --border-radius: var(--radius-lg);
+    width: 100%; max-width: 20rem;
+    font-weight: 600;
+  }
+}

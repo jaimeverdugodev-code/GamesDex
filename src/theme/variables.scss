@@ -1,2 +1,65 @@
-// For information on how to create your own theme, please refer to:
-// https://ionicframework.com/docs/theming/
+// ==========================================
+// TOKENS DE DISEÑO: GamesDex
+// Fuente de Verdad: Docs/_GUIA_ESTILO_UI.md
+// ==========================================
+
+:root {
+  /** Paleta de Colores - Modo Claro (Light) **/
+  --background: #ffffff;
+  --foreground: oklch(0.145 0 0);
+  --primary: #030213;
+  --secondary: oklch(0.95 0.0058 264.53);
+  --muted: #ececf0;
+  --accent: #e9ebef;
+  --destructive: #d4183d;
+  --border: rgba(0, 0, 0, 0.1);
+
+  /** Tipografía y Escala **/
+  --font-size-base: 16px;
+  --line-height-base: 1.5;
+
+  /** Bordes y Espaciado **/
+  --radius-lg: 0.625rem; /* 10px */
+  --input-bg: #f3f3f5;
+
+  /** Mapeo a Variables Nativas de Ionic **/
+  --ion-background-color: var(--background);
+  --ion-text-color: var(--foreground);
+  --ion-color-primary: var(--primary);
+  --ion-color-secondary: var(--secondary);
+  --ion-color-danger: var(--destructive);
+  --ion-color-light: var(--muted);
+}
+
+/* 1. DECLARAMOS EL MIXIN PRIMERO */
+@mixin dark-theme-variables {
+  /** Paleta de Colores - Modo Oscuro (Dark) **/
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --primary: oklch(0.985 0 0);
+  --secondary: oklch(0.269 0 0);
+  --muted: oklch(0.269 0 0);
+  --accent: oklch(0.269 0 0);
+  --destructive: oklch(0.396 0.141 25.723);
+  --border: oklch(0.269 0 0);
+  --input-bg: oklch(0.269 0 0);
+
+  /** Actualizar Mapeo de Ionic para Modo Oscuro **/
+  --ion-background-color: var(--background);
+  --ion-text-color: var(--foreground);
+  --ion-color-primary: var(--primary);
+  --ion-color-secondary: var(--secondary);
+  --ion-item-background: var(--background);
+  --ion-card-background: var(--background);
+}
+
+/* 2. USAMOS EL MIXIN DESPUÉS DE DECLARARLO */
+@media (prefers-color-scheme: dark) {
+  :root {
+    @include dark-theme-variables;
+  }
+}
+
+body.dark {
+  @include dark-theme-variables;
+}
