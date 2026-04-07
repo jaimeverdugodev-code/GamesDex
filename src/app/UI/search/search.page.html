@@ -1,0 +1,75 @@
+<!-- src/app/UI/search/search.page.html -->
+
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+    <ion-title>Buscar Juegos</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="search-content">
+  <!-- Barra de búsqueda -->
+  <ion-searchbar
+    placeholder="Buscar por nombre..."
+    debounce="0"
+    animated
+    (ionInput)="onSearchChange($event)"
+  ></ion-searchbar>
+
+  <!-- Skeleton Loaders (RNF02: rendimiento percibido) -->
+  <ion-grid *ngIf="isLoading">
+    <ion-row>
+      <ion-col size="6" size-md="4" size-lg="3" *ngFor="let i of [1,2,3,4,5,6,7,8]">
+        <ion-card class="game-card skeleton-card">
+          <ion-skeleton-text [animated]="true" class="skeleton-img"></ion-skeleton-text>
+          <ion-card-header>
+            <ion-skeleton-text [animated]="true" style="width: 80%; height: 16px;"></ion-skeleton-text>
+            <ion-skeleton-text [animated]="true" style="width: 50%; height: 12px; margin-top: 8px;"></ion-skeleton-text>
+          </ion-card-header>
+        </ion-card>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+
+  <!-- Resultados -->
+  <ion-grid *ngIf="!isLoading && games.length > 0">
+    <ion-row>
+      <ion-col size="6" size-md="4" size-lg="3" *ngFor="let game of games">
+        <ion-card class="game-card" button>
+          <img
+            *ngIf="game.background_image"
+            [src]="game.background_image"
+            [alt]="game.name"
+            class="game-cover"
+          />
+          <div *ngIf="!game.background_image" class="game-cover-placeholder"></div>
+          <ion-card-header>
+            <ion-card-title>{{ game.name }}</ion-card-title>
+            <ion-card-subtitle>
+              <ion-badge color="warning">★ {{ game.rating | number:'1.1-1' }}</ion-badge>
+              <span class="game-genres" *ngIf="game.genres?.length">
+                {{ game.genres[0].name }}
+              </span>
+            </ion-card-subtitle>
+          </ion-card-header>
+        </ion-card>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+
+  <!-- Sin resultados -->
+  <div class="empty-state" *ngIf="!isLoading && hasSearched && games.length === 0">
+    <ion-text color="medium">
+      <p>No se encontraron juegos. Intenta con otro término.</p>
+    </ion-text>
+  </div>
+
+  <!-- Estado inicial -->
+  <div class="empty-state" *ngIf="!isLoading && !hasSearched">
+    <ion-text color="medium">
+      <p>Escribe el nombre de un juego para empezar a buscar.</p>
+    </ion-text>
+  </div>
+</ion-content>

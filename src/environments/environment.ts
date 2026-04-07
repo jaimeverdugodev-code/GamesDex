@@ -4,6 +4,7 @@
 
 export const environment = {
   production: false,
+  rawgApiKey: '0a285f6b75464e54aaab84f10b477997',
   firebase: {
     apiKey: "AIzaSyDigeGxEZcnwSBfPTuHU8qzuqIOHn6Z4N8",
     authDomain: "gamesdex-f3fef.firebaseapp.com",

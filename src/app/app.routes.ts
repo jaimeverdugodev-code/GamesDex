@@ -3,7 +3,7 @@ import { Routes } from '@angular/router';
 export const routes: Routes = [
   {
     path: '',
-    redirectTo: 'login',
+    redirectTo: 'home',
     pathMatch: 'full',
   },
   {
@@ -18,5 +18,16 @@ export const routes: Routes = [
     path: 'complete-profile',
     loadComponent: () => import('./UI/auth/complete-profile/complete-profile.page').then(m => m.CompleteProfilePage)
   },
-  // { path: 'home', loadComponent: () => import('./UI/home/home.page').then(m => m.HomePage) },
+  {
+    path: 'home',
+    loadComponent: () => import('./UI/home/home.page').then(m => m.HomePage)
+  },
+  {
+    path: 'search',
+    loadComponent: () => import('./UI/search/search.page').then(m => m.SearchPage)
+  },
+  {
+    path: 'my-games',
+    loadComponent: () => import('./UI/my-games/my-games.page').then(m => m.MyGamesPage)
+  },
 ];
