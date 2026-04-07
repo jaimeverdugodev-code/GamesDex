@@ -1,0 +1,130 @@
+<!-- src/app/UI/home/home.page.html -->
+
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+    <ion-title>GamesDex</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="home-content">
+
+  <!-- Hero Banner -->
+  <div class="hero-banner">
+    <img
+      src="https://images.unsplash.com/photo-1538481199705-c710c4e965fc?w=1920&h=400&fit=crop"
+      alt="Hero banner"
+      class="hero-img"
+    />
+    <div class="hero-overlay">
+      <div class="hero-text">
+        <h1>Descubre tu próxima aventura</h1>
+        <p>Conecta con gamers de todo el mundo y explora recomendaciones con IA</p>
+        <div class="hero-buttons">
+          <button class="btn-primary" routerLink="/search">Explorar Juegos</button>
+          <button class="btn-outline">Únete a la Comunidad</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tendencias Actuales — Slider horizontal -->
+  <section class="section trending-section">
+    <div class="section-header">
+      <h2>Tendencias Actuales</h2>
+      <div class="slider-controls" *ngIf="!loadingTrending && trendingGames.length > 5">
+        <button class="slider-btn" (click)="prevTrending()" aria-label="Anterior">
+          <ion-icon name="chevron-back-outline"></ion-icon>
+        </button>
+        <button class="slider-btn" (click)="nextTrending()" aria-label="Siguiente">
+          <ion-icon name="chevron-forward-outline"></ion-icon>
+        </button>
+      </div>
+    </div>
+
+    <!-- Skeleton Trending -->
+    <div class="slider-viewport" *ngIf="loadingTrending">
+      <div class="slider-track">
+        <div class="slide-item" *ngFor="let s of skeletonTrending">
+          <div class="game-card skeleton-card">
+            <ion-skeleton-text [animated]="true" class="skeleton-cover"></ion-skeleton-text>
+            <div class="card-body">
+              <ion-skeleton-text [animated]="true" class="skeleton-title"></ion-skeleton-text>
+              <ion-skeleton-text [animated]="true" class="skeleton-sub"></ion-skeleton-text>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slider real -->
+    <div class="slider-viewport" *ngIf="!loadingTrending">
+      <div class="slider-track" [style.transform]="sliderOffset">
+        <div class="slide-item" *ngFor="let game of trendingGames">
+          <div class="game-card" role="button" tabindex="0">
+            <img
+              *ngIf="game.background_image"
+              [src]="game.background_image"
+              [alt]="game.name"
+              class="card-cover"
+              loading="lazy"
+            />
+            <div *ngIf="!game.background_image" class="card-cover-placeholder"></div>
+            <div class="card-body">
+              <span class="card-title">{{ game.name }}</span>
+              <div class="card-meta">
+                <ion-badge color="warning">★ {{ game.rating | number:'1.1-1' }}</ion-badge>
+                <span class="card-genre" *ngIf="game.genres?.length">{{ game.genres[0].name }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Para Ti — Grid de recomendaciones -->
+  <section class="section foryou-section">
+    <div class="section-header">
+      <div>
+        <h2>Para Ti</h2>
+        <p class="section-subtitle">Recomendaciones basadas en tus preferencias</p>
+      </div>
+    </div>
+
+    <!-- Skeleton ForYou -->
+    <div class="foryou-grid" *ngIf="loadingForYou">
+      <div class="game-card skeleton-card" *ngFor="let s of skeletonForYou">
+        <ion-skeleton-text [animated]="true" class="skeleton-cover"></ion-skeleton-text>
+        <div class="card-body">
+          <ion-skeleton-text [animated]="true" class="skeleton-title"></ion-skeleton-text>
+          <ion-skeleton-text [animated]="true" class="skeleton-sub"></ion-skeleton-text>
+        </div>
+      </div>
+    </div>
+
+    <!-- Grid real -->
+    <div class="foryou-grid" *ngIf="!loadingForYou">
+      <div class="game-card" *ngFor="let game of forYouGames" role="button" tabindex="0">
+        <img
+          *ngIf="game.background_image"
+          [src]="game.background_image"
+          [alt]="game.name"
+          class="card-cover"
+          loading="lazy"
+        />
+        <div *ngIf="!game.background_image" class="card-cover-placeholder"></div>
+        <div class="card-body">
+          <span class="card-title">{{ game.name }}</span>
+          <div class="card-meta">
+            <ion-badge color="warning">★ {{ game.rating | number:'1.1-1' }}</ion-badge>
+            <span class="card-genre" *ngIf="game.genres?.length">{{ game.genres[0].name }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</ion-content>

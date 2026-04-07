@@ -1,5 +1,8 @@
+// Estilos del App Shell — Menú lateral
+// Tokens: Docs/_GUIA_ESTILO_UI.md
+
 ion-menu ion-content {
-  --background: var(--ion-item-background, var(--ion-background-color, #fff));
+  --background: var(--background);
 }
 
 ion-menu.md ion-content {
@@ -23,46 +26,46 @@ ion-menu.md ion-note {
 }
 
 ion-menu.md ion-list#inbox-list {
-  border-bottom: 1px solid var(--ion-background-color-step-150, #d7d8da);
+  border-bottom: 1px solid var(--border);
 }
 
 ion-menu.md ion-list#inbox-list ion-list-header {
   font-size: 22px;
   font-weight: 600;
-
   min-height: 20px;
+  color: var(--foreground);
 }
 
 ion-menu.md ion-list#labels-list ion-list-header {
   font-size: 16px;
-
   margin-bottom: 18px;
-
-  color: #757575;
-
+  color: var(--muted);
   min-height: 26px;
 }
 
 ion-menu.md ion-item {
   --padding-start: 10px;
   --padding-end: 10px;
-  border-radius: 4px;
+  --background: transparent;
+  border-radius: var(--radius-lg);
 }
 
 ion-menu.md ion-item.selected {
-  --background: rgba(var(--ion-color-primary-rgb), 0.14);
+  --background: var(--secondary);
 }
 
 ion-menu.md ion-item.selected ion-icon {
-  color: var(--ion-color-primary);
+  color: var(--foreground);
 }
 
 ion-menu.md ion-item ion-icon {
-  color: #616e7e;
+  color: var(--foreground);
+  opacity: 0.6;
 }
 
 ion-menu.md ion-item ion-label {
   font-weight: 500;
+  color: var(--foreground);
 }
 
 ion-menu.ios ion-content {
@@ -85,12 +88,13 @@ ion-menu.ios ion-item {
 }
 
 ion-menu.ios ion-item.selected ion-icon {
-  color: var(--ion-color-primary);
+  color: var(--foreground);
 }
 
 ion-menu.ios ion-item ion-icon {
   font-size: 24px;
-  color: #73849a;
+  color: var(--foreground);
+  opacity: 0.6;
 }
 
 ion-menu.ios ion-list#labels-list ion-list-header {
@@ -110,10 +114,10 @@ ion-menu.ios ion-note {
 ion-note {
   display: inline-block;
   font-size: 16px;
-
-  color: var(--ion-color-medium-shade);
+  color: var(--foreground);
+  opacity: 0.5;
 }
 
 ion-item.selected {
-  --color: var(--ion-color-primary);
+  --color: var(--foreground);
 }
