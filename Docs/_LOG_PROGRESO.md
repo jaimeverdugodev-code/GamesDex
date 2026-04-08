@@ -45,9 +45,43 @@
 * `main.ts` — Añadido `provideHttpClient()` para habilitar `HttpClient` en toda la app.
 * `CLAUDE.md` — Creado con guía de arquitectura, comandos y referencia a Priority Docs.
 
+---
+
+**Fecha:** 8 de abril de 2026
+
+## Avances Técnicos de Hoy
+
+### HomePage — Rediseño de sliders y cards unificadas
+* **Card unificada:** Todas las secciones (Tendencias, Mejor Valorados, Novedades, Para Ti, Joyas Indie) usan el mismo template de card con imagen vertical (aspect-ratio 2/3), overlay con rating en hover, título y meta.
+* **Slider con dos tamaños:**
+  - **Grande (`slider-big`):** Sección "Tendencias Actuales" — 5 cards visibles en desktop.
+  - **Pequeño (`slider-small`):** Resto de secciones — 8 cards visibles en desktop, texto y meta reducidos proporcionalmente.
+* **Flechas de navegación:** Todas las secciones tienen controles prev/next con cálculo de offset por sección.
+* **Touch-friendly (móvil):** Scroll horizontal nativo con snap, scrollbar oculta, flechas ocultas. Grande muestra ~2.3 cards, pequeño ~3.8 cards.
+* **Responsive:** Tablet muestra 4 cards (grande) / 6 cards (pequeño).
+
+### GameService — Nuevos endpoints
+* `getTopRated()` — Juegos mejor valorados (rating descendente).
+* `getNewReleases()` — Lanzamientos del último mes.
+* `getIndieGems()` — Juegos indie con buena valoración.
+* Todas las secciones secundarias piden 12 resultados para permitir navegación con flechas.
+
+### Nuevas páginas (scaffolding)
+* `UI/game-detail/` — Ficha de detalle de un juego.
+* `UI/profile/` — Perfil del usuario.
+* `UI/edit-profile/` — Edición de perfil.
+* `UI/friends/` — Lista de amigos / seguidos.
+* `UI/activity/` — Feed de actividad.
+
+### Nuevos servicios
+* `core/services/user-games.service.ts` — Servicio para gestión de juegos del usuario en Firestore.
+
+### Documentación
+* `CLAUDE.md` — Actualizado con nuevas páginas y servicios.
+
 ## Tareas Pendientes (To-Do)
-1. Implementar la ficha de detalle de un juego (navegación desde las cards).
-2. Conectar la sección "Para Ti" con los géneros favoritos del usuario (IA / Hugging Face).
-3. Crear la lógica para seguir a otros usuarios (HU04).
-4. Implementar la página Mi Perfil.
-5. Completar la página Mis Juegos (marcar como jugado/wishlist — HU03).
+1. Conectar la sección "Para Ti" con los géneros favoritos del usuario (IA / Hugging Face).
+2. Crear la lógica para seguir a otros usuarios (HU04).
+3. Completar la página Mis Juegos (marcar como jugado/wishlist — HU03).
+4. Implementar contenido real en game-detail, profile, edit-profile, friends y activity.
+5. Conectar user-games.service con la UI de Mis Juegos.

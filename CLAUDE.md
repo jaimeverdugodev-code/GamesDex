@@ -40,10 +40,16 @@ npm run watch    # Build in watch mode
   - `models/database.models.ts` — Firestore document interfaces (User, Review, Follow, UserGame)
   - `models/game.model.ts` — RAWG API interfaces (Game, Genre, Platform, RawgResponse)
   - `services/auth.service.ts` — Firebase Auth + Firestore user sync
-  - `services/game.service.ts` — RAWG API (search, details, trending, forYou, byGenre)
+  - `services/game.service.ts` — RAWG API (search, details, trending, forYou, byGenre, topRated, newReleases, indieGems)
+  - `services/user-games.service.ts` — Gestión de juegos del usuario en Firestore
 - **`UI/`** — Presentation layer: pages and components organized by feature
-  - `UI/home/` — Feed principal (hero banner, trending slider, para ti grid)
+  - `UI/home/` — Feed principal (hero banner, trending slider grande, secciones secundarias con cards pequeñas)
   - `UI/search/` — Búsqueda de juegos con debounce RxJS
+  - `UI/game-detail/` — Ficha de detalle de un juego
+  - `UI/profile/` — Perfil del usuario
+  - `UI/edit-profile/` — Edición de perfil
+  - `UI/friends/` — Lista de amigos / seguidos
+  - `UI/activity/` — Feed de actividad
   - `UI/my-games/` — Gestión de colección personal (placeholder)
   - `UI/auth/` — Login, register, complete-profile
 - **`app.routes.ts`** — Standalone lazy-loaded routing (no route modules)

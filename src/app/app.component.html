@@ -1,28 +1,43 @@
 <ion-app>
   <ion-split-pane contentId="main-content" [when]="false">
-    <ion-menu contentId="main-content" type="overlay">
+    <ion-menu contentId="main-content" type="overlay" class="gamesdex-menu">
       <ion-content>
-        <ion-list id="inbox-list">
-          <ion-list-header>GamesDex</ion-list-header>
-          <ion-note>Gamer Registrado</ion-note>
 
+        <!-- Cabecera del menú: Logo + botón cerrar -->
+        <div class="menu-header">
+          <div class="menu-logo">
+            <div class="logo-icon">G</div>
+            <span class="logo-text">GamesDex</span>
+          </div>
+          <ion-menu-toggle auto-hide="false">
+            <button class="menu-close-btn" aria-label="Cerrar menú">
+              <ion-icon name="close-outline"></ion-icon>
+            </button>
+          </ion-menu-toggle>
+        </div>
+
+        <!-- Items de navegación -->
+        <nav class="menu-nav">
           @for (p of appPages; track p; let i = $index) {
             <ion-menu-toggle auto-hide="false">
-              <ion-item routerDirection="root" [routerLink]="[p.url]" lines="none" detail="false" routerLinkActive="selected">
-                <ion-icon aria-hidden="true" slot="start" [ios]="p.icon + '-outline'" [md]="p.icon + '-sharp'"></ion-icon>
-                <ion-label>{{ p.title }}</ion-label>
-              </ion-item>
+              <a class="menu-item" routerDirection="root" [routerLink]="[p.url]" routerLinkActive="active">
+                <ion-icon [name]="p.icon + '-outline'" aria-hidden="true"></ion-icon>
+                <span>{{ p.title }}</span>
+              </a>
             </ion-menu-toggle>
           }
-        </ion-list>
+        </nav>
 
-        <ion-list id="labels-list">
-          <ion-list-header>Opciones</ion-list-header>
-            <ion-item lines="none" button>
-              <ion-icon aria-hidden="true" slot="start" ios="log-out-outline" md="log-out-sharp" color="danger"></ion-icon>
-              <ion-label color="danger">Cerrar Sesión</ion-label>
-            </ion-item>
-        </ion-list>
+        <!-- Cerrar Sesión -->
+        <div class="menu-auth">
+          <ion-menu-toggle auto-hide="false">
+            <button class="menu-item menu-item-logout" (click)="logout()">
+              <ion-icon name="log-out-outline" aria-hidden="true"></ion-icon>
+              <span>Cerrar Sesión</span>
+            </button>
+          </ion-menu-toggle>
+        </div>
+
       </ion-content>
     </ion-menu>
     <ion-router-outlet id="main-content"></ion-router-outlet>

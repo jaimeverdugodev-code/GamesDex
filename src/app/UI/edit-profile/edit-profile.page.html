@@ -1,0 +1,150 @@
+<!-- src/app/UI/edit-profile/edit-profile.page.html -->
+
+<ion-header class="ion-no-border">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/profile" text="" color="light"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Editar Perfil</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="edit-content">
+
+  <!-- Loading -->
+  <div class="loading-state" *ngIf="isLoading">
+    <ion-spinner name="crescent"></ion-spinner>
+  </div>
+
+  <div class="edit-body" *ngIf="!isLoading">
+
+    <!-- ==========================================
+         FOTO DE PERFIL
+    ========================================== -->
+    <section class="edit-section avatar-section">
+      <div class="avatar-circle" (click)="triggerFileInput()" [class.has-photo]="photoUrl">
+        <img *ngIf="photoUrl" [src]="photoUrl" alt="Avatar" (error)="photoUrl = ''" />
+        <div class="avatar-placeholder" *ngIf="!photoUrl">
+          <ion-icon name="person-outline"></ion-icon>
+        </div>
+        <div class="camera-btn">
+          <ion-icon name="camera-outline"></ion-icon>
+        </div>
+      </div>
+      <p class="avatar-hint">Toca para cambiar la foto</p>
+      <input type="file" id="edit-file-upload" accept="image/*" (change)="onFileSelected($event)" style="display: none;" />
+    </section>
+
+    <!-- ==========================================
+         NOMBRE
+    ========================================== -->
+    <section class="edit-section">
+      <label class="field-label">
+        <ion-icon name="person-outline"></ion-icon>
+        Nombre de Jugador
+      </label>
+      <input
+        type="text"
+        [(ngModel)]="displayName"
+        placeholder="Tu nombre de gamer"
+        class="edit-input"
+      />
+    </section>
+
+    <!-- ==========================================
+         BIO
+    ========================================== -->
+    <section class="edit-section">
+      <label class="field-label">
+        <ion-icon name="document-text-outline"></ion-icon>
+        Biografía
+      </label>
+      <textarea
+        [(ngModel)]="bio"
+        placeholder="Cuéntanos sobre ti..."
+        class="edit-input edit-textarea"
+        rows="3"
+      ></textarea>
+    </section>
+
+    <!-- ==========================================
+         GÉNEROS FAVORITOS
+    ========================================== -->
+    <section class="edit-section">
+      <label class="field-label">
+        <ion-icon name="game-controller-outline"></ion-icon>
+        Géneros Favoritos
+      </label>
+      <p class="field-hint">Selecciona los géneros que más te gustan</p>
+      <div class="genres-grid">
+        <button
+          *ngFor="let genre of availableGenres"
+          class="genre-badge"
+          [class.selected]="selectedGenres.has(genre)"
+          (click)="toggleGenre(genre)"
+        >
+          {{ genre }}
+          <ion-icon name="checkmark-circle-outline" *ngIf="selectedGenres.has(genre)"></ion-icon>
+        </button>
+      </div>
+      <p class="genre-counter" [class.valid]="selectedGenres.size >= 3">
+        {{ selectedGenres.size }} seleccionados
+      </p>
+    </section>
+
+    <!-- ==========================================
+         ERRORES Y BOTÓN GUARDAR
+    ========================================== -->
+    <div class="error-msg" *ngIf="errorMessage">{{ errorMessage }}</div>
+
+    <button
+      class="btn-save"
+      (click)="saveProfile()"
+      [disabled]="isSaving"
+    >
+      <ion-spinner name="crescent" *ngIf="isSaving"></ion-spinner>
+      <span *ngIf="!isSaving">Guardar Cambios</span>
+    </button>
+
+  </div>
+
+  <!-- ==========================================
+       MODAL CROPPER DE FOTO
+  ========================================== -->
+  <ion-modal [isOpen]="showCropperModal" (ionModalDidDismiss)="closeModal()" class="cropper-modal">
+    <ng-template>
+      <ion-header>
+        <ion-toolbar>
+          <ion-title>Ajustar Foto</ion-title>
+          <ion-buttons slot="end">
+            <ion-button (click)="closeModal()">
+              <ion-icon name="close-outline" slot="icon-only"></ion-icon>
+            </ion-button>
+          </ion-buttons>
+        </ion-toolbar>
+      </ion-header>
+      <ion-content class="ion-padding ion-text-center">
+        <image-cropper
+          [imageFile]="imageFile"
+          [maintainAspectRatio]="true"
+          [aspectRatio]="1 / 1"
+          [resizeToWidth]="256"
+          [resizeToHeight]="256"
+          format="jpeg"
+          [roundCropper]="true"
+          (imageCropped)="imageCropped($event)"
+          (imageLoaded)="imageLoaded()"
+          (cropperReady)="cropperReady()"
+          (loadImageFailed)="loadImageFailed()"
+          class="cropper-component"
+        ></image-cropper>
+        <div class="modal-actions">
+          <ion-button expand="block" (click)="saveCroppedImage()">
+            Aceptar y Recortar
+          </ion-button>
+        </div>
+      </ion-content>
+    </ng-template>
+  </ion-modal>
+
+</ion-content>

@@ -1,0 +1,171 @@
+<!-- src/app/UI/game-detail/game-detail.page.html -->
+<!-- Diseño basado en Figma: GameDetail.tsx -->
+
+<ion-header class="ion-no-border">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/home" text="" color="light"></ion-back-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="detail-content" [fullscreen]="true">
+
+  <!-- ==========================================
+       SKELETON mientras carga
+  ========================================== -->
+  <ng-container *ngIf="isLoading">
+    <div class="hero-section">
+      <ion-skeleton-text [animated]="true" class="skeleton-hero-bg"></ion-skeleton-text>
+    </div>
+    <div class="detail-body skeleton-body">
+      <ion-skeleton-text [animated]="true" class="skeleton-title"></ion-skeleton-text>
+      <ion-skeleton-text [animated]="true" class="skeleton-subtitle"></ion-skeleton-text>
+      <div class="skeleton-chips">
+        <ion-skeleton-text [animated]="true" class="skeleton-chip" *ngFor="let s of [1,2,3]"></ion-skeleton-text>
+      </div>
+      <ion-skeleton-text [animated]="true" class="skeleton-line" *ngFor="let s of [1,2,3,4,5]"></ion-skeleton-text>
+    </div>
+  </ng-container>
+
+  <!-- ==========================================
+       CONTENIDO REAL — Layout Figma
+  ========================================== -->
+  <ng-container *ngIf="!isLoading && game">
+
+    <!-- Figma: Hero Section con backdrop blur + cover + info -->
+    <div class="hero-section">
+      <!-- Fondo blurreado -->
+      <img
+        *ngIf="game.background_image"
+        [src]="game.background_image"
+        [alt]="game.name"
+        class="hero-backdrop"
+      />
+      <div *ngIf="!game.background_image" class="hero-backdrop-placeholder"></div>
+      <div class="hero-gradient"></div>
+
+      <!-- Contenido del Hero: Cover + Info -->
+      <div class="hero-content">
+        <!-- Portada del juego -->
+        <img
+          *ngIf="game.background_image"
+          [src]="game.background_image"
+          [alt]="game.name"
+          class="hero-cover"
+        />
+        <div *ngIf="!game.background_image" class="hero-cover-placeholder"></div>
+
+        <!-- Info del juego -->
+        <div class="hero-info">
+          <h1 class="game-title">{{ game.name }}</h1>
+
+          <!-- Meta: rating, metacritic, fecha -->
+          <div class="game-meta">
+            <div class="meta-rating">
+              <ion-icon name="star"></ion-icon>
+              <span class="rating-value">{{ game.rating | number:'1.1-1' }}</span>
+            </div>
+            <div class="meta-metacritic" *ngIf="game.metacritic">
+              <span class="metacritic-badge">{{ game.metacritic }}</span>
+              <span>Metacritic</span>
+            </div>
+            <div class="meta-date" *ngIf="game.released">
+              <ion-icon name="calendar-outline"></ion-icon>
+              <span>{{ game.released.substring(0, 4) }}</span>
+            </div>
+          </div>
+
+          <!-- Plataformas + Géneros -->
+          <div class="tags-row">
+            <div class="tags-group" *ngIf="game.platforms?.length">
+              <span class="platform-tag" *ngFor="let pw of game.platforms">
+                {{ pw.platform.name }}
+              </span>
+            </div>
+            <div class="tags-group" *ngIf="game.genres?.length">
+              <span class="genre-tag" *ngFor="let genre of game.genres">
+                {{ genre.name }}
+              </span>
+            </div>
+          </div>
+
+          <!-- Descripción (visible solo en desktop dentro del hero) -->
+          <p class="hero-description" *ngIf="game.description_raw">
+            {{ game.description_raw.substring(0, 300) }}{{ game.description_raw.length > 300 ? '...' : '' }}
+          </p>
+
+          <!-- Botones de acción — Figma: Add to List, Write Review, Heart, Share -->
+          <div class="action-buttons">
+            <button
+              class="btn-primary"
+              (click)="toggleFavorite()"
+              [class.btn-saved]="isSaved"
+              [disabled]="togglingFav"
+            >
+              <ion-icon [name]="isSaved ? 'heart' : 'add-outline'"></ion-icon>
+              <span>{{ isSaved ? 'En Mi Lista' : 'Añadir a Lista' }}</span>
+            </button>
+            <button class="btn-secondary">
+              <ion-icon name="create-outline"></ion-icon>
+              <span>Escribir Reseña</span>
+            </button>
+            <button
+              class="btn-icon"
+              (click)="toggleFavorite()"
+              [class.btn-icon-active]="isSaved"
+              [disabled]="togglingFav"
+            >
+              <ion-icon [name]="isSaved ? 'heart' : 'heart-outline'"></ion-icon>
+            </button>
+            <button class="btn-icon">
+              <ion-icon name="share-outline"></ion-icon>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Cuerpo debajo del hero -->
+    <div class="detail-body">
+
+      <!-- Figma: Sección "Rate This Game" -->
+      <div class="rate-section" *ngIf="currentUserId">
+        <h3>Valora Este Juego</h3>
+        <div class="rate-stars-row">
+          <div class="rate-stars">
+            <button
+              *ngFor="let r of ratingStars"
+              class="star-btn"
+              (mouseenter)="hoverRating = r"
+              (mouseleave)="hoverRating = 0"
+              (click)="setRating(r)"
+            >
+              <ion-icon
+                name="star"
+                [class.star-active]="r <= (hoverRating || userRating)"
+                [class.star-inactive]="r > (hoverRating || userRating)"
+              ></ion-icon>
+            </button>
+          </div>
+          <span class="rate-label" *ngIf="userRating > 0">{{ userRating }} / 5</span>
+        </div>
+      </div>
+
+      <!-- Descripción completa (visible siempre, pero principal en móvil) -->
+      <section class="description-section" *ngIf="game.description_raw">
+        <h3>Acerca del juego</h3>
+        <p class="game-description">{{ game.description_raw }}</p>
+      </section>
+
+    </div>
+
+  </ng-container>
+
+  <!-- Error -->
+  <div class="empty-state" *ngIf="!isLoading && !game">
+    <p class="empty-title">Juego no encontrado</p>
+    <p class="empty-subtitle">No se pudo cargar la información de este juego.</p>
+  </div>
+
+</ion-content>
