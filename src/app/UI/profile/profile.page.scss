@@ -1,0 +1,450 @@
+/* src/app/UI/profile/profile.page.scss */
+/* Traducido de Figma: Profile.tsx (React/Tailwind → Angular/SCSS) */
+
+/* ==========================================
+   BASE
+========================================== */
+ion-content {
+  --background: #121212;
+}
+
+ion-toolbar {
+  --background: transparent;
+  --border-width: 0;
+  --box-shadow: none;
+  --color: white;
+  --min-height: 4rem;
+}
+
+ion-menu-button {
+  --color: white;
+  color: white;
+}
+
+ion-title {
+  color: white;
+  font-weight: 700;
+}
+
+/* ==========================================
+   BANNER — Figma: relative h-[300px]
+========================================== */
+.banner {
+  position: relative;
+  height: 250px;
+  overflow: hidden;
+}
+
+.banner-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* Figma: bg-gradient-to-b from-transparent to-[#121212] */
+.banner-gradient {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, transparent 0%, #121212 100%);
+}
+
+/* ==========================================
+   PROFILE BODY — Figma: px-6 -mt-24 relative z-10
+========================================== */
+.profile-body {
+  position: relative;
+  z-index: 10;
+  margin-top: -6rem;
+  padding: 0 1.5rem 3rem;
+  max-width: 1400px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* ==========================================
+   PROFILE HEADER
+   Figma: flex items-end justify-between mb-8
+========================================== */
+.profile-header-row {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.profile-header-left {
+  display: flex;
+  align-items: flex-end;
+  gap: 1.5rem;
+}
+
+/* Figma: w-40 h-40 rounded-full ring-8 ring-[#121212] shadow-2xl */
+.profile-avatar {
+  width: 10rem;
+  height: 10rem;
+  border-radius: 50%;
+  border: 6px solid #121212;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+/* Figma: pb-4 */
+.profile-header-info {
+  padding-bottom: 1rem;
+}
+
+/* Figma: text-4xl font-bold text-white mb-2 */
+.profile-name {
+  font-size: 2.25rem;
+  font-weight: 700;
+  color: white;
+  margin: 0 0 0.5rem 0;
+  line-height: 1.1;
+}
+
+/* Figma: text-gray-400 max-w-2xl */
+.profile-bio {
+  color: #9ca3af;
+  font-size: 1rem;
+  line-height: 1.5;
+  max-width: 42rem;
+  margin: 0;
+}
+
+/* Figma: px-6 py-3 bg-[#bb86fc] hover:bg-[#a370e6] font-semibold rounded-lg */
+.btn-edit {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  background-color: #bb86fc;
+  color: white;
+  font-weight: 600;
+  font-size: 0.9375rem;
+  border-radius: 0.5rem;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  white-space: nowrap;
+  margin-bottom: 1rem;
+
+  ion-icon { font-size: 1rem; }
+  &:hover { background-color: #a370e6; }
+}
+
+/* ==========================================
+   STATS GRID
+   Figma: grid grid-cols-4 gap-6 mb-12
+========================================== */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+  margin-bottom: 3rem;
+
+  @media (min-width: 768px) {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.5rem;
+  }
+}
+
+/* Figma: bg-[#1a1a1a] border border-gray-800 rounded-lg p-6 */
+.stat-card {
+  background-color: #1a1a1a;
+  border: 1px solid #1f2937;
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+}
+
+.stat-card-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.stat-icon-purple {
+  font-size: 1.25rem;
+  color: #bb86fc;
+}
+
+.stat-icon-cyan {
+  font-size: 1.25rem;
+  color: #03dac6;
+}
+
+.stat-card-label {
+  color: #9ca3af;
+  font-size: 0.875rem;
+}
+
+/* Figma: text-3xl font-bold text-white */
+.stat-card-value {
+  font-size: 1.875rem;
+  font-weight: 700;
+  color: white;
+  margin: 0;
+}
+
+/* ==========================================
+   PLATAFORMAS / GÉNEROS FAVORITOS
+   Figma: mb-12
+========================================== */
+.platforms-section {
+  margin-bottom: 3rem;
+
+  h2 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: white;
+    margin: 0 0 1rem 0;
+  }
+}
+
+.platforms-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+/* Figma: px-6 py-3 bg-gradient-to-r from-[#bb86fc] to-[#03dac6] font-semibold rounded-lg */
+.platform-badge {
+  padding: 0.75rem 1.5rem;
+  background: linear-gradient(to right, #bb86fc, #03dac6);
+  color: white;
+  font-weight: 600;
+  font-size: 0.9375rem;
+  border-radius: 0.5rem;
+}
+
+/* ==========================================
+   COLECCIÓN — Figma: My Rated Games
+========================================== */
+.collection-section {
+  margin-bottom: 2rem;
+}
+
+.collection-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+
+  h2 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: white;
+    margin: 0;
+  }
+}
+
+/* Figma: grid grid-cols-2 sm:3 md:4 lg:5 xl:6 gap-6 */
+.games-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.25rem;
+
+  @media (min-width: 640px)  { grid-template-columns: repeat(3, 1fr); }
+  @media (min-width: 768px)  { grid-template-columns: repeat(4, 1fr); }
+  @media (min-width: 1024px) { grid-template-columns: repeat(5, 1fr); }
+  @media (min-width: 1280px) { grid-template-columns: repeat(6, 1fr); }
+}
+
+/* ==========================================
+   GAME CARDS — Idéntico a Search (estilo Figma GameCard.tsx)
+========================================== */
+.game-card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  min-width: 0;
+  cursor: pointer;
+  transition: transform 0.3s ease;
+
+  &:hover {
+    transform: translateY(-5px);
+    .card-title { color: #bb86fc; }
+    .card-overlay { opacity: 1; }
+  }
+
+  .card-image-wrapper {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 2 / 3;
+    border-radius: 12px;
+    overflow: hidden;
+    background: #2a2a2a;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+    flex-shrink: 0;
+
+    .card-cover {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .card-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
+      display: flex;
+      align-items: flex-end;
+      padding: 0.75rem;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      pointer-events: none;
+
+      .overlay-rating {
+        display: flex;
+        align-items: center;
+        gap: 0.375rem;
+        color: white;
+        font-weight: 600;
+
+        ion-icon {
+          color: #03dac6;
+          font-size: 0.875rem;
+        }
+
+        span {
+          font-size: 0.875rem;
+        }
+      }
+    }
+
+    // Skeleton dentro del wrapper
+    ion-skeleton-text {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      --background: #1f2937;
+      --background-rgb: 31, 41, 55;
+    }
+  }
+
+  .card-title {
+    color: white;
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-top: 0.75rem;
+    width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    transition: color 0.3s ease;
+  }
+}
+
+/* ==========================================
+   SKELETON LOADERS
+========================================== */
+.skeleton-banner {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  --background: #1f2937;
+  --background-rgb: 31, 41, 55;
+}
+
+.skeleton-avatar {
+  width: 10rem;
+  height: 10rem;
+  border-radius: 50%;
+  --background: #1f2937;
+  margin: 0;
+  flex-shrink: 0;
+}
+
+.skeleton-name {
+  width: 200px;
+  height: 2rem;
+  border-radius: 4px;
+  --background: #1f2937;
+  margin-bottom: 0.5rem;
+}
+
+.skeleton-bio {
+  width: 300px;
+  height: 1rem;
+  border-radius: 4px;
+  --background: #1f2937;
+}
+
+/* ==========================================
+   ESTADOS VACÍOS
+========================================== */
+.empty-state,
+.empty-collection {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 1.5rem;
+  text-align: center;
+
+  .empty-title {
+    color: white;
+    font-size: 1.125rem;
+    font-weight: 600;
+    margin: 0 0 0.5rem 0;
+  }
+
+  .empty-subtitle {
+    color: #6b7280;
+    font-size: 0.875rem;
+    margin: 0;
+  }
+}
+
+/* ==========================================
+   RESPONSIVE — Móvil
+========================================== */
+@media (max-width: 768px) {
+  .banner {
+    height: 180px;
+  }
+
+  .profile-body {
+    margin-top: -4rem;
+    padding: 0 1rem 2rem;
+  }
+
+  .profile-header-row {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .profile-header-left {
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .profile-avatar {
+    width: 7rem;
+    height: 7rem;
+  }
+
+  .profile-header-info {
+    padding-bottom: 0;
+    text-align: center;
+  }
+
+  .profile-name {
+    font-size: 1.5rem;
+  }
+
+  .btn-edit {
+    align-self: center;
+  }
+}

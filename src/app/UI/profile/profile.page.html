@@ -1,0 +1,172 @@
+<!-- src/app/UI/profile/profile.page.html -->
+<!-- Diseño basado en Figma: Profile.tsx -->
+
+<ion-header class="ion-no-border">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+    <ion-title>Mi Perfil</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="profile-content">
+
+  <!-- ==========================================
+       SKELETON
+  ========================================== -->
+  <ng-container *ngIf="loadingProfile">
+    <div class="banner">
+      <ion-skeleton-text [animated]="true" class="skeleton-banner"></ion-skeleton-text>
+    </div>
+    <div class="profile-body">
+      <div class="profile-header-row">
+        <ion-skeleton-text [animated]="true" class="skeleton-avatar"></ion-skeleton-text>
+        <div class="profile-header-info">
+          <ion-skeleton-text [animated]="true" class="skeleton-name"></ion-skeleton-text>
+          <ion-skeleton-text [animated]="true" class="skeleton-bio"></ion-skeleton-text>
+        </div>
+      </div>
+    </div>
+  </ng-container>
+
+  <!-- ==========================================
+       CONTENIDO REAL
+  ========================================== -->
+  <ng-container *ngIf="!loadingProfile">
+
+    <!-- No autenticado -->
+    <div class="empty-state" *ngIf="!userName">
+      <p class="empty-title">No has iniciado sesión</p>
+      <p class="empty-subtitle">Inicia sesión para ver tu perfil y tu colección.</p>
+    </div>
+
+    <ng-container *ngIf="userName">
+
+      <!-- Figma: Banner h-[300px] con gradiente -->
+      <div class="banner">
+        <img [src]="bannerUrl" alt="Profile banner" class="banner-img" />
+        <div class="banner-gradient"></div>
+      </div>
+
+      <!-- Figma: Profile Info — px-6 -mt-24 relative z-10 -->
+      <div class="profile-body">
+
+        <!-- Figma: flex items-end justify-between mb-8 -->
+        <div class="profile-header-row">
+          <div class="profile-header-left">
+            <!-- Figma: w-40 h-40 rounded-full ring-8 ring-[#121212] shadow-2xl -->
+            <img
+              [src]="userPhoto || 'https://api.dicebear.com/7.x/avataaars/svg?seed=gamer'"
+              alt="Avatar"
+              class="profile-avatar"
+            />
+            <!-- Figma: pb-4 -->
+            <div class="profile-header-info">
+              <h1 class="profile-name">{{ userName }}</h1>
+              <p class="profile-bio" *ngIf="profile?.bio">{{ profile!.bio }}</p>
+              <p class="profile-bio" *ngIf="!profile?.bio">{{ userEmail }}</p>
+            </div>
+          </div>
+
+          <!-- Figma: Edit Profile button -->
+          <button class="btn-edit" routerLink="/edit-profile">
+            <ion-icon name="create-outline"></ion-icon>
+            <span>Editar Perfil</span>
+          </button>
+        </div>
+
+        <!-- Figma: grid grid-cols-4 gap-6 mb-12 — Stats -->
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-card-header">
+              <ion-icon name="game-controller-outline" class="stat-icon-purple"></ion-icon>
+              <span class="stat-card-label">Juegos Jugados</span>
+            </div>
+            <p class="stat-card-value">{{ savedGames.length }}</p>
+          </div>
+          <div class="stat-card">
+            <div class="stat-card-header">
+              <ion-icon name="people-outline" class="stat-icon-purple"></ion-icon>
+              <span class="stat-card-label">Seguidores</span>
+            </div>
+            <p class="stat-card-value">0</p>
+          </div>
+          <div class="stat-card">
+            <div class="stat-card-header">
+              <ion-icon name="people-outline" class="stat-icon-cyan"></ion-icon>
+              <span class="stat-card-label">Siguiendo</span>
+            </div>
+            <p class="stat-card-value">0</p>
+          </div>
+          <div class="stat-card">
+            <div class="stat-card-header">
+              <ion-icon name="time-outline" class="stat-icon-cyan"></ion-icon>
+              <span class="stat-card-label">Horas Jugadas</span>
+            </div>
+            <p class="stat-card-value">0</p>
+          </div>
+        </div>
+
+        <!-- Figma: Favorite Platforms con gradiente -->
+        <div class="platforms-section" *ngIf="profile?.favoriteGenres?.length">
+          <h2>Géneros Favoritos</h2>
+          <div class="platforms-row">
+            <span class="platform-badge" *ngFor="let genre of profile!.favoriteGenres">
+              {{ genre }}
+            </span>
+          </div>
+        </div>
+
+        <!-- Figma: My Rated Games — grid de GameCard -->
+        <div class="collection-section">
+          <div class="collection-header">
+            <h2>Mi Colección</h2>
+          </div>
+
+          <!-- Skeleton de juegos -->
+          <div class="games-grid" *ngIf="loadingGames">
+            <div class="game-card skeleton" *ngFor="let s of skeletonGames">
+              <div class="card-image-wrapper">
+                <ion-skeleton-text [animated]="true"></ion-skeleton-text>
+              </div>
+            </div>
+          </div>
+
+          <!-- Grid real -->
+          <div class="games-grid" *ngIf="!loadingGames && savedGames.length > 0">
+            <div
+              class="game-card"
+              *ngFor="let game of savedGames"
+              [routerLink]="['/game', game.id]"
+            >
+              <div class="card-image-wrapper">
+                <img
+                  *ngIf="game.background_image"
+                  [src]="game.background_image"
+                  [alt]="game.name"
+                  class="card-cover"
+                />
+                <div class="card-overlay">
+                  <div class="overlay-rating">
+                    <ion-icon name="star"></ion-icon>
+                    <span>{{ game.rating | number:'1.1-1' }}</span>
+                  </div>
+                </div>
+              </div>
+              <h3 class="card-title">{{ game.name }}</h3>
+            </div>
+          </div>
+
+          <!-- Colección vacía -->
+          <div class="empty-collection" *ngIf="!loadingGames && savedGames.length === 0">
+            <p class="empty-title">Tu colección está vacía</p>
+            <p class="empty-subtitle">Explora juegos y pulsa el corazón para añadirlos aquí.</p>
+          </div>
+        </div>
+
+      </div>
+    </ng-container>
+  </ng-container>
+
+</ion-content>
