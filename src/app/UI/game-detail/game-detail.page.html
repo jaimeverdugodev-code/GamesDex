@@ -1,6 +1,3 @@
-<!-- src/app/UI/game-detail/game-detail.page.html -->
-<!-- Diseño basado en Figma: GameDetail.tsx -->
-
 <ion-header class="ion-no-border">
   <ion-toolbar>
     <ion-buttons slot="start">
@@ -11,9 +8,6 @@
 
 <ion-content class="detail-content" [fullscreen]="true">
 
-  <!-- ==========================================
-       SKELETON mientras carga
-  ========================================== -->
   <ng-container *ngIf="isLoading">
     <div class="hero-section">
       <ion-skeleton-text [animated]="true" class="skeleton-hero-bg"></ion-skeleton-text>
@@ -28,39 +22,19 @@
     </div>
   </ng-container>
 
-  <!-- ==========================================
-       CONTENIDO REAL — Layout Figma
-  ========================================== -->
   <ng-container *ngIf="!isLoading && game">
-
-    <!-- Figma: Hero Section con backdrop blur + cover + info -->
     <div class="hero-section">
-      <!-- Fondo blurreado -->
-      <img
-        *ngIf="game.background_image"
-        [src]="game.background_image"
-        [alt]="game.name"
-        class="hero-backdrop"
-      />
+      <img *ngIf="game.background_image" [src]="game.background_image" [alt]="game.name" class="hero-backdrop" />
       <div *ngIf="!game.background_image" class="hero-backdrop-placeholder"></div>
       <div class="hero-gradient"></div>
 
-      <!-- Contenido del Hero: Cover + Info -->
       <div class="hero-content">
-        <!-- Portada del juego -->
-        <img
-          *ngIf="game.background_image"
-          [src]="game.background_image"
-          [alt]="game.name"
-          class="hero-cover"
-        />
+        <img *ngIf="game.background_image" [src]="game.background_image" [alt]="game.name" class="hero-cover" />
         <div *ngIf="!game.background_image" class="hero-cover-placeholder"></div>
 
-        <!-- Info del juego -->
         <div class="hero-info">
           <h1 class="game-title">{{ game.name }}</h1>
 
-          <!-- Meta: rating, metacritic, fecha -->
           <div class="game-meta">
             <div class="meta-rating">
               <ion-icon name="star"></ion-icon>
@@ -76,96 +50,102 @@
             </div>
           </div>
 
-          <!-- Plataformas + Géneros -->
           <div class="tags-row">
             <div class="tags-group" *ngIf="game.platforms?.length">
-              <span class="platform-tag" *ngFor="let pw of game.platforms">
-                {{ pw.platform.name }}
-              </span>
+              <span class="platform-tag" *ngFor="let pw of game.platforms">{{ pw.platform.name }}</span>
             </div>
             <div class="tags-group" *ngIf="game.genres?.length">
-              <span class="genre-tag" *ngFor="let genre of game.genres">
-                {{ genre.name }}
-              </span>
+              <span class="genre-tag" *ngFor="let genre of game.genres">{{ genre.name }}</span>
             </div>
           </div>
 
-          <!-- Descripción (visible solo en desktop dentro del hero) -->
           <p class="hero-description" *ngIf="game.description_raw">
             {{ game.description_raw.substring(0, 300) }}{{ game.description_raw.length > 300 ? '...' : '' }}
           </p>
 
-          <!-- Botones de acción — Figma: Add to List, Write Review, Heart, Share -->
           <div class="action-buttons">
             <button
               class="btn-primary"
-              (click)="toggleFavorite()"
-              [class.btn-saved]="isSaved"
-              [disabled]="togglingFav"
+              (click)="openStatusSheet()"
+              [class.btn-saved]="savedStatus"
             >
-              <ion-icon [name]="isSaved ? 'heart' : 'add-outline'"></ion-icon>
-              <span>{{ isSaved ? 'En Mi Lista' : 'Añadir a Lista' }}</span>
+              <ion-icon [name]="getStatusIcon()"></ion-icon>
+              <span>{{ getStatusText() }}</span>
             </button>
-            <button class="btn-secondary">
+            
+            <button class="btn-secondary" (click)="writeReview()">
               <ion-icon name="create-outline"></ion-icon>
               <span>Escribir Reseña</span>
-            </button>
-            <button
-              class="btn-icon"
-              (click)="toggleFavorite()"
-              [class.btn-icon-active]="isSaved"
-              [disabled]="togglingFav"
-            >
-              <ion-icon [name]="isSaved ? 'heart' : 'heart-outline'"></ion-icon>
-            </button>
-            <button class="btn-icon">
-              <ion-icon name="share-outline"></ion-icon>
             </button>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Cuerpo debajo del hero -->
     <div class="detail-body">
-
-      <!-- Figma: Sección "Rate This Game" -->
-      <div class="rate-section" *ngIf="currentUserId">
-        <h3>Valora Este Juego</h3>
-        <div class="rate-stars-row">
-          <div class="rate-stars">
-            <button
-              *ngFor="let r of ratingStars"
-              class="star-btn"
-              (mouseenter)="hoverRating = r"
-              (mouseleave)="hoverRating = 0"
-              (click)="setRating(r)"
-            >
-              <ion-icon
-                name="star"
-                [class.star-active]="r <= (hoverRating || userRating)"
-                [class.star-inactive]="r > (hoverRating || userRating)"
-              ></ion-icon>
-            </button>
-          </div>
-          <span class="rate-label" *ngIf="userRating > 0">{{ userRating }} / 5</span>
-        </div>
-      </div>
-
-      <!-- Descripción completa (visible siempre, pero principal en móvil) -->
       <section class="description-section" *ngIf="game.description_raw">
         <h3>Acerca del juego</h3>
         <p class="game-description">{{ game.description_raw }}</p>
       </section>
 
-    </div>
+      <section class="similar-games-section" *ngIf="similarGames.length > 0">
+        <div class="section-header">
+          <h3>Juegos relacionados</h3>
+        </div>
 
+        <div class="scroll-wrapper">
+          
+          <button class="scroll-arrow left" (click)="scrollByAmount(-300)">
+            <ion-icon name="chevron-back-outline"></ion-icon>
+          </button>
+
+          <div class="similar-games-scroll" #scrollContainer (wheel)="scrollHorizontally($event)">
+            <app-game-card 
+              *ngFor="let sim of similarGames" 
+              [game]="sim"
+              class="scroll-item">
+            </app-game-card>
+          </div>
+
+          <button class="scroll-arrow right" (click)="scrollByAmount(300)">
+            <ion-icon name="chevron-forward-outline"></ion-icon>
+          </button>
+
+        </div>
+      </section>
+
+      <section class="reviews-section" *ngIf="game">
+        <div class="section-header">
+          <h3>Reseñas de la comunidad</h3>
+        </div>
+
+        <div class="reviews-container" *ngIf="(reviews$ | async) as reviews">
+          <div class="empty-state" *ngIf="reviews.length === 0">
+            <ion-icon name="chatbubbles-outline"></ion-icon>
+            <p class="empty-subtitle">Sé el primero en opinar sobre este juego.</p>
+          </div>
+
+          <div class="review-card" *ngFor="let review of reviews">
+            <div class="review-header">
+              <div class="author-info">
+                <img [src]="review.authorPhoto || 'https://ionicframework.com/docs/img/demos/avatar.svg'" class="author-avatar" (error)="$event.target.src='https://ionicframework.com/docs/img/demos/avatar.svg'">
+                <span class="author-name">{{ review.authorName }}</span>
+              </div>
+              <div class="review-rating">
+                <ion-icon name="star"></ion-icon>
+                <span>{{ review.rating }}</span>
+              </div>
+            </div>
+            <p class="review-text">{{ review.text }}</p>
+            <span class="review-date">{{ review.createdAt?.toDate() | date:'dd/MM/yyyy' }}</span>
+          </div>
+        </div>
+      </section>
+    </div>
   </ng-container>
 
-  <!-- Error -->
-  <div class="empty-state" *ngIf="!isLoading && !game">
+  <div class="empty-state full-page" *ngIf="!isLoading && !game">
     <p class="empty-title">Juego no encontrado</p>
     <p class="empty-subtitle">No se pudo cargar la información de este juego.</p>
   </div>
-
 </ion-content>

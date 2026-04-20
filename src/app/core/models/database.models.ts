@@ -14,12 +14,14 @@ export interface User {
 
 // Colección 'reviews'
 export interface Review {
-  id?: string;              // Auto-ID (Opcional en la creación)
-  userId: string;           // Referencia al UID del autor
-  gameId: number;           // ID único del juego (API RAWG)
-  rating: number;           // Puntuación numérica
-  comment: string;          // Texto de la reseña
-  createdAt: Timestamp;     // Fecha y hora
+  id?: string;
+  gameId: number;           // El ID del juego en RAWG
+  userId: string;           // El UID del usuario que escribe
+  authorName: string;       // Nombre del usuario (para mostrarlo rápido)
+  authorPhoto?: string;     // Foto del usuario
+  rating: number;           // Estrellas del 1 al 5
+  text: string;             // El comentario escrito
+  createdAt: any;           // Fecha de publicación
 }
 
 // Colección 'follows'
@@ -35,6 +37,6 @@ export interface UserGame {
   id?: string;
   userId: string;
   gameId: number;
-  status: 'played' | 'wishlist'; // Estado del juego
+  status: 'played' | 'playing' | 'wishlist' | null; // Estado del juego
   addedAt: Timestamp;
 }

@@ -1,5 +1,4 @@
 // src/app/core/services/user-games.service.ts
-// Capa de Acceso a Datos — CRUD de la colección 'user_games' en Firestore
 
 import { Injectable, inject } from '@angular/core';
 import {
@@ -10,6 +9,8 @@ import { Observable, BehaviorSubject, from } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { UserGame } from '../models/database.models';
 
+export type GameStatus = 'played' | 'playing' | 'wishlist';
+
 @Injectable({
   providedIn: 'root'
 })
@@ -17,54 +18,55 @@ export class UserGamesService {
   private firestore = inject(Firestore);
 
   /**
-   * Caché local de IDs de juegos guardados por el usuario actual.
-   * Permite comprobar el estado del FAB de forma instantánea sin
-   * consultar Firestore en cada navegación al detalle.
+   * Caché local de juegos. 
+   * Usamos un Map donde la Clave es el gameId (number) y el Valor es el status (string).
    */
-  private savedGameIds$ = new BehaviorSubject<Set<number>>(new Set());
+  private savedGamesMap$ = new BehaviorSubject<Map<number, GameStatus>>(new Map());
 
-  /**
-   * Observable público para que los componentes reaccionen
-   * a cambios en la colección de juegos del usuario.
-   */
-  get savedIds$(): Observable<Set<number>> {
-    return this.savedGameIds$.asObservable();
+  get savedGames$(): Observable<Map<number, GameStatus>> {
+    return this.savedGamesMap$.asObservable();
   }
 
   /**
-   * Carga todos los gameId del usuario desde Firestore y llena la caché.
-   * Se llama una vez cuando se conoce el UID (ej: al entrar en game-detail).
+   * Carga todos los gameId del usuario desde Firestore y llena la caché (Map).
    */
   loadUserGames(userId: string): void {
     const gamesRef = collection(this.firestore, 'user_games');
     const q = query(gamesRef, where('userId', '==', userId));
 
     from(getDocs(q)).subscribe(snapshot => {
-      const ids = new Set<number>();
+      const gameMap = new Map<number, GameStatus>();
       snapshot.forEach(docSnap => {
         const data = docSnap.data() as UserGame;
-        ids.add(data.gameId);
+        gameMap.set(data.gameId, data.status as GameStatus);
       });
-      this.savedGameIds$.next(ids);
+      this.savedGamesMap$.next(gameMap);
     });
   }
 
   /**
-   * Comprueba si un juego concreto está en la colección del usuario.
-   * Lee de la caché local (BehaviorSubject), no de Firestore.
+   * Comprueba si un juego concreto está en la colección (Devuelve boolean).
+   * Mantenida por compatibilidad con otras partes de la app.
    */
   isGameSaved(gameId: number): Observable<boolean> {
-    return this.savedGameIds$.pipe(
-      map(ids => ids.has(gameId))
+    return this.savedGamesMap$.pipe(
+      map(gameMap => gameMap.has(gameId))
     );
   }
 
   /**
-   * Añade un juego a la colección del usuario.
-   * Usa un ID determinista `${userId}_${gameId}` para evitar duplicados
-   * y permitir borrado directo sin necesidad de buscar el documento.
+   * NUEVO: Devuelve el estado exacto del juego ('played', 'playing', 'wishlist' o null).
    */
-  async addGame(userId: string, gameId: number, status: 'played' | 'wishlist' = 'played'): Promise<void> {
+  getGameStatus(gameId: number): Observable<GameStatus | null> {
+    return this.savedGamesMap$.pipe(
+      map(gameMap => gameMap.get(gameId) || null)
+    );
+  }
+
+  /**
+   * Añade (o actualiza) un juego en la colección.
+   */
+  async addGame(userId: string, gameId: number, status: GameStatus = 'played'): Promise<void> {
     const docId = `${userId}_${gameId}`;
     const docRef = doc(this.firestore, `user_games/${docId}`);
 
@@ -78,13 +80,13 @@ export class UserGamesService {
     await setDoc(docRef, userGame);
 
     // Actualizar caché local
-    const current = this.savedGameIds$.value;
-    current.add(gameId);
-    this.savedGameIds$.next(new Set(current));
+    const currentMap = this.savedGamesMap$.value;
+    currentMap.set(gameId, status);
+    this.savedGamesMap$.next(new Map(currentMap));
   }
 
   /**
-   * Elimina un juego de la colección del usuario.
+   * Elimina un juego de la colección.
    */
   async removeGame(userId: string, gameId: number): Promise<void> {
     const docId = `${userId}_${gameId}`;
@@ -93,14 +95,13 @@ export class UserGamesService {
     await deleteDoc(docRef);
 
     // Actualizar caché local
-    const current = this.savedGameIds$.value;
-    current.delete(gameId);
-    this.savedGameIds$.next(new Set(current));
+    const currentMap = this.savedGamesMap$.value;
+    currentMap.delete(gameId);
+    this.savedGamesMap$.next(new Map(currentMap));
   }
 
   /**
-   * Obtiene todos los documentos user_games de un usuario.
-   * Útil para la FASE 3 (página de perfil / colección).
+   * Obtiene todos los documentos completos de un usuario.
    */
   getUserGames(userId: string): Observable<UserGame[]> {
     const gamesRef = collection(this.firestore, 'user_games');

@@ -4,7 +4,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { shareReplay } from 'rxjs/operators';
+import { shareReplay, map } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 import { Game, RawgResponse } from '../models/game.model';
 
@@ -255,5 +255,15 @@ export class GameService {
     }
 
     return this.indieCache.get(cacheKey)!;
+  }
+
+// Añade esto en src/app/core/services/game.service.ts
+  getSimilarGames(id: number): Observable<Game[]> {
+    const params = new HttpParams().set('key', environment.rawgApiKey);
+    
+    // Usamos el endpoint de RAWG para juegos de la misma saga/estilo
+    return this.http.get<any>(`${this.baseUrl}/games/${id}/game-series`, { params }).pipe(
+      map(response => response.results.slice(0, 10))
+    );
   }
 }

@@ -1,0 +1,90 @@
+/* src/app/shared/components/game-card/game-card.component.scss */
+
+.game-card {
+  display: flex;
+  flex-direction: column;
+  width: 140px; /* Tamaño base para el scroll horizontal */
+  min-width: 140px;
+  background-color: #1a1a1a;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid #1f2937;
+  cursor: pointer;
+  transition: transform 0.2s ease, border-color 0.2s ease;
+
+  &:hover {
+    transform: translateY(-4px);
+    border-color: #bb86fc; /* Toque neón al interactuar */
+  }
+
+  .image-container {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 3 / 4;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .score-badge {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      background-color: rgba(22, 163, 74, 0.9); /* Verde Metacritic */
+      color: white;
+      font-weight: 700;
+      font-size: 0.75rem;
+      padding: 0.2rem 0.4rem;
+      border-radius: 4px;
+      backdrop-filter: blur(4px);
+    }
+  }
+
+  .info-container {
+    padding: 0.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+
+    .title {
+      color: white;
+      font-size: 0.9rem;
+      font-weight: 600;
+      margin: 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis; /* Pone "..." si es muy largo */
+    }
+
+    .meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.8rem;
+
+      .year {
+        color: #9ca3af;
+      }
+
+      .rating {
+        display: flex;
+        align-items: center;
+        gap: 0.2rem;
+        color: #03dac6;
+
+        span {
+          color: white;
+          font-weight: 600;
+        }
+      }
+    }
+  }
+}
+
+/* Magia CSS: Si usamos esta tarjeta en una Grid (como en la Home o Búsqueda), se adapta sola al ancho disponible */
+:host-context(.grid-layout) .game-card {
+  width: 100%;
+  min-width: unset;
+}

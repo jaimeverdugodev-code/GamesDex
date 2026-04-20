@@ -403,6 +403,207 @@ ion-back-button {
 }
 
 /* ==========================================
+   REVIEWS SECTION (Reseñas de la Comunidad)
+========================================== */
+.reviews-section {
+  margin-bottom: 3rem;
+
+  .section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+
+    h3 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: white;
+      margin: 0;
+    }
+  }
+}
+
+.reviews-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.review-card {
+  background-color: #1a1a1a;
+  border: 1px solid #1f2937;
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  transition: transform 0.2s ease, border-color 0.2s ease;
+
+  &:hover {
+    border-color: #374151;
+  }
+  
+  .review-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+
+    .author-info {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+
+      .author-avatar {
+        width: 2.5rem;
+        height: 2.5rem;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 2px solid #2a2a2a;
+      }
+
+      .author-name {
+        color: white;
+        font-weight: 600;
+        font-size: 1rem;
+      }
+    }
+
+    .review-rating {
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+      background: rgba(3, 218, 198, 0.1);
+      padding: 0.25rem 0.6rem;
+      border-radius: 9999px;
+      border: 1px solid rgba(3, 218, 198, 0.3);
+
+      ion-icon {
+        color: #03dac6;
+        font-size: 0.875rem;
+      }
+
+      span {
+        color: white;
+        font-weight: 700;
+        font-size: 0.875rem;
+      }
+    }
+  }
+
+  .review-text {
+    color: #d1d5db;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    margin: 0 0 1rem 0;
+    white-space: pre-line;
+  }
+
+  .review-date {
+    display: block;
+    color: #6b7280;
+    font-size: 0.85rem;
+  }
+}
+
+/* Ajuste del icono del estado vacío para que se vea más grande */
+.empty-state ion-icon {
+  font-size: 3rem;
+  color: #6b7280;
+  margin-bottom: 0.5rem;
+}
+
+/* ==========================================
+   SIMILAR GAMES SECTION (Horizontal Scroll)
+========================================== */
+/* src/app/UI/game-detail/game-detail.page.scss */
+
+.similar-games-section {
+  padding: 0 0 2rem 0; /* Quitamos el padding lateral para que el scroll llegue al borde de la pantalla */
+  
+  h3 {
+    padding: 0 1.5rem; /* El título sí mantiene el margen de la app */
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: white;
+    margin-bottom: 1rem;
+  }
+}
+
+.similar-games-scroll {
+  display: flex;
+  flex-wrap: nowrap;     /* CRITICO: Evita que los juegos se vayan abajo */
+  overflow-x: auto;      /* Activa el scroll horizontal */
+  gap: 12px;
+  padding: 0 1.5rem 1rem; /* Padding lateral para que la primera y última tarjeta no peguen al borde */
+  
+  /* Efecto de "Snap": las tarjetas se alinean magnéticamente al borde */
+  scroll-snap-type: x mandatory; 
+  -webkit-overflow-scrolling: touch; /* Scroll suave en iOS */
+
+  /* Ocultar la barra de scroll para un look de App pura */
+  &::-webkit-scrollbar {
+    display: none;
+  }
+  scrollbar-width: none; /* Firefox */
+
+  .scroll-item {
+    scroll-snap-align: start; /* Alineación del imán */
+    flex: 0 0 auto;           /* CRITICO: Evita que las tarjetas se encojan */
+  }
+}
+
+/* ==========================================
+   FLECHAS DE SCROLL (PC)
+========================================== */
+.scroll-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.scroll-arrow {
+  position: absolute;
+  z-index: 10;
+  background-color: rgba(0, 0, 0, 0.7); /* Fondo oscuro semitransparente */
+  color: white;
+  border: 1px solid #333;
+  border-radius: 50%;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  backdrop-filter: blur(4px);
+  transition: background-color 0.2s ease, transform 0.2s ease;
+
+  ion-icon {
+    font-size: 1.5rem;
+  }
+
+  /* Efecto Hover */
+  &:hover {
+    background-color: #bb86fc; /* Nuestro morado neón */
+    color: #121212;
+    transform: scale(1.1);
+  }
+
+  /* Posicionamiento */
+  &.left {
+    left: 0.5rem;
+  }
+
+  &.right {
+    right: 0.5rem;
+  }
+}
+
+/* Ocultar las flechas en pantallas de móvil (hasta 768px) */
+@media (max-width: 768px) {
+  .scroll-arrow {
+    display: none;
+  }
+}
+
+/* ==========================================
    SKELETON LOADERS
 ========================================== */
 .skeleton-hero-bg {

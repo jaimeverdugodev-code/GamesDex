@@ -1,33 +1,40 @@
 // src/app/UI/game-detail/game-detail.page.ts
 
-import { Component, inject, OnInit, OnDestroy } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy, ElementRef, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import {
   IonHeader, IonToolbar, IonContent, IonButtons,
-  IonBackButton, IonIcon, IonSkeletonText
+  IonBackButton, IonIcon, IonSkeletonText,
+  ModalController, ActionSheetController
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import {
-  star, calendarOutline, gameControllerOutline, layersOutline,
-  heartOutline, heart, addOutline, createOutline, shareOutline
+  star, calendarOutline, addOutline, createOutline, chatbubbleOutline, chatbubblesOutline,
+  checkmarkCircle, time, bookmark, checkmarkCircleOutline, timeOutline, bookmarkOutline, trashOutline,
+  chevronBackOutline, chevronForwardOutline
 } from 'ionicons/icons';
-import { Subject } from 'rxjs';
+import { Subject, Observable, of } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+
 import { GameService } from '../../core/services/game.service';
 import { AuthService } from '../../core/services/auth.service';
 import { UserGamesService } from '../../core/services/user-games.service';
+import { ReviewService } from '../../core/services/review.service';
+
 import { Game } from '../../core/models/game.model';
+import { Review } from '../../core/models/database.models';
+import { ReviewModalComponent } from './review-modal.component';
+import { GameCardComponent } from '../../shared/components/game-card/game-card.component';
 
 @Component({
   selector: 'app-game-detail',
   templateUrl: './game-detail.page.html',
   styleUrls: ['./game-detail.page.scss'],
   imports: [
-    CommonModule,
-    RouterModule,
-    IonHeader, IonToolbar, IonContent, IonButtons,
-    IonBackButton, IonIcon, IonSkeletonText
+    CommonModule, RouterModule, IonHeader, IonToolbar, 
+    IonContent, IonButtons, IonBackButton, IonIcon, IonSkeletonText,
+    GameCardComponent
   ]
 })
 export class GameDetailPage implements OnInit, OnDestroy {
@@ -35,71 +42,171 @@ export class GameDetailPage implements OnInit, OnDestroy {
   private gameService = inject(GameService);
   private authService = inject(AuthService);
   private userGamesService = inject(UserGamesService);
+  private reviewService = inject(ReviewService);
+  private modalCtrl = inject(ModalController);
+  private actionSheetCtrl = inject(ActionSheetController);
   private destroy$ = new Subject<void>();
 
   game: Game | null = null;
   isLoading = true;
 
-  // Estado del FAB de favoritos
-  isSaved = false;
-  togglingFav = false;
+  savedStatus: 'played' | 'playing' | 'wishlist' | null = null;
   currentUserId: string | null = null;
+  currentUserFull: any = null;
   private gameId = 0;
 
-  // Rating interactivo
-  userRating = 0;
-  hoverRating = 0;
-  ratingStars = [1, 2, 3, 4, 5];
+  reviews$: Observable<Review[]> = of([]);
+  similarGames: Game[] = []; 
+
+  @ViewChild('scrollContainer', { read: ElementRef }) scrollContainer!: ElementRef;
 
   constructor() {
     addIcons({
-      star, calendarOutline, gameControllerOutline, layersOutline,
-      heartOutline, heart, addOutline, createOutline, shareOutline
+      star, calendarOutline, addOutline, createOutline, chatbubbleOutline, chatbubblesOutline,
+      checkmarkCircle, time, bookmark, checkmarkCircleOutline, timeOutline, bookmarkOutline, trashOutline,
+      chevronBackOutline, chevronForwardOutline
     });
   }
 
   ngOnInit(): void {
-    this.gameId = Number(this.route.snapshot.paramMap.get('id'));
-    if (!this.gameId) return;
+    this.route.paramMap.pipe(takeUntil(this.destroy$)).subscribe(params => {
+      this.gameId = Number(params.get('id'));
+      if (!this.gameId) return;
 
-    this.gameService.getGameDetails(this.gameId).subscribe({
-      next: (game) => { this.game = game; this.isLoading = false; },
-      error: () => { this.isLoading = false; }
+      this.isLoading = true;
+      this.game = null; 
+      this.similarGames = []; // Limpiamos la lista anterior al cambiar de juego
+
+      // 1. Obtener detalles
+      this.gameService.getGameDetails(this.gameId).subscribe({
+        next: (game) => { this.game = game; this.isLoading = false; },
+        error: () => { this.isLoading = false; }
+      });
+
+      // 2. Obtener juegos similares (Saga + Relleno de Género)
+      this.gameService.getSimilarGames(this.gameId).subscribe(sagaGames => {
+        // Quitamos el juego actual por si la API lo devuelve en la lista
+        let combinedGames = sagaGames ? sagaGames.filter(g => g.id !== this.gameId) : [];
+
+        // Si la saga tiene menos de 10 juegos, rellenamos el hueco
+        if (combinedGames.length < 10) {
+          setTimeout(() => {
+            if (this.game?.genres && this.game.genres.length > 0) {
+              const mainGenre = this.game.genres[0].slug;
+              this.gameService.getGamesByGenre(mainGenre).subscribe(genreGames => {
+                
+                // Filtramos para asegurar que los de relleno no repiten ni el juego actual ni los que ya tenemos de la saga
+                const extraGames = genreGames.results.filter((g: Game) => 
+                  g.id !== this.gameId && !combinedGames.find(cg => cg.id === g.id)
+                );
+
+                // MAGIA AQUÍ: Primero los de la saga (combinedGames) y seguido los de relleno (extraGames), máximo 10.
+                this.similarGames = [...combinedGames, ...extraGames].slice(0, 10);
+              });
+            } else {
+              this.similarGames = combinedGames; 
+            }
+          }, 500); 
+        } else {
+          // Si la saga ya es muy grande, nos quedamos solo con los 10 primeros de la saga
+          this.similarGames = combinedGames.slice(0, 10);
+        }
+      });
+
+      // 3. Obtener reseñas del juego actual
+      this.reviews$ = this.reviewService.getGameReviews(this.gameId);
+
+      // 4. Comprobar el estado en la biblioteca
+      this.userGamesService.getGameStatus(this.gameId).pipe(
+        takeUntil(this.destroy$)
+      ).subscribe(status => {
+        this.savedStatus = status as 'played' | 'playing' | 'wishlist' | null;
+      });
     });
 
-    this.authService.user$.pipe(
-      takeUntil(this.destroy$)
-    ).subscribe(user => {
+    this.authService.user$.pipe(takeUntil(this.destroy$)).subscribe(user => {
       if (user) {
+        this.currentUserFull = user;
         this.currentUserId = user.uid;
         this.userGamesService.loadUserGames(user.uid);
       }
     });
-
-    this.userGamesService.isGameSaved(this.gameId).pipe(
-      takeUntil(this.destroy$)
-    ).subscribe(saved => {
-      this.isSaved = saved;
-    });
   }
 
-  async toggleFavorite(): Promise<void> {
-    if (!this.currentUserId || this.togglingFav) return;
-
-    this.togglingFav = true;
-    try {
-      if (this.isSaved) {
-        await this.userGamesService.removeGame(this.currentUserId, this.gameId);
-      } else {
-        await this.userGamesService.addGame(this.currentUserId, this.gameId);
-      }
-    } finally {
-      this.togglingFav = false;
+  scrollHorizontally(event: WheelEvent) {
+    if (event.deltaY !== 0 && this.scrollContainer) {
+      event.preventDefault(); 
+      this.scrollContainer.nativeElement.scrollLeft += event.deltaY;
     }
   }
 
-  setRating(rating: number): void {
-    this.userRating = rating;
+  scrollByAmount(amount: number) {
+    if (this.scrollContainer) {
+      this.scrollContainer.nativeElement.scrollBy({
+        left: amount,
+        behavior: 'smooth'
+      });
+    }
+  }
+
+  getStatusText(): string {
+    if (this.savedStatus === 'played') return 'Jugado';
+    if (this.savedStatus === 'playing') return 'Jugando';
+    if (this.savedStatus === 'wishlist') return 'Deseado';
+    return 'Añadir a Lista';
+  }
+
+  getStatusIcon(): string {
+    if (this.savedStatus === 'played') return 'checkmark-circle';
+    if (this.savedStatus === 'playing') return 'time';
+    if (this.savedStatus === 'wishlist') return 'bookmark';
+    return 'add-outline';
+  }
+
+  async openStatusSheet() {
+    if (!this.currentUserId) return;
+
+    const actionSheet = await this.actionSheetCtrl.create({
+      header: 'Añadir a mi biblioteca',
+      cssClass: 'custom-action-sheet',
+      buttons: [
+        { text: 'Jugado', icon: 'checkmark-circle-outline', handler: () => this.updateStatus('played') },
+        { text: 'Jugando', icon: 'time-outline', handler: () => this.updateStatus('playing') },
+        { text: 'Lista de Deseos', icon: 'bookmark-outline', handler: () => this.updateStatus('wishlist') },
+        ...(this.savedStatus ? [{ text: 'Eliminar de mi lista', role: 'destructive', icon: 'trash-outline', handler: () => this.removeGame() }] : []),
+        { text: 'Cancelar', role: 'cancel' }
+      ]
+    });
+
+    await actionSheet.present();
+  }
+
+  async updateStatus(status: 'played' | 'playing' | 'wishlist') {
+    if (!this.currentUserId) return;
+    this.savedStatus = status;
+    await this.userGamesService.addGame(this.currentUserId, this.gameId, status);
+  }
+
+  async removeGame() {
+    if (!this.currentUserId) return;
+    this.savedStatus = null;
+    await this.userGamesService.removeGame(this.currentUserId, this.gameId);
+  }
+
+  async writeReview() {
+    if (!this.currentUserFull) return;
+    const modal = await this.modalCtrl.create({
+      component: ReviewModalComponent,
+      componentProps: {
+        gameId: this.gameId,
+        userId: this.currentUserFull.uid,
+        authorName: this.currentUserFull.displayName || 'Gamer Anónimo',
+        authorPhoto: this.currentUserFull.photoUrl || ''
+      },
+      breakpoints: [0, 0.75, 1],
+      initialBreakpoint: 0.75
+    });
+    await modal.present();
   }
 
   ngOnDestroy(): void {

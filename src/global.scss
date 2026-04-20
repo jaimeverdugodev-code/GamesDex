@@ -71,3 +71,51 @@ ion-input, ion-textarea {
 .dark ion-menu ion-content {
   --background: oklch(0.205 0 0); /* Fondo específico del sidebar */
 }
+
+/* ==========================================
+   CUSTOM ACTION SHEET (Menú de Estados)
+========================================== */
+.custom-action-sheet {
+  /* Forzamos las variables principales */
+  --background: #1a1a1a !important;
+  --button-background: #1a1a1a !important;
+  --button-background-selected: #2a2a2a !important;
+  --button-color: #ffffff !important;
+  --color: #bb86fc !important; 
+
+  /* Forzamos el fondo del contenedor general por si falla la variable */
+  .action-sheet-group {
+    background: #1a1a1a !important;
+  }
+
+  /* Estilo del título del menú */
+  .action-sheet-title {
+    font-weight: 700 !important;
+    font-size: 1.1rem !important;
+    color: #bb86fc !important; /* Nuestro morado neón */
+    border-bottom: 1px solid #2a2a2a !important;
+  }
+
+  /* Forzamos explícitamente el color de cada botón interno */
+  .action-sheet-button {
+    color: #ffffff !important;
+    
+    .action-sheet-icon {
+      color: #03dac6 !important; /* Turquesa para los iconos */
+    }
+
+    /* Si es el botón de borrar (destructive) */
+    &.action-sheet-destructive {
+      color: #f87171 !important;
+      .action-sheet-icon {
+        color: #f87171 !important;
+      }
+    }
+
+    /* Botón de cancelar */
+    &.action-sheet-cancel {
+      font-weight: 700 !important;
+      color: #9ca3af !important; /* Gris claro */
+    }
+  }
+}
