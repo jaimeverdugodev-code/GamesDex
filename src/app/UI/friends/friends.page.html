@@ -1,0 +1,50 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+    <ion-title>Siguiendo</ion-title>
+    <ion-buttons slot="end" class="header-action-btns"> 
+      <button class="icon-btn-header" (click)="goToAddFriends()" title="Descubrir gente">
+        <ion-icon name="person-add-outline"></ion-icon>
+      </button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="friends-content">
+  <div class="page-container">
+    
+    <div class="search-section">
+      <ion-searchbar 
+        placeholder="Buscar a quién sigues..." 
+        [(ngModel)]="searchTerm"
+        (ionInput)="loadData()" 
+        class="custom-searchbar">
+      </ion-searchbar>
+    </div>
+
+    <div class="loading-state" *ngIf="loading">
+      <ion-spinner color="primary"></ion-spinner>
+    </div>
+
+    <div class="friends-list" *ngIf="(users$ | async) as users">
+      <div class="friend-card" *ngFor="let user of users" [routerLink]="['/profile', user.uid]">
+        <div class="card-main">
+          <img [src]="user.photoUrl || 'assets/default-avatar.png'" class="friend-avatar" (error)="$event.target.src='https://ionicframework.com/docs/img/demos/avatar.svg'">
+          <div class="friend-info">
+            <span class="username">{{ user.displayName }}</span>
+            <p class="user-bio" *ngIf="user.bio">{{ user.bio }}</p>
+          </div>
+          <ion-icon name="chevron-forward-outline" class="arrow-icon"></ion-icon>
+        </div>
+      </div>
+
+      <div class="empty-state" *ngIf="users.length === 0 && !loading">
+        <ion-icon name="people-outline"></ion-icon>
+        <p>Aún no sigues a nadie.</p>
+        <button class="btn-primary" (click)="goToAddFriends()">Explorar Comunidad</button>
+      </div>
+    </div>
+  </div>
+</ion-content>

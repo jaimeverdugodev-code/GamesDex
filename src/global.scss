@@ -1,0 +1,73 @@
+/* ==========================================
+ * NÚCLEO DE IONIC (OBLIGATORIO)
+ * ========================================== */
+/* Core CSS required for Ionic components to work properly */
+@import "@ionic/angular/css/core.css";
+
+/* Basic CSS for apps built with Ionic */
+@import "@ionic/angular/css/normalize.css";
+@import "@ionic/angular/css/structure.css";
+@import "@ionic/angular/css/typography.css";
+
+/* Optional CSS utils that can be commented out */
+@import "@ionic/angular/css/padding.css";
+@import "@ionic/angular/css/float-elements.css";
+@import "@ionic/angular/css/text-alignment.css";
+@import "@ionic/angular/css/text-transformation.css";
+@import "@ionic/angular/css/flex-utils.css";
+@import "@ionic/angular/css/display.css";
+
+/*
+ * ==========================================
+ * ESTILOS GLOBALES: GamesDex UI
+ * ==========================================
+ */
+
+body {
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-base);
+  font-weight: 400; /* Peso Normal */
+  background-color: var(--background);
+  color: var(--foreground);
+}
+
+/* Tipografía: Encabezados (Medium 500) */
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 500;
+  margin-top: 0;
+  color: var(--foreground);
+}
+
+h1 {
+  font-size: 1.5rem; /* 2xl */
+  line-height: 1.5;
+}
+
+h2 { font-size: 1.25rem; /* xl */ }
+h3 { font-size: 1.125rem; /* lg */ }
+h4 { font-size: 1rem; /* base */ }
+
+/* * Ajustes de Componentes Ionic
+ * Forzamos nuestro --radius-lg en tarjetas y botones
+ */
+ion-card {
+  --border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+  box-shadow: none; /* Diseño más plano y limpio */
+}
+
+ion-button {
+  --border-radius: var(--radius-lg);
+  font-weight: 500;
+  font-size: var(--font-size-base);
+}
+
+ion-input, ion-textarea {
+  --background: var(--input-bg);
+  --border-radius: var(--radius-lg);
+}
+
+/* Utilidad para el Sidebar en Modo Oscuro (Mencionado en la Guía UI) */
+.dark ion-menu ion-content {
+  --background: oklch(0.205 0 0); /* Fondo específico del sidebar */
+}

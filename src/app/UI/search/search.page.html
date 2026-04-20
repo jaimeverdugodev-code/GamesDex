@@ -1,0 +1,180 @@
+<!-- src/app/UI/search/search.page.html -->
+<!-- Diseño Figma + Filtrado server-side RAWG con combineLatest -->
+
+<ion-header class="ion-no-border">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+    <ion-title>Buscar</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="search-content">
+
+  <!-- Search bar + botón filtros móvil -->
+  <div class="search-container">
+    <ion-searchbar
+      placeholder="Busca tu próxima aventura..."
+      (ionInput)="onSearch($event)"
+      [(ngModel)]="searchTerm"
+      class="custom-searchbar">
+    </ion-searchbar>
+
+    <button class="filter-toggle-btn" (click)="toggleFiltersPanel()">
+      <ion-icon name="filter-outline"></ion-icon>
+      <span>Filtros</span>
+      <span class="filter-count" *ngIf="hasActiveFilters">
+        {{ platformFilters.length + genreFilters.length }}
+      </span>
+    </button>
+  </div>
+
+  <!-- Layout principal: Sidebar filtros + Grid -->
+  <div class="search-layout">
+
+    <!-- ==========================================
+         SIDEBAR DE FILTROS
+    ========================================== -->
+    <aside class="filters-sidebar" [class.filters-open]="showFilters">
+
+      <div class="filters-header">
+        <div class="filters-title">
+          <ion-icon name="filter-outline"></ion-icon>
+          <h3>Filtros</h3>
+        </div>
+        <button class="filters-close-btn" (click)="toggleFiltersPanel()">
+          <ion-icon name="close-outline"></ion-icon>
+        </button>
+      </div>
+
+      <!-- Filtro: Plataforma -->
+      <div class="filter-group">
+        <h4>Plataforma</h4>
+        <div class="filter-options">
+          <label
+            class="filter-option"
+            *ngFor="let platform of platformOptions"
+            (click)="togglePlatform(platform)"
+          >
+            <div class="custom-checkbox" [class.checked]="isPlatformActive(platform)">
+              <ion-icon name="checkmark" *ngIf="isPlatformActive(platform)"></ion-icon>
+            </div>
+            <span>{{ platform }}</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Filtro: Género -->
+      <div class="filter-group">
+        <h4>Género</h4>
+        <div class="filter-options">
+          <label
+            class="filter-option"
+            *ngFor="let genre of genreOptions"
+            (click)="toggleGenre(genre)"
+          >
+            <div class="custom-checkbox" [class.checked]="isGenreActive(genre)">
+              <ion-icon name="checkmark" *ngIf="isGenreActive(genre)"></ion-icon>
+            </div>
+            <span>{{ genre }}</span>
+          </label>
+        </div>
+      </div>
+
+      <button
+        class="clear-filters-btn"
+        *ngIf="hasActiveFilters"
+        (click)="clearFilters()"
+      >
+        Limpiar Filtros
+      </button>
+
+    </aside>
+
+    <!-- Overlay móvil -->
+    <div
+      class="filters-overlay"
+      *ngIf="showFilters"
+      (click)="toggleFiltersPanel()"
+    ></div>
+
+    <!-- ==========================================
+         CONTENIDO PRINCIPAL
+    ========================================== -->
+    <div class="search-main">
+
+      <!-- ESTADO 1: Populares (sin texto, sin filtros) -->
+      <div class="results-section" *ngIf="showPopular">
+        <h2 class="section-title">Búsquedas Populares</h2>
+        <div class="games-grid">
+          <div class="game-card" *ngFor="let game of popularGames" [routerLink]="['/game', game.id]">
+            <div class="card-image-wrapper">
+              <img [src]="game.background_image" class="card-cover" [alt]="game.name">
+              <div class="card-overlay">
+                <div class="overlay-rating">
+                  <ion-icon name="star"></ion-icon>
+                  <span>{{ game.rating | number:'1.1-1' }}</span>
+                </div>
+              </div>
+            </div>
+            <h3 class="card-title">{{ game.name }}</h3>
+          </div>
+        </div>
+      </div>
+
+      <!-- ESTADO 2: Cargando (skeleton) -->
+      <div class="results-section" *ngIf="loading">
+        <h2 class="section-title" *ngIf="searchTerm.length >= 3">Resultados para "{{ searchTerm }}"</h2>
+        <h2 class="section-title" *ngIf="searchTerm.length < 3 && hasActiveFilters">Filtrando juegos...</h2>
+        <div class="games-grid">
+          <div class="game-card skeleton" *ngFor="let i of [1,2,3,4,5,6]">
+            <div class="card-image-wrapper">
+              <ion-skeleton-text [animated]="true"></ion-skeleton-text>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ESTADO 3: Resultados reales (texto y/o filtros) -->
+      <div class="results-section" *ngIf="!loading && hasSearchedOrFiltered">
+
+        <!-- Título dinámico según contexto -->
+        <h2 class="section-title" *ngIf="searchTerm.length >= 3">
+          Resultados para "{{ searchTerm }}"
+        </h2>
+        <h2 class="section-title" *ngIf="searchTerm.length < 3 && hasActiveFilters">
+          Juegos filtrados
+        </h2>
+
+        <p class="results-count">{{ games.length }} juegos encontrados</p>
+
+        <!-- Grid de resultados -->
+        <div class="games-grid" *ngIf="games.length > 0">
+          <div class="game-card" *ngFor="let game of games" [routerLink]="['/game', game.id]">
+            <div class="card-image-wrapper">
+              <img [src]="game.background_image" class="card-cover" [alt]="game.name">
+              <div class="card-overlay">
+                <div class="overlay-rating">
+                  <ion-icon name="star"></ion-icon>
+                  <span>{{ game.rating | number:'1.1-1' }}</span>
+                </div>
+              </div>
+            </div>
+            <h3 class="card-title">{{ game.name }}</h3>
+          </div>
+        </div>
+
+        <!-- Sin resultados -->
+        <div class="empty-filtered" *ngIf="games.length === 0">
+          <p>No se encontraron juegos con estos criterios.</p>
+          <button class="clear-filters-link" *ngIf="hasActiveFilters" (click)="clearFilters()">
+            Limpiar filtros
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</ion-content>

@@ -1,0 +1,164 @@
+// src/app/app.component.scss
+// Traducción fiel del HamburgerMenu.tsx de Figma a Ionic
+
+/* ==========================================
+   MENÚ LATERAL — Panel principal
+   Figma: w-80 bg-[#1a1a1a] border-r border-gray-800 shadow-2xl
+========================================== */
+ion-menu.gamesdex-menu {
+  --width: 20rem; // w-80
+  --background: #1a1a1a;
+  --ion-item-background: transparent;
+
+  &::part(container) {
+    border-right: 1px solid #1f2937; // border-gray-800
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); // shadow-2xl
+  }
+
+  ion-content {
+    --background: #1a1a1a;
+    display: flex;
+    flex-direction: column;
+  }
+}
+
+/* ==========================================
+   CABECERA DEL MENÚ
+   Figma: flex items-center justify-between p-6 border-b border-gray-800
+========================================== */
+.menu-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.5rem; // p-6
+  border-bottom: 1px solid #1f2937; // border-gray-800
+}
+
+.menu-logo {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem; // gap-3
+}
+
+// Figma: w-10 h-10 bg-gradient-to-br from-[#bb86fc] to-[#03dac6] rounded-lg
+.logo-icon {
+  width: 2.5rem; // w-10
+  height: 2.5rem; // h-10
+  background: linear-gradient(to bottom right, #bb86fc, #03dac6);
+  border-radius: 0.5rem; // rounded-lg
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 700; // font-bold
+  font-size: 1.25rem; // text-xl
+}
+
+// Figma: text-white text-xl font-bold
+.logo-text {
+  color: white;
+  font-size: 1.25rem; // text-xl
+  font-weight: 700; // font-bold
+}
+
+// Figma: p-2 hover:bg-gray-800 rounded-lg
+.menu-close-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem; // p-2
+  background: transparent;
+  border: none;
+  border-radius: 0.5rem; // rounded-lg
+  cursor: pointer;
+  transition: background-color 0.2s;
+  color: #9ca3af; // text-gray-400
+
+  ion-icon {
+    font-size: 1.25rem; // w-5 h-5
+  }
+
+  &:hover {
+    background-color: #1f2937; // bg-gray-800
+  }
+}
+
+/* ==========================================
+   NAVEGACIÓN — Items del menú
+   Figma: p-4 space-y-2
+========================================== */
+.menu-nav {
+  padding: 1rem; // p-4
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem; // space-y-2
+}
+
+// Figma: flex items-center gap-4 px-4 py-3 rounded-lg transition-all
+// Inactivo: text-gray-300 hover:bg-gray-800 hover:text-white
+.menu-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem; // gap-4
+  padding: 0.75rem 1rem; // px-4 py-3
+  border-radius: 0.5rem; // rounded-lg
+  transition: all 0.2s;
+  color: #d1d5db; // text-gray-300
+  text-decoration: none;
+  font-weight: 500; // font-medium
+  font-size: 1rem;
+  cursor: pointer;
+
+  ion-icon {
+    font-size: 1.25rem; // w-5 h-5
+  }
+
+  &:hover {
+    background-color: #1f2937; // hover:bg-gray-800
+    color: white; // hover:text-white
+  }
+
+  // Figma: active → bg-[#bb86fc] text-white shadow-lg shadow-[#bb86fc]/20
+  &.active {
+    background-color: #bb86fc;
+    color: white;
+    box-shadow: 0 10px 15px -3px rgba(187, 134, 252, 0.2); // shadow-lg shadow-[#bb86fc]/20
+
+    ion-icon {
+      color: white;
+    }
+  }
+}
+
+/* ==========================================
+   SECCIÓN AUTH — Bottom del menú
+   Figma: absolute bottom-0 left-0 right-0 p-4 border-t border-gray-800 space-y-2
+========================================== */
+.menu-auth {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 1rem; // p-4
+  border-top: 1px solid #1f2937; // border-t border-gray-800
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem; // space-y-2
+
+  .menu-item-logout {
+    width: 100%;
+    background: none;
+    border: none;
+    color: #f87171; // text-red-400
+    font-size: 1rem;
+
+    ion-icon {
+      color: #f87171;
+    }
+
+    &:hover {
+      background-color: rgba(248, 113, 113, 0.1);
+      color: #fca5a5;
+    }
+  }
+}

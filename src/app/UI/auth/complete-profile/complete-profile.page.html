@@ -1,0 +1,124 @@
+<ion-content>
+  <div class="login-wrapper">
+    <div class="bg-decorations">
+      <div class="glow-circle top-right"></div>
+      <div class="glow-circle bottom-left"></div>
+    </div>
+
+    <div class="content-container profile-container">
+      <div class="header-section">
+        <h1>Configura tu Perfil</h1>
+        <p>Queremos conocerte mejor, {{ displayName || 'Gamer' }}</p>
+      </div>
+
+      <div class="form-card scrollable-card">
+        
+        <div class="avatar-preview-container">
+          <div class="avatar-circle" (click)="triggerFileInput()" [class.has-photo]="photoUrl">
+            <img *ngIf="photoUrl" [src]="photoUrl" alt="" (error)="photoUrl = ''" />
+            
+            <div class="avatar-placeholder" *ngIf="!photoUrl">
+              <ion-icon name="person-outline"></ion-icon>
+            </div>
+
+            <div class="camera-btn">
+                <ion-icon name="camera-outline"></ion-icon>
+            </div>
+          </div>
+          <input type="file" id="file-upload" accept="image/*" (change)="onFileSelected($event)" style="display: none;" />
+        </div>
+
+        <div class="input-group">
+          <label>Nombre de Jugador *</label>
+          <div class="input-with-icon">
+            <ion-icon name="game-controller"></ion-icon>
+            <input type="text" [(ngModel)]="displayName" placeholder="Ej: CloudStrife99" class="custom-input" />
+          </div>
+        </div>
+
+        <div class="input-group">
+          <label>Biografía (Opcional)</label>
+          <div class="input-with-icon align-top">
+            <ion-icon name="document-text-outline" style="margin-top: 12px;"></ion-icon>
+            <textarea [(ngModel)]="bio" placeholder="¡Hola! Me encantan los juegos de rol y buscar platinos..." class="custom-input textarea" rows="3"></textarea>
+          </div>
+        </div>
+
+        <div class="divider">
+          <div class="line"></div>
+          <span>Tus Géneros Favoritos *</span>
+          <div class="line"></div>
+        </div>
+
+        <div class="genres-grid">
+          <button 
+            *ngFor="let genre of availableGenres"
+            class="genre-badge"
+            [class.selected]="selectedGenres.has(genre)"
+            (click)="toggleGenre(genre)">
+            {{ genre }}
+            <ion-icon name="checkmark-circle-outline" *ngIf="selectedGenres.has(genre)"></ion-icon>
+          </button>
+        </div>
+
+        <div class="selection-counter" [class.valid]="selectedGenres.size >= 3">
+          Seleccionados: {{ selectedGenres.size }} / 3 mínimo
+        </div>
+
+        <div class="error-msg" *ngIf="errorMessage">
+          {{ errorMessage }}
+        </div>
+
+        <button 
+          class="btn-submit" 
+          (click)="saveProfile()" 
+          [disabled]="isLoading">
+          <ion-spinner name="crescent" *ngIf="isLoading"></ion-spinner>
+          <span *ngIf="!isLoading">Comenzar a Jugar</span>
+        </button>
+
+      </div>
+    </div>
+  </div>
+
+  <ion-modal [isOpen]="showCropperModal" (ionModalDidDismiss)="closeModal()" class="cropper-modal">
+    <ng-template>
+      <ion-header>
+        <ion-toolbar>
+          <ion-title>Ajustar Foto</ion-title>
+          <ion-buttons slot="end">
+            <ion-button (click)="closeModal()">
+              <ion-icon name="close-outline" slot="icon-only"></ion-icon>
+            </ion-button>
+          </ion-buttons>
+        </ion-toolbar>
+      </ion-header>
+
+      <ion-content class="ion-padding ion-text-center">
+        <p class="ion-margin-bottom text-gray-400">Arrastra para posicionar, usa la rueda o pellizca para hacer zoom.</p>
+        
+        <image-cropper
+          [imageFile]="imageFile"
+          [maintainAspectRatio]="true"
+          [aspectRatio]="1 / 1"
+          [resizeToWidth]="256"
+          [resizeToHeight]="256"
+          format="jpeg"
+          [roundCropper]="true"
+          (imageCropped)="imageCropped($event)"
+          (imageLoaded)="imageLoaded()"
+          (cropperReady)="cropperReady()"
+          (loadImageFailed)="loadImageFailed()"
+          class="cropper-component"
+        ></image-cropper>
+
+        <div class="modal-actions ion-margin-top">
+          <ion-button expand="block" (click)="saveCroppedImage()">
+            Aceptar y Recortar
+          </ion-button>
+        </div>
+      </ion-content>
+    </ng-template>
+  </ion-modal>
+
+</ion-content>

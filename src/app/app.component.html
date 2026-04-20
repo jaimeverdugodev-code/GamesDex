@@ -1,0 +1,45 @@
+<ion-app>
+  <ion-split-pane contentId="main-content" [when]="false">
+    <ion-menu contentId="main-content" type="overlay" class="gamesdex-menu">
+      <ion-content>
+
+        <!-- Cabecera del menú: Logo + botón cerrar -->
+        <div class="menu-header">
+          <div class="menu-logo">
+            <div class="logo-icon">G</div>
+            <span class="logo-text">GamesDex</span>
+          </div>
+          <ion-menu-toggle auto-hide="false">
+            <button class="menu-close-btn" aria-label="Cerrar menú">
+              <ion-icon name="close-outline"></ion-icon>
+            </button>
+          </ion-menu-toggle>
+        </div>
+
+        <!-- Items de navegación -->
+        <nav class="menu-nav">
+          @for (p of appPages; track p; let i = $index) {
+            <ion-menu-toggle auto-hide="false">
+              <a class="menu-item" routerDirection="root" [routerLink]="[p.url]" routerLinkActive="active">
+                <ion-icon [name]="p.icon + '-outline'" aria-hidden="true"></ion-icon>
+                <span>{{ p.title }}</span>
+              </a>
+            </ion-menu-toggle>
+          }
+        </nav>
+
+        <!-- Cerrar Sesión -->
+        <div class="menu-auth">
+          <ion-menu-toggle auto-hide="false">
+            <button class="menu-item menu-item-logout" (click)="logout()">
+              <ion-icon name="log-out-outline" aria-hidden="true"></ion-icon>
+              <span>Cerrar Sesión</span>
+            </button>
+          </ion-menu-toggle>
+        </div>
+
+      </ion-content>
+    </ion-menu>
+    <ion-router-outlet id="main-content"></ion-router-outlet>
+  </ion-split-pane>
+</ion-app>

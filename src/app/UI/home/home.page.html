@@ -1,0 +1,179 @@
+<!-- src/app/UI/home/home.page.html -->
+
+<ion-header class="ion-no-border home-header">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+    <ion-title>
+      <div class="nav-logo-center">
+        <div class="nav-logo-icon">G</div>
+        <span class="nav-logo-text">GamesDex</span>
+      </div>
+    </ion-title>
+    <div class="nav-user" slot="end">
+      <span class="nav-username" *ngIf="userName">{{ userName }}</span>
+      <button class="nav-avatar-btn" routerLink="/profile">
+        <img [src]="userPhoto || 'https://api.dicebear.com/7.x/avataaars/svg?seed=gamer'" alt="Avatar" class="nav-avatar" />
+      </button>
+    </div>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="home-content">
+
+  <!-- HERO BANNER -->
+  <div class="hero-banner">
+    <img src="https://images.unsplash.com/photo-1538481199705-c710c4e965fc?w=1920&h=400&fit=crop" alt="Hero banner" class="hero-img" />
+    <div class="hero-overlay">
+      <div class="hero-text">
+        <h1>Descubre tu próxima aventura</h1>
+        <p>Conecta con gamers de todo el mundo y explora recomendaciones con IA</p>
+        <div class="hero-buttons">
+          <button class="btn-primary" routerLink="/search">Explorar Juegos</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TENDENCIAS ACTUALES — grande -->
+  <section class="section">
+    <div class="section-header">
+      <h2>Tendencias Actuales</h2>
+      <div class="slider-controls" *ngIf="!loadingTrending && trendingGames.length > 5">
+        <button class="slider-btn" (click)="prev('trending')" [disabled]="!canPrev('trending')"><ion-icon name="chevron-back-outline"></ion-icon></button>
+        <button class="slider-btn" (click)="next('trending', trendingGames.length)" [disabled]="!canNext('trending', trendingGames.length)"><ion-icon name="chevron-forward-outline"></ion-icon></button>
+      </div>
+    </div>
+    <div class="slider-viewport slider-big" *ngIf="loadingTrending">
+      <div class="slider-track">
+        <div class="slide-item" *ngFor="let s of skeletonSlider"><div class="game-card skeleton-card"><div class="card-image-wrapper"><ion-skeleton-text [animated]="true" class="skeleton-cover"></ion-skeleton-text></div><ion-skeleton-text [animated]="true" class="skeleton-title"></ion-skeleton-text><ion-skeleton-text [animated]="true" class="skeleton-sub"></ion-skeleton-text></div></div>
+      </div>
+    </div>
+    <div class="slider-viewport slider-big" *ngIf="!loadingTrending">
+      <div class="slider-track" [style.transform]="getOffset('trending')">
+        <div class="slide-item" *ngFor="let game of trendingGames">
+          <ng-container *ngTemplateOutlet="gameCard; context: { $implicit: game }"></ng-container>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MEJOR VALORADOS -->
+  <section class="section">
+    <div class="section-header">
+      <div><h2>Mejor Valorados</h2><p class="section-subtitle">Los clásicos que no te puedes perder</p></div>
+      <div class="slider-controls" *ngIf="!loadingTopRated && topRated.length > 8">
+        <button class="slider-btn" (click)="prev('topRated')" [disabled]="!canPrev('topRated')"><ion-icon name="chevron-back-outline"></ion-icon></button>
+        <button class="slider-btn" (click)="next('topRated', topRated.length)" [disabled]="!canNext('topRated', topRated.length)"><ion-icon name="chevron-forward-outline"></ion-icon></button>
+      </div>
+    </div>
+    <div class="slider-viewport slider-small" *ngIf="loadingTopRated">
+      <div class="slider-track">
+        <div class="slide-item" *ngFor="let s of skeletonSlider"><div class="game-card skeleton-card"><div class="card-image-wrapper"><ion-skeleton-text [animated]="true" class="skeleton-cover"></ion-skeleton-text></div><ion-skeleton-text [animated]="true" class="skeleton-title"></ion-skeleton-text><ion-skeleton-text [animated]="true" class="skeleton-sub"></ion-skeleton-text></div></div>
+      </div>
+    </div>
+    <div class="slider-viewport slider-small" *ngIf="!loadingTopRated">
+      <div class="slider-track" [style.transform]="getOffset('topRated')">
+        <div class="slide-item" *ngFor="let game of topRated">
+          <ng-container *ngTemplateOutlet="gameCard; context: { $implicit: game }"></ng-container>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- NOVEDADES -->
+  <section class="section">
+    <div class="section-header">
+      <div><h2>Novedades</h2><p class="section-subtitle">Lanzamientos del último mes</p></div>
+      <div class="slider-controls" *ngIf="!loadingNewReleases && newReleases.length > 8">
+        <button class="slider-btn" (click)="prev('newReleases')" [disabled]="!canPrev('newReleases')"><ion-icon name="chevron-back-outline"></ion-icon></button>
+        <button class="slider-btn" (click)="next('newReleases', newReleases.length)" [disabled]="!canNext('newReleases', newReleases.length)"><ion-icon name="chevron-forward-outline"></ion-icon></button>
+      </div>
+    </div>
+    <div class="slider-viewport slider-small" *ngIf="loadingNewReleases">
+      <div class="slider-track">
+        <div class="slide-item" *ngFor="let s of skeletonSlider"><div class="game-card skeleton-card"><div class="card-image-wrapper"><ion-skeleton-text [animated]="true" class="skeleton-cover"></ion-skeleton-text></div><ion-skeleton-text [animated]="true" class="skeleton-title"></ion-skeleton-text><ion-skeleton-text [animated]="true" class="skeleton-sub"></ion-skeleton-text></div></div>
+      </div>
+    </div>
+    <div class="slider-viewport slider-small" *ngIf="!loadingNewReleases">
+      <div class="slider-track" [style.transform]="getOffset('newReleases')">
+        <div class="slide-item" *ngFor="let game of newReleases">
+          <ng-container *ngTemplateOutlet="gameCard; context: { $implicit: game }"></ng-container>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PARA TI -->
+  <section class="section">
+    <div class="section-header">
+      <div><h2>Para Ti</h2><p class="section-subtitle">Recomendaciones basadas en tus preferencias</p></div>
+      <div class="slider-controls" *ngIf="!loadingForYou && forYouGames.length > 8">
+        <button class="slider-btn" (click)="prev('forYou')" [disabled]="!canPrev('forYou')"><ion-icon name="chevron-back-outline"></ion-icon></button>
+        <button class="slider-btn" (click)="next('forYou', forYouGames.length)" [disabled]="!canNext('forYou', forYouGames.length)"><ion-icon name="chevron-forward-outline"></ion-icon></button>
+      </div>
+    </div>
+    <div class="slider-viewport slider-small" *ngIf="loadingForYou">
+      <div class="slider-track">
+        <div class="slide-item" *ngFor="let s of skeletonSlider"><div class="game-card skeleton-card"><div class="card-image-wrapper"><ion-skeleton-text [animated]="true" class="skeleton-cover"></ion-skeleton-text></div><ion-skeleton-text [animated]="true" class="skeleton-title"></ion-skeleton-text><ion-skeleton-text [animated]="true" class="skeleton-sub"></ion-skeleton-text></div></div>
+      </div>
+    </div>
+    <div class="slider-viewport slider-small" *ngIf="!loadingForYou">
+      <div class="slider-track" [style.transform]="getOffset('forYou')">
+        <div class="slide-item" *ngFor="let game of forYouGames">
+          <ng-container *ngTemplateOutlet="gameCard; context: { $implicit: game }"></ng-container>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- JOYAS INDIE -->
+  <section class="section">
+    <div class="section-header">
+      <div><h2>Joyas Indie</h2><p class="section-subtitle">Pequeños estudios, grandes experiencias</p></div>
+      <div class="slider-controls" *ngIf="!loadingIndie && indieGems.length > 8">
+        <button class="slider-btn" (click)="prev('indie')" [disabled]="!canPrev('indie')"><ion-icon name="chevron-back-outline"></ion-icon></button>
+        <button class="slider-btn" (click)="next('indie', indieGems.length)" [disabled]="!canNext('indie', indieGems.length)"><ion-icon name="chevron-forward-outline"></ion-icon></button>
+      </div>
+    </div>
+    <div class="slider-viewport slider-small" *ngIf="loadingIndie">
+      <div class="slider-track">
+        <div class="slide-item" *ngFor="let s of skeletonSlider"><div class="game-card skeleton-card"><div class="card-image-wrapper"><ion-skeleton-text [animated]="true" class="skeleton-cover"></ion-skeleton-text></div><ion-skeleton-text [animated]="true" class="skeleton-title"></ion-skeleton-text><ion-skeleton-text [animated]="true" class="skeleton-sub"></ion-skeleton-text></div></div>
+      </div>
+    </div>
+    <div class="slider-viewport slider-small" *ngIf="!loadingIndie">
+      <div class="slider-track" [style.transform]="getOffset('indie')">
+        <div class="slide-item" *ngFor="let game of indieGems">
+          <ng-container *ngTemplateOutlet="gameCard; context: { $implicit: game }"></ng-container>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TEMPLATE: Game Card (misma card para todos) -->
+  <ng-template #gameCard let-game>
+    <div class="game-card" role="button" tabindex="0" [routerLink]="['/game', game.id]">
+      <div class="card-image-wrapper">
+        <img *ngIf="game.background_image" [src]="game.background_image" [alt]="game.name" class="card-cover" loading="lazy" />
+        <div *ngIf="!game.background_image" class="card-cover-placeholder"></div>
+        <div class="card-overlay">
+          <div class="overlay-content">
+            <div class="overlay-rating">
+              <ion-icon name="star"></ion-icon>
+              <span>{{ game.rating | number:'1.1-1' }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <h3 class="card-title">{{ game.name }}</h3>
+      <div class="card-meta">
+        <ion-icon name="star"></ion-icon>
+        <span class="meta-text">{{ game.rating | number:'1.1-1' }}</span>
+        <span class="meta-dot">&bull;</span>
+        <span class="meta-text" *ngIf="game.genres?.length">{{ game.genres[0].name }}</span>
+      </div>
+    </div>
+  </ng-template>
+
+</ion-content>

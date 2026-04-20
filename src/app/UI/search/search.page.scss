@@ -1,0 +1,416 @@
+/* src/app/UI/search/search.page.scss */
+/* Traducido de Figma: Search.tsx (React/Tailwind → Angular/SCSS) */
+
+ion-content {
+  --background: #121212;
+}
+
+ion-toolbar {
+  --background: #121212;
+  --border-width: 0;
+  --box-shadow: none;
+  --color: white;
+}
+
+ion-menu-button {
+  --color: white;
+  color: white;
+}
+
+/* ==========================================
+   SEARCH BAR + BOTÓN FILTROS
+========================================== */
+.search-container {
+  padding: 1rem 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+
+  .custom-searchbar {
+    flex: 1;
+    --border-radius: 0.5rem;
+    --background: #1a1a1a;
+    --color: white;
+    --placeholder-color: #6b7280;
+    --icon-color: #9ca3af;
+    --clear-button-color: #9ca3af;
+    --box-shadow: none;
+    padding: 0;
+
+    // Figma: border border-gray-800 focus:border-[#bb86fc]
+    &::part(container) {
+      border: 1px solid #1f2937;
+    }
+  }
+}
+
+.filter-toggle-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.625rem 1rem;
+  background-color: #1f2937;
+  color: #d1d5db;
+  border: 1px solid #374151;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background-color 0.2s;
+
+  ion-icon { font-size: 1.125rem; }
+  &:hover { background-color: #374151; }
+
+  // Ocultar en desktop (sidebar siempre visible)
+  @media (min-width: 1024px) {
+    display: none;
+  }
+}
+
+.filter-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.25rem;
+  height: 1.25rem;
+  background-color: #bb86fc;
+  color: white;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  border-radius: 9999px;
+  padding: 0 0.25rem;
+}
+
+/* ==========================================
+   LAYOUT: Sidebar + Main
+   Figma: flex gap-8
+========================================== */
+.search-layout {
+  display: flex;
+  gap: 2rem;
+  padding: 0 1.5rem 2rem;
+  position: relative;
+}
+
+/* ==========================================
+   FILTERS SIDEBAR
+   Figma: w-64 flex-shrink-0, bg-[#1a1a1a] border border-gray-800 rounded-lg p-6 sticky top-24
+========================================== */
+.filters-sidebar {
+  width: 16rem;
+  flex-shrink: 0;
+  background-color: #1a1a1a;
+  border: 1px solid #1f2937;
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  position: sticky;
+  top: 1.5rem;
+  align-self: flex-start;
+  max-height: calc(100vh - 12rem);
+  overflow-y: auto;
+
+  // En móvil: oculta por defecto, se muestra como drawer lateral
+  @media (max-width: 1023px) {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    z-index: 1000;
+    width: 18rem;
+    border-radius: 0;
+    border: none;
+    border-right: 1px solid #1f2937;
+    max-height: 100vh;
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+
+    &.filters-open {
+      transform: translateX(0);
+    }
+  }
+}
+
+.filters-overlay {
+  display: none;
+
+  @media (max-width: 1023px) {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 999;
+    background: rgba(0, 0, 0, 0.5);
+  }
+}
+
+/* Figma: flex items-center gap-2 mb-6 */
+.filters-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+}
+
+.filters-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+
+  ion-icon {
+    font-size: 1.25rem;
+    color: #bb86fc;
+  }
+
+  h3 {
+    color: white;
+    font-weight: 600;
+    font-size: 1rem;
+    margin: 0;
+  }
+}
+
+.filters-close-btn {
+  display: none;
+  background: none;
+  border: none;
+  color: #9ca3af;
+  cursor: pointer;
+  padding: 0.25rem;
+
+  ion-icon { font-size: 1.5rem; }
+  &:hover { color: white; }
+
+  @media (max-width: 1023px) {
+    display: flex;
+  }
+}
+
+/* ==========================================
+   FILTER GROUPS
+   Figma: mb-6, h4 text-gray-300 font-semibold mb-3
+========================================== */
+.filter-group {
+  margin-bottom: 1.5rem;
+
+  h4 {
+    color: #d1d5db;
+    font-weight: 600;
+    font-size: 0.875rem;
+    margin: 0 0 0.75rem 0;
+  }
+}
+
+.filter-options {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+/* Figma: flex items-center gap-3 cursor-pointer */
+.filter-option {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  cursor: pointer;
+  user-select: none;
+
+  span {
+    color: #9ca3af;
+    font-size: 0.875rem;
+    transition: color 0.2s;
+  }
+
+  &:hover span {
+    color: #d1d5db;
+  }
+}
+
+/* Figma: Checkbox border-gray-600 checked:bg-[#bb86fc] checked:border-[#bb86fc] */
+.custom-checkbox {
+  width: 1.125rem;
+  height: 1.125rem;
+  border: 2px solid #4b5563;
+  border-radius: 0.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  flex-shrink: 0;
+
+  ion-icon {
+    font-size: 0.75rem;
+    color: white;
+  }
+
+  &.checked {
+    background-color: #bb86fc;
+    border-color: #bb86fc;
+  }
+}
+
+/* Figma: w-full mt-6 px-4 py-2 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-lg */
+.clear-filters-btn {
+  width: 100%;
+  margin-top: 1.5rem;
+  padding: 0.5rem 1rem;
+  background-color: #1f2937;
+  color: #d1d5db;
+  border: none;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+
+  &:hover { background-color: #374151; }
+}
+
+/* ==========================================
+   MAIN CONTENT
+========================================== */
+.search-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.results-section {
+  .section-title {
+    color: white;
+    font-size: 1.4rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+  }
+}
+
+/* Figma: text-gray-400 mb-6 */
+.results-count {
+  color: #9ca3af;
+  font-size: 0.875rem;
+  margin: 0 0 1.5rem 0;
+}
+
+/* ==========================================
+   GAMES GRID — Figma: grid-cols-2 sm:3 lg:4 xl:5 2xl:6 gap-6
+========================================== */
+.games-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.25rem;
+
+  @media (min-width: 640px)  { grid-template-columns: repeat(3, 1fr); }
+  @media (min-width: 1024px) { grid-template-columns: repeat(3, 1fr); }
+  @media (min-width: 1280px) { grid-template-columns: repeat(4, 1fr); }
+  @media (min-width: 1536px) { grid-template-columns: repeat(5, 1fr); }
+}
+
+/* ==========================================
+   GAME CARDS — Idéntico al estilo actual del proyecto
+========================================== */
+.game-card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  min-width: 0;
+  cursor: pointer;
+  transition: transform 0.3s ease;
+
+  &:hover {
+    transform: translateY(-5px);
+    .card-title { color: #bb86fc; }
+    .card-overlay { opacity: 1; }
+  }
+
+  .card-image-wrapper {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 2 / 3;
+    border-radius: 12px;
+    overflow: hidden;
+    background: #2a2a2a;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+    flex-shrink: 0;
+
+    .card-cover {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .card-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
+      display: flex;
+      align-items: flex-end;
+      padding: 0.75rem;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      pointer-events: none;
+
+      .overlay-rating {
+        display: flex;
+        align-items: center;
+        gap: 0.375rem;
+        color: white;
+        font-weight: 600;
+
+        ion-icon {
+          color: #03dac6;
+          font-size: 0.875rem;
+        }
+        span { font-size: 0.875rem; }
+      }
+    }
+
+    // Skeleton
+    ion-skeleton-text {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      --background: #1f2937;
+      --background-rgb: 31, 41, 55;
+    }
+  }
+
+  .card-title {
+    color: white;
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-top: 0.75rem;
+    width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    transition: color 0.3s ease;
+  }
+}
+
+/* ==========================================
+   ESTADO: Sin resultados tras filtrar
+========================================== */
+.empty-filtered {
+  text-align: center;
+  padding: 3rem 1rem;
+
+  p {
+    color: #6b7280;
+    font-size: 1rem;
+    margin: 0 0 0.75rem 0;
+  }
+}
+
+.clear-filters-link {
+  background: none;
+  border: none;
+  color: #bb86fc;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: color 0.2s;
+
+  &:hover { color: #a370e6; }
+}

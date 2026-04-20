@@ -1,0 +1,135 @@
+/* Reutilizamos las clases base de login.page.scss */
+.login-wrapper {
+  min-height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 1rem;
+  background-color: var(--background);
+  position: relative;
+  overflow: hidden;
+}
+
+.bg-decorations {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+
+  .glow-circle {
+    position: absolute;
+    border-radius: 50%;
+    opacity: 0.15;
+    filter: blur(60px);
+  }
+
+  .top-right {
+    top: 2.5rem;
+    right: 5rem;
+    width: 18rem;
+    height: 18rem;
+    background-color: #bb86fc;
+  }
+
+  .bottom-left {
+    bottom: 8rem;
+    left: 5rem;
+    width: 20rem;
+    height: 20rem;
+    background-color: #03dac6;
+  }
+}
+
+.content-container { width: 100%; max-width: 28rem; position: relative; z-index: 10; }
+
+.header-section {
+  text-align: center; margin-bottom: 2rem;
+  .logo-box {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 4rem; height: 4rem; border-radius: 1rem; background-color: #bb86fc; margin-bottom: 1rem;
+    .logo-icon { font-size: 2.5rem; color: white; }
+  }
+  h1 { font-size: 2rem; font-weight: 700; color: white; margin-bottom: 0.5rem; }
+  p { color: #9ca3af; margin: 0; }
+}
+
+.form-card {
+  background-color: #1e1e1e; border-radius: var(--radius-lg); padding: 2rem;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); border: 1px solid #374151;
+  form { display: flex; flex-direction: column; gap: 1.25rem; }
+}
+
+.input-group {
+  label { display: block; font-size: 0.875rem; color: #d1d5db; margin-bottom: 0.5rem; }
+  .password-wrapper { position: relative; }
+  
+  .custom-input {
+    width: 100%; padding: 0.75rem 1rem; background-color: #121212;
+    border: 1px solid #374151; border-radius: var(--radius-lg); color: white; outline: none; transition: border-color 0.2s;
+    &::placeholder { color: #6b7280; }
+    &:focus { border-color: #bb86fc; }
+  }
+  .btn-icon {
+    position: absolute; right: 1rem; top: 50%; transform: translateY(-50%);
+    background: transparent; border: none; color: #9ca3af; font-size: 1.25rem; cursor: pointer;
+    &:hover { color: #d1d5db; }
+  }
+}
+
+/* Indicador de fuerza de contraseña */
+.strength-meter {
+  margin-top: 0.5rem;
+  .bars {
+    display: flex; gap: 0.25rem; margin-bottom: 0.25rem;
+    .bar {
+      height: 0.25rem; flex: 1; border-radius: 999px; transition: all 0.3s ease;
+    }
+  }
+  .strength-label { margin: 0; font-size: 0.75rem; }
+}
+
+/* Términos y checkbox customizado */
+.terms-group {
+  .checkbox-label {
+    display: flex; align-items: flex-start; gap: 0.75rem; cursor: pointer; font-size: 0.875rem; color: #9ca3af; line-height: 1.25;
+    
+    .checkbox-wrapper {
+      position: relative; display: flex; align-items: center; justify-content: center; margin-top: 0.125rem;
+      
+      .custom-checkbox {
+        width: 1.25rem; height: 1.25rem; appearance: none; background-color: #121212;
+        border: 2px solid #374151; border-radius: 0.25rem; cursor: pointer; transition: all 0.2s;
+        &:checked { background-color: #bb86fc; border-color: #bb86fc; }
+      }
+      
+      .check-icon { position: absolute; color: white; font-size: 0.875rem; pointer-events: none; }
+    }
+  }
+}
+
+.link-primary { color: #bb86fc; text-decoration: none; transition: color 0.2s; cursor: pointer; &:hover { color: #03dac6; } &.bold { font-weight: 600; } }
+.error-msg { color: var(--ion-color-danger); font-size: 0.875rem; text-align: center; }
+
+.btn-submit {
+  width: 100%; padding: 0.75rem; background-color: #bb86fc; color: white; font-weight: 600; border: none;
+  border-radius: var(--radius-lg); cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 0.5rem; margin-top: 0.5rem;
+  &:hover:not(:disabled) { opacity: 0.9; box-shadow: 0 4px 14px 0 rgba(187, 134, 252, 0.39); }
+  &:disabled { opacity: 0.5; cursor: not-allowed; }
+}
+
+.divider {
+  display: flex; align-items: center; gap: 1rem; margin: 1.5rem 0;
+  .line { flex: 1; height: 1px; background-color: #374151; }
+  span { font-size: 0.875rem; color: #6b7280; }
+}
+
+.social-login {
+  .btn-social {
+    width: 100%; padding: 0.75rem; background-color: #121212; border: 1px solid #374151; border-radius: var(--radius-lg); cursor: pointer; transition: border-color 0.2s;
+    display: flex; align-items: center; justify-content: center; gap: 0.5rem; color: white; font-weight: 500;
+    &:hover { border-color: #4b5563; }
+    ion-icon { font-size: 1.25rem; }
+  }
+}
+
+.register-prompt { text-align: center; margin-top: 1.5rem; color: #9ca3af; }

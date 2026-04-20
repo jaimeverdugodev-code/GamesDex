@@ -1,0 +1,42 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/friends" color="light" text=""></ion-back-button>
+    </ion-buttons>
+    <ion-title>Descubrir</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="add-friends-content">
+  <div class="page-container">
+    <ion-searchbar placeholder="Busca por nombre..." [(ngModel)]="searchTerm" (ionInput)="onSearchChange()" class="custom-searchbar"></ion-searchbar>
+
+    <div class="loading-state" *ngIf="loading">
+      <ion-spinner color="primary"></ion-spinner>
+    </div>
+
+    <div class="users-list" *ngIf="(users$ | async) as users">
+      <ng-container *ngFor="let user of users">
+        <div class="user-card" *ngIf="!isFollowed(user.uid)">
+          <div class="card-main">
+            <img [src]="user.photoUrl || 'assets/default-avatar.png'" class="user-avatar" (error)="$event.target.src='https://ionicframework.com/docs/img/demos/avatar.svg'">
+            <div class="user-info">
+              <span class="username">{{ user.displayName }}</span>
+              <p class="user-bio" *ngIf="user.bio">{{ user.bio }}</p>
+            </div>
+            
+            <button class="add-btn" (click)="follow(user.uid)">
+              <ion-icon name="person-add-outline"></ion-icon>
+              <span>Seguir</span>
+            </button>
+          </div>
+        </div>
+      </ng-container>
+
+      <div class="empty-state" *ngIf="users.length === 0 && !loading">
+        <ion-icon name="search-outline"></ion-icon>
+        <p>No hay más gente para descubrir.</p>
+      </div>
+    </div>
+  </div>
+</ion-content>
