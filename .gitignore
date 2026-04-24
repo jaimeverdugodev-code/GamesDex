@@ -82,4 +82,7 @@ ui-debug.log
 /ios/App/public
 /ios/App/build
 
-/Docs/
+# Claude Code AI
+CLAUDE.md
+.claudeignore
+.claude/
