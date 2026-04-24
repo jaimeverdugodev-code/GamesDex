@@ -1,0 +1,33 @@
+# Dependencias (EL MÁS IMPORTANTE)
+node_modules/
+
+# Builds y salidas de compilación
+dist/
+www/
+.angular/
+
+# Datos de Git
+.git/
+
+# Archivos de sistema y carpetas de configuración de IDE
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Multimedia y Assets (Claude no necesita "ver" tus imágenes)
+src/assets/
+
+# Archivos de bloqueo de paquetes (son gigantes y gastan miles de tokens)
+package-lock.json
+yarn.lock
+
+# Carpetas de plataformas nativas (si usas Capacitor/Cordova)
+android/
+ios/
+platforms/
+plugins/
+
+# Logs y temporales
+*.log
+tmp/

@@ -1,0 +1,21 @@
+<div class="game-card" role="button" tabindex="0" [routerLink]="['/game', game.id]">
+  <div class="card-image-wrapper">
+    <img *ngIf="game.background_image" [src]="game.background_image" [alt]="game.name" class="card-cover" loading="lazy" />
+    <div *ngIf="!game.background_image" class="card-cover-placeholder"></div>
+    <div class="card-overlay">
+      <div class="overlay-content">
+        <div class="overlay-rating">
+          <ion-icon name="star"></ion-icon>
+          <span>{{ game.rating | number:'1.1-1' }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <h3 class="card-title">{{ game.name }}</h3>
+  <div class="card-meta">
+    <ion-icon name="star"></ion-icon>
+    <span class="meta-text">{{ game.rating | number:'1.1-1' }}</span>
+    <span class="meta-dot">&bull;</span>
+    <span class="meta-text" *ngIf="game.genres?.length">{{ game.genres[0].name }}</span>
+  </div>
+</div>
