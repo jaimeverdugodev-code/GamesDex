@@ -6,7 +6,7 @@ import { ActivatedRoute, RouterModule } from '@angular/router';
 import {
   IonHeader, IonToolbar, IonContent, IonButtons,
   IonBackButton, IonIcon, IonSkeletonText,
-  ModalController, ActionSheetController
+  ModalController, ActionSheetController, AlertController
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import {
@@ -15,7 +15,7 @@ import {
   chevronBackOutline, chevronForwardOutline
 } from 'ionicons/icons';
 import { Subject, Observable, of } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { takeUntil, switchMap, filter } from 'rxjs/operators';
 
 import { GameService } from '../../core/services/game.service';
 import { AuthService } from '../../core/services/auth.service';
@@ -45,6 +45,7 @@ export class GameDetailPage implements OnInit, OnDestroy {
   private reviewService = inject(ReviewService);
   private modalCtrl = inject(ModalController);
   private actionSheetCtrl = inject(ActionSheetController);
+  private alertCtrl = inject(AlertController);
   private destroy$ = new Subject<void>();
 
   game: Game | null = null;
@@ -124,11 +125,15 @@ export class GameDetailPage implements OnInit, OnDestroy {
       });
     });
 
-    this.authService.user$.pipe(takeUntil(this.destroy$)).subscribe(user => {
-      if (user) {
-        this.currentUserFull = user;
-        this.currentUserId = user.uid;
-        this.userGamesService.loadUserGames(user.uid);
+    this.authService.user$.pipe(
+      takeUntil(this.destroy$),
+      filter(user => !!user),
+      switchMap(user => this.authService.getProfileData(user!.uid))
+    ).subscribe(profile => {
+      if (profile) {
+        this.currentUserFull = profile;
+        this.currentUserId = profile.uid;
+        this.userGamesService.loadUserGames(profile.uid);
       }
     });
   }
@@ -207,6 +212,33 @@ export class GameDetailPage implements OnInit, OnDestroy {
       initialBreakpoint: 0.75
     });
     await modal.present();
+  }
+
+  async editReview(review: Review): Promise<void> {
+    const modal = await this.modalCtrl.create({
+      component: ReviewModalComponent,
+      componentProps: { reviewToEdit: review },
+      breakpoints: [0, 0.75, 1],
+      initialBreakpoint: 0.75
+    });
+    await modal.present();
+    // reviews$ es reactivo (collectionData), se actualiza automáticamente
+  }
+
+  async deleteReviewById(reviewId: string): Promise<void> {
+    const alert = await this.alertCtrl.create({
+      header: 'Borrar reseña',
+      message: '¿Seguro que quieres eliminar esta reseña?',
+      buttons: [
+        { text: 'Cancelar', role: 'cancel' },
+        {
+          text: 'Borrar',
+          role: 'destructive',
+          handler: () => this.reviewService.deleteReview(reviewId)
+        }
+      ]
+    });
+    await alert.present();
   }
 
   ngOnDestroy(): void {

@@ -39,10 +39,6 @@ export const routes: Routes = [
     loadComponent: () => import('./UI/friends/friends.page').then(m => m.FriendsPage)
   },
   {
-    path: 'my-games',
-    loadComponent: () => import('./UI/my-games/my-games.page').then(m => m.MyGamesPage)
-  },
-  {
     // Mi propio perfil
     path: 'profile',
     loadComponent: () => import('./UI/profile/profile.page').then(m => m.ProfilePage)
@@ -51,6 +47,14 @@ export const routes: Routes = [
     // El perfil de un amigo (Recibe su UID por la URL)
     path: 'profile/:id',
     loadComponent: () => import('./UI/profile/profile.page').then(m => m.ProfilePage)
+  },
+  {
+    path: 'profile/:id/followers',
+    loadComponent: () => import('./UI/social/followers/followers.page').then(m => m.FollowersPage)
+  },
+  {
+    path: 'profile/:id/following',
+    loadComponent: () => import('./UI/social/following/following.page').then(m => m.FollowingPage)
   },
   {
     path: 'edit-profile',

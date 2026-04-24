@@ -496,10 +496,44 @@ ion-back-button {
     white-space: pre-line;
   }
 
+  .review-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 0.5rem;
+  }
+
   .review-date {
-    display: block;
     color: #6b7280;
     font-size: 0.85rem;
+  }
+
+  .review-actions {
+    display: flex;
+    gap: 0.4rem;
+  }
+
+  .review-action-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    border-radius: 6px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    transition: background 0.2s;
+    ion-icon { font-size: 1rem; }
+
+    &.edit-btn {
+      color: #bb86fc;
+      &:hover { background: rgba(187, 134, 252, 0.12); }
+    }
+    &.delete-btn {
+      color: #f87171;
+      &:hover { background: rgba(248, 113, 113, 0.12); }
+    }
   }
 }
 

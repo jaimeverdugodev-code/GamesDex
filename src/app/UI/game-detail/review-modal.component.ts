@@ -1,14 +1,15 @@
 // src/app/UI/game-detail/review-modal.component.ts
-import { Component, Input, inject } from '@angular/core';
+import { Component, Input, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { 
-  IonHeader, IonToolbar, IonTitle, IonContent, IonButtons, 
+import {
+  IonHeader, IonToolbar, IonTitle, IonContent, IonButtons,
   IonButton, IonIcon, IonTextarea, ModalController
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { star, starOutline, closeOutline } from 'ionicons/icons';
 import { ReviewService } from '../../core/services/review.service';
+import { Review } from '../../core/models/database.models';
 
 @Component({
   selector: 'app-review-modal',
@@ -22,7 +23,7 @@ import { ReviewService } from '../../core/services/review.service';
   template: `
     <ion-header class="ion-no-border">
       <ion-toolbar>
-        <ion-title>Escribir Reseña</ion-title>
+        <ion-title>{{ isEditing ? 'Editar Reseña' : 'Escribir Reseña' }}</ion-title>
         <ion-buttons slot="end">
           <ion-button (click)="close()">
             <ion-icon name="close-outline"></ion-icon>
@@ -55,7 +56,7 @@ import { ReviewService } from '../../core/services/review.service';
       </div>
 
       <ion-button expand="block" class="submit-btn" (click)="submitReview()" [disabled]="!rating || !text.trim() || isSubmitting">
-        {{ isSubmitting ? 'Publicando...' : 'Publicar Reseña' }}
+        {{ isSubmitting ? (isEditing ? 'Guardando...' : 'Publicando...') : (isEditing ? 'Guardar Cambios' : 'Publicar Reseña') }}
       </ion-button>
     </ion-content>
   `,
@@ -72,12 +73,12 @@ import { ReviewService } from '../../core/services/review.service';
     .submit-btn { margin-top: 2rem; --background: #bb86fc; --color: #121212; font-weight: bold; --border-radius: 8px; }
   `]
 })
-export class ReviewModalComponent {
-  // Variables que recibirá desde la pantalla principal
+export class ReviewModalComponent implements OnInit {
   @Input() gameId!: number;
   @Input() userId!: string;
   @Input() authorName!: string;
   @Input() authorPhoto?: string;
+  @Input() reviewToEdit?: Review;
 
   private modalCtrl = inject(ModalController);
   private reviewService = inject(ReviewService);
@@ -86,35 +87,45 @@ export class ReviewModalComponent {
   text = '';
   isSubmitting = false;
 
+  get isEditing(): boolean { return !!this.reviewToEdit?.id; }
+
   constructor() {
     addIcons({ star, starOutline, closeOutline });
   }
 
-  setRating(val: number) {
-    this.rating = val;
+  ngOnInit(): void {
+    if (this.reviewToEdit) {
+      this.rating = this.reviewToEdit.rating;
+      this.text = this.reviewToEdit.text;
+    }
   }
 
-  close() {
-    this.modalCtrl.dismiss();
-  }
+  setRating(val: number) { this.rating = val; }
+
+  close() { this.modalCtrl.dismiss(); }
 
   async submitReview() {
     if (!this.rating || !this.text.trim()) return;
-    
     this.isSubmitting = true;
     try {
-      await this.reviewService.addReview({
-        gameId: this.gameId,
-        userId: this.userId,
-        authorName: this.authorName,
-        authorPhoto: this.authorPhoto || 'assets/default-avatar.png',
-        rating: this.rating,
-        text: this.text.trim()
-      });
-      // Cerramos el modal avisando de que todo fue bien
-      this.modalCtrl.dismiss({ success: true });
+      if (this.isEditing) {
+        await this.reviewService.updateReview(this.reviewToEdit!.id!, {
+          rating: this.rating,
+          text: this.text.trim()
+        });
+      } else {
+        await this.reviewService.addReview({
+          gameId: this.gameId,
+          userId: this.userId,
+          authorName: this.authorName,
+          authorPhoto: this.authorPhoto || '',
+          rating: this.rating,
+          text: this.text.trim()
+        });
+      }
+      this.modalCtrl.dismiss({ success: true, rating: this.rating, text: this.text.trim() });
     } catch (error) {
-      console.error('Error al publicar la reseña:', error);
+      console.error('Error al guardar la reseña:', error);
       this.isSubmitting = false;
     }
   }

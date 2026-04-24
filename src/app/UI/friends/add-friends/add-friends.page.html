@@ -19,7 +19,7 @@
       <ng-container *ngFor="let user of users">
         <div class="user-card" *ngIf="!isFollowed(user.uid)">
           <div class="card-main">
-            <img [src]="user.photoUrl || 'assets/default-avatar.png'" class="user-avatar" (error)="$event.target.src='https://ionicframework.com/docs/img/demos/avatar.svg'">
+            <img [src]="user.photoUrl || 'assets/img/default-avatar.svg'" class="user-avatar app-avatar-img" (error)="$event.target.src='assets/img/default-avatar.svg'">
             <div class="user-info">
               <span class="username">{{ user.displayName }}</span>
               <p class="user-bio" *ngIf="user.bio">{{ user.bio }}</p>
