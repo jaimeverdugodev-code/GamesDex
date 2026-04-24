@@ -40,7 +40,7 @@
       <div class="profile-body">
         <div class="profile-header-row">
           <div class="profile-header-left">
-            <img [src]="userPhoto || 'https://api.dicebear.com/7.x/avataaars/svg?seed=gamer'" alt="Avatar" class="profile-avatar" />
+            <img [src]="userPhoto || 'assets/img/default-avatar.svg'" alt="Avatar" class="profile-avatar" (error)="$event.target.src='assets/img/default-avatar.svg'" />
             <div class="profile-header-info">
               <h1 class="profile-name">{{ userName }}</h1>
               <p class="profile-bio" *ngIf="profile?.bio">{{ profile!.bio }}</p>
@@ -70,30 +70,23 @@
           <div class="stat-card">
             <div class="stat-card-header">
               <ion-icon name="game-controller-outline" class="stat-icon-purple"></ion-icon>
-              <span class="stat-card-label">Juegos Jugados</span>
+              <span class="stat-card-label">Juegos Guardados</span>
             </div>
             <p class="stat-card-value">{{ savedGames.length }}</p>
           </div>
-          <div class="stat-card">
+          <div class="stat-card stat-card--clickable" (click)="viewFollowers()">
             <div class="stat-card-header">
               <ion-icon name="people-outline" class="stat-icon-purple"></ion-icon>
               <span class="stat-card-label">Seguidores</span>
             </div>
-            <p class="stat-card-value">0</p>
+            <p class="stat-card-value">{{ followersCount }}</p>
           </div>
-          <div class="stat-card">
+          <div class="stat-card stat-card--clickable" (click)="viewFollowing()">
             <div class="stat-card-header">
               <ion-icon name="people-outline" class="stat-icon-cyan"></ion-icon>
               <span class="stat-card-label">Siguiendo</span>
             </div>
-            <p class="stat-card-value">0</p>
-          </div>
-          <div class="stat-card">
-            <div class="stat-card-header">
-              <ion-icon name="time-outline" class="stat-icon-cyan"></ion-icon>
-              <span class="stat-card-label">Horas Jugadas</span>
-            </div>
-            <p class="stat-card-value">0</p>
+            <p class="stat-card-value">{{ followingCount }}</p>
           </div>
         </div>
 
@@ -104,9 +97,35 @@
           </div>
         </div>
 
-        <div class="collection-section">
-          <div class="collection-header">
-            <h2>{{ isMyProfile ? 'Mi Colección' : 'Su Colección' }}</h2>
+        <!-- PESTAÑAS PRINCIPALES -->
+        <ion-segment [value]="activeTab" (ionChange)="setTab($event.detail.value!.toString())" class="main-segment">
+          <ion-segment-button value="collection">
+            <ion-icon name="library-outline"></ion-icon>
+            <ion-label>Colección</ion-label>
+          </ion-segment-button>
+          <ion-segment-button value="activity">
+            <ion-icon name="chatbubble-outline"></ion-icon>
+            <ion-label>Actividad</ion-label>
+          </ion-segment-button>
+        </ion-segment>
+
+        <!-- TAB: COLECCIÓN -->
+        <div *ngIf="activeTab === 'collection'" class="tab-content">
+
+          <!-- Sub-filtro de estado -->
+          <div class="filter-chips">
+            <button class="filter-chip" [class.active]="collectionFilter === 'all'" (click)="setFilter('all')">
+              Todos ({{ savedGames.length }})
+            </button>
+            <button class="filter-chip" [class.active]="collectionFilter === 'played'" (click)="setFilter('played')">
+              Jugados ({{ countByStatus('played') }})
+            </button>
+            <button class="filter-chip" [class.active]="collectionFilter === 'playing'" (click)="setFilter('playing')">
+              Jugando ({{ countByStatus('playing') }})
+            </button>
+            <button class="filter-chip" [class.active]="collectionFilter === 'wishlist'" (click)="setFilter('wishlist')">
+              Deseados ({{ countByStatus('wishlist') }})
+            </button>
           </div>
 
           <div class="games-grid" *ngIf="loadingGames">
@@ -115,22 +134,76 @@
             </div>
           </div>
 
-          <div class="games-grid" *ngIf="!loadingGames && savedGames.length > 0">
-            <div class="game-card" *ngFor="let game of savedGames" [routerLink]="['/game', game.id]">
+          <div class="games-grid" *ngIf="!loadingGames && filteredGames.length > 0">
+            <div class="game-card" *ngFor="let gws of filteredGames" [routerLink]="['/game', gws.game.id]">
               <div class="card-image-wrapper">
-                <img *ngIf="game.background_image" [src]="game.background_image" [alt]="game.name" class="card-cover" />
+                <img *ngIf="gws.game.background_image" [src]="gws.game.background_image" [alt]="gws.game.name" class="card-cover" />
+                <span *ngIf="gws.status" class="status-badge status-badge--{{ gws.status }}">{{ statusLabel(gws.status) }}</span>
                 <div class="card-overlay">
-                  <div class="overlay-rating"><ion-icon name="star"></ion-icon><span>{{ game.rating | number:'1.1-1' }}</span></div>
+                  <div class="overlay-rating"><ion-icon name="star"></ion-icon><span>{{ gws.game.rating | number:'1.1-1' }}</span></div>
                 </div>
               </div>
-              <h3 class="card-title">{{ game.name }}</h3>
+              <h3 class="card-title">{{ gws.game.name }}</h3>
             </div>
           </div>
 
-          <div class="empty-collection" *ngIf="!loadingGames && savedGames.length === 0">
-            <p class="empty-title">Colección vacía</p>
-            <p class="empty-subtitle">{{ isMyProfile ? 'Explora juegos y añádelos a tu lista.' : 'Este jugador aún no tiene juegos guardados.' }}</p>
+          <div class="empty-collection" *ngIf="!loadingGames && filteredGames.length === 0">
+            <p class="empty-title">Sin juegos en esta categoría</p>
+            <p class="empty-subtitle">{{ isMyProfile ? 'Añade juegos desde su ficha de detalle.' : 'Este jugador no tiene juegos aquí todavía.' }}</p>
           </div>
+        </div>
+
+        <!-- TAB: ACTIVIDAD (RESEÑAS) -->
+        <div *ngIf="activeTab === 'activity'" class="tab-content">
+
+          <div *ngIf="loadingReviews" class="review-skeleton-list">
+            <div class="review-skeleton" *ngFor="let s of skeletonGames">
+              <ion-skeleton-text [animated]="true" style="height:80px; border-radius:0.75rem;"></ion-skeleton-text>
+            </div>
+          </div>
+
+          <ng-container *ngIf="!loadingReviews">
+            <div class="review-card" *ngFor="let rg of userReviews; let i = index">
+              <div class="review-flex-container">
+                <!-- Texto de la reseña (izquierda) -->
+                <div class="review-body">
+                  <div class="review-author-row">
+                    <img class="review-author-avatar app-avatar-img"
+                         [src]="userPhoto || 'assets/img/default-avatar.svg'"
+                         (error)="$event.target.src='assets/img/default-avatar.svg'"
+                         [alt]="rg.review.authorName" />
+                    <span class="review-author-name">{{ rg.review.authorName }}</span>
+                  </div>
+                  <div class="review-stars">
+                    <ion-icon name="star" *ngFor="let i of starsArray" [class.filled]="i <= rg.review.rating"></ion-icon>
+                  </div>
+                  <p class="review-text">{{ rg.review.text }}</p>
+                  <div class="review-footer">
+                    <span class="review-date">{{ rg.review.createdAt?.toDate() | date:'dd MMM yyyy' }}</span>
+                    <div class="review-actions" *ngIf="isMyProfile">
+                      <button class="review-action-btn edit-btn" (click)="editReview(rg)">
+                        <ion-icon name="create-outline"></ion-icon>
+                      </button>
+                      <button class="review-action-btn delete-btn" (click)="deleteReview(rg.review.id!, i)">
+                        <ion-icon name="trash-outline"></ion-icon>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                <!-- Miniatura del juego (derecha) -->
+                <a class="review-game-sidebar" [routerLink]="['/game', rg.review.gameId]">
+                  <img *ngIf="rg.gameImage" [src]="rg.gameImage" class="review-game-thumb" [alt]="rg.gameName" />
+                  <div *ngIf="!rg.gameImage" class="review-game-thumb review-game-thumb--empty"></div>
+                  <span class="review-game-name">{{ rg.gameName }}</span>
+                </a>
+              </div>
+            </div>
+
+            <div class="empty-collection" *ngIf="userReviews.length === 0">
+              <p class="empty-title">Sin reseñas todavía</p>
+              <p class="empty-subtitle">{{ isMyProfile ? 'Escribe tu primera reseña desde la ficha de un juego.' : 'Este jugador aún no ha escrito reseñas.' }}</p>
+            </div>
+          </ng-container>
         </div>
 
       </div>

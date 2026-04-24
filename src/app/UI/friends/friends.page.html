@@ -31,7 +31,7 @@
     <div class="friends-list" *ngIf="(users$ | async) as users">
       <div class="friend-card" *ngFor="let user of users" [routerLink]="['/profile', user.uid]">
         <div class="card-main">
-          <img [src]="user.photoUrl || 'assets/default-avatar.png'" class="friend-avatar" (error)="$event.target.src='https://ionicframework.com/docs/img/demos/avatar.svg'">
+          <img [src]="user.photoUrl || 'assets/img/default-avatar.svg'" class="friend-avatar app-avatar-img" (error)="$event.target.src='assets/img/default-avatar.svg'">
           <div class="friend-info">
             <span class="username">{{ user.displayName }}</span>
             <p class="user-bio" *ngIf="user.bio">{{ user.bio }}</p>

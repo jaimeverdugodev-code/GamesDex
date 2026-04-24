@@ -15,6 +15,7 @@ import { firstValueFrom } from 'rxjs';
 import { GameService } from '../../core/services/game.service';
 import { AuthService } from '../../core/services/auth.service';
 import { Game } from '../../core/models/game.model';
+import { HomeGameCardComponent } from '../../shared/components/home-game-card/home-game-card.component';
 
 @Component({
   selector: 'app-home',
@@ -25,7 +26,8 @@ import { Game } from '../../core/models/game.model';
     RouterModule,
     IonHeader, IonToolbar, IonTitle, IonContent,
     IonButtons, IonMenuButton, IonIcon,
-    IonSkeletonText
+    IonSkeletonText,
+    HomeGameCardComponent
   ]
 })
 export class HomePage implements OnInit, ViewWillEnter {

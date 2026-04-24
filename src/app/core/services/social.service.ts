@@ -18,6 +18,22 @@ export class SocialService {
     return collectionData(q, { idField: 'uid' }) as Observable<User[]>;
   }
 
+  // Obtener los seguidores de un usuario (quienes le siguen a él)
+  getFollowers(userId: string): Observable<User[]> {
+    const followsRef = collection(this.firestore, 'follows');
+    const q = query(followsRef, where('followingId', '==', userId));
+
+    return collectionData(q).pipe(
+      switchMap((follows: any[]) => {
+        if (!follows || follows.length === 0) return of([]);
+        const userDocs = follows.map(f =>
+          docData(doc(this.firestore, `users/${f.followerId}`), { idField: 'uid' }) as Observable<User>
+        );
+        return combineLatest(userDocs);
+      })
+    );
+  }
+
   // Obtener solo a los que SIGUES (Siguiendo)
   getFollowing(currentUserId: string): Observable<User[]> {
     const followsRef = collection(this.firestore, 'follows');

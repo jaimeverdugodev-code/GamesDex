@@ -1,0 +1,40 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button [defaultHref]="'/profile/' + profileId" color="light" text=""></ion-back-button>
+    </ion-buttons>
+    <ion-title>Siguiendo</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="social-content">
+  <div class="page-container">
+
+    <div class="loading-state" *ngIf="loading">
+      <ion-spinner></ion-spinner>
+    </div>
+
+    <div class="users-list" *ngIf="!loading">
+      <div class="user-card" *ngFor="let user of users" [routerLink]="['/profile', user.uid]">
+        <div class="card-main">
+          <img [src]="user.photoUrl || 'assets/img/default-avatar.svg'"
+               class="user-avatar app-avatar-img"
+               (error)="$event.target.src='assets/img/default-avatar.svg'" />
+          <div class="user-info">
+            <span class="username">{{ user.displayName }}</span>
+            <p class="user-bio" *ngIf="user.bio">{{ user.bio }}</p>
+          </div>
+          <button *ngIf="isOwnProfile()" class="unfollow-btn"
+                  (click)="$event.stopPropagation(); unfollowUser(user.uid)">
+            Dejar de seguir
+          </button>
+        </div>
+      </div>
+
+      <div class="empty-state" *ngIf="users.length === 0">
+        <p>No sigues a nadie todavía.</p>
+      </div>
+    </div>
+
+  </div>
+</ion-content>
