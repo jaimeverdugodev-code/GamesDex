@@ -26,6 +26,14 @@
               </a>
             </ion-menu-toggle>
           }
+          @if (isAdmin) {
+            <ion-menu-toggle auto-hide="false">
+              <a class="menu-item" routerDirection="root" routerLink="/admin" routerLinkActive="active">
+                <ion-icon name="shield-outline" aria-hidden="true"></ion-icon>
+                <span>Admin</span>
+              </a>
+            </ion-menu-toggle>
+          }
         </nav>
 
         <!-- Cerrar Sesión -->

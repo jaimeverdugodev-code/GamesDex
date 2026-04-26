@@ -26,6 +26,7 @@ import { Game } from '../../core/models/game.model';
 import { Review } from '../../core/models/database.models';
 import { ReviewModalComponent } from './review-modal.component';
 import { GameCardComponent } from '../../shared/components/game-card/game-card.component';
+import { ReviewCardComponent } from '../../shared/components/review-card/review-card.component';
 
 @Component({
   selector: 'app-game-detail',
@@ -34,7 +35,8 @@ import { GameCardComponent } from '../../shared/components/game-card/game-card.c
   imports: [
     CommonModule, RouterModule, IonHeader, IonToolbar, 
     IonContent, IonButtons, IonBackButton, IonIcon, IonSkeletonText,
-    GameCardComponent
+    GameCardComponent,
+    ReviewCardComponent
   ]
 })
 export class GameDetailPage implements OnInit, OnDestroy {

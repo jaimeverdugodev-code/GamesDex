@@ -16,9 +16,10 @@ import {
   star, createOutline, gameControllerOutline,
   peopleOutline, timeOutline, libraryOutline,
   personAddOutline, checkmarkOutline, personRemoveOutline,
-  chatbubbleOutline, trashOutline
+  chatbubbleOutline
 } from 'ionicons/icons';
 import { ReviewModalComponent } from '../game-detail/review-modal.component';
+import { ReviewCardComponent } from '../../shared/components/review-card/review-card.component';
 import { Subject, forkJoin, of } from 'rxjs';
 import { switchMap, takeUntil, catchError, map, take } from 'rxjs/operators';
 import { AuthService } from '../../core/services/auth.service';
@@ -51,7 +52,8 @@ interface ReviewWithGame {
     IonHeader, IonToolbar, IonTitle, IonContent,
     IonButtons, IonMenuButton, IonIcon,
     IonSkeletonText, IonBackButton,
-    IonSegment, IonSegmentButton, IonLabel
+    IonSegment, IonSegmentButton, IonLabel,
+    ReviewCardComponent
   ]
 })
 export class ProfilePage implements ViewWillEnter, OnDestroy {
@@ -95,7 +97,6 @@ export class ProfilePage implements ViewWillEnter, OnDestroy {
   followingCount = 0;
 
   skeletonGames = Array(6);
-  starsArray = [1, 2, 3, 4, 5];
   bannerUrl = 'https://images.unsplash.com/photo-1538481199705-c710c4e965fc?w=1920&h=400&fit=crop';
 
   constructor() {
@@ -103,7 +104,7 @@ export class ProfilePage implements ViewWillEnter, OnDestroy {
       star, createOutline, gameControllerOutline,
       peopleOutline, timeOutline, libraryOutline,
       personAddOutline, checkmarkOutline, personRemoveOutline,
-      chatbubbleOutline, trashOutline
+      chatbubbleOutline
     });
   }
 

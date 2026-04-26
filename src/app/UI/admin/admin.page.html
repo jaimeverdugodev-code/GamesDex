@@ -1,0 +1,122 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+    <ion-title>Panel de Admin</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <div class="admin-body">
+
+    <ion-segment class="main-segment" [value]="activeTab"
+                 (ionChange)="setTab($event.detail.value!.toString())">
+      <ion-segment-button value="dashboard">
+        <ion-icon name="bar-chart-outline"></ion-icon>
+        <ion-label>Resumen</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="users">
+        <ion-icon name="people-outline"></ion-icon>
+        <ion-label>Usuarios</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="reviews">
+        <ion-icon name="document-text-outline"></ion-icon>
+        <ion-label>Reseñas</ion-label>
+      </ion-segment-button>
+    </ion-segment>
+
+    <!-- ── TAB DASHBOARD ── -->
+    <div *ngIf="activeTab === 'dashboard'" class="tab-content">
+
+      <div *ngIf="loadingStats" class="stats-skeleton-grid">
+        <ion-skeleton-text *ngFor="let s of skeletonItems.slice(0, 3)"
+                           class="stat-skeleton" animated></ion-skeleton-text>
+      </div>
+
+      <ion-grid *ngIf="!loadingStats && stats" class="stats-grid">
+        <ion-row>
+          <ion-col size="12" sizeMd="4">
+            <div class="kpi-card kpi-purple">
+              <ion-icon name="people-outline" class="kpi-icon"></ion-icon>
+              <p class="kpi-number">{{ stats.totalUsers }}</p>
+              <p class="kpi-label">Usuarios registrados</p>
+            </div>
+          </ion-col>
+          <ion-col size="12" sizeMd="4">
+            <div class="kpi-card kpi-teal">
+              <ion-icon name="star-outline" class="kpi-icon"></ion-icon>
+              <p class="kpi-number">{{ stats.totalReviews }}</p>
+              <p class="kpi-label">Reseñas publicadas</p>
+            </div>
+          </ion-col>
+          <ion-col size="12" sizeMd="4">
+            <div class="kpi-card kpi-blue">
+              <ion-icon name="heart-outline" class="kpi-icon"></ion-icon>
+              <p class="kpi-number">{{ stats.totalFollows }}</p>
+              <p class="kpi-label">Conexiones sociales</p>
+            </div>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+
+    </div>
+
+    <!-- ── TAB USUARIOS ── -->
+    <div *ngIf="activeTab === 'users'" class="tab-content">
+
+      <div *ngIf="loadingUsers" class="user-skeleton-list">
+        <ion-skeleton-text *ngFor="let s of skeletonItems"
+                           class="user-skeleton" animated></ion-skeleton-text>
+      </div>
+
+      <ion-list *ngIf="!loadingUsers && users.length > 0">
+        <ion-item *ngFor="let user of users; let i = index">
+          <ion-avatar slot="start">
+            <img [src]="user.photoUrl || 'assets/img/default-avatar.svg'"
+                 class="app-avatar-img"
+                 (error)="$any($event.target).src='assets/img/default-avatar.svg'"
+                 alt="avatar" />
+          </ion-avatar>
+          <ion-label>
+            <h2>{{ user.displayName }}</h2>
+            <p>{{ user.email }}</p>
+          </ion-label>
+          <ion-button slot="end" fill="clear" color="danger"
+                      (click)="confirmDeleteUser(user, i)">
+            <ion-icon slot="icon-only" name="trash-outline"></ion-icon>
+          </ion-button>
+        </ion-item>
+      </ion-list>
+
+      <div *ngIf="!loadingUsers && users.length === 0" class="empty-state">
+        <p class="empty-title">No hay usuarios registrados</p>
+        <p class="empty-subtitle">La colección de usuarios está vacía.</p>
+      </div>
+    </div>
+
+    <!-- ── TAB RESEÑAS ── -->
+    <div *ngIf="activeTab === 'reviews'" class="tab-content">
+
+      <div *ngIf="loadingReviews" class="user-skeleton-list">
+        <ion-skeleton-text *ngFor="let s of skeletonItems"
+                           class="user-skeleton" animated></ion-skeleton-text>
+      </div>
+
+      <div *ngIf="!loadingReviews && reviews.length > 0" class="review-list">
+        <app-review-card
+          *ngFor="let review of reviews; let i = index"
+          [review]="review"
+          [showActions]="true"
+          (delete)="confirmDeleteReview(review, i)">
+        </app-review-card>
+      </div>
+
+      <div *ngIf="!loadingReviews && reviews.length === 0" class="empty-state">
+        <p class="empty-title">No hay reseñas</p>
+        <p class="empty-subtitle">La base de datos de reseñas está vacía.</p>
+      </div>
+    </div>
+
+  </div>
+</ion-content>

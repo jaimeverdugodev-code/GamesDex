@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
-import { Subscription } from 'rxjs';
+import { Subscription, firstValueFrom } from 'rxjs';
 
 import { 
   IonContent, IonIcon, IonSpinner
@@ -70,16 +70,17 @@ export class LoginPage {
     }
   }
 
-  private checkProfileAndRedirect() {
+  private checkProfileAndRedirect(): void {
     this.authSub = this.authService.user$.subscribe(async (user) => {
       if (user) {
-        const isComplete = await this.authService.isProfileComplete(user.uid);
-        if (isComplete) {
+        const profile = await firstValueFrom(this.authService.getProfileData(user.uid));
+        if (profile?.role === 'admin') {
+          this.router.navigate(['/admin']);
+        } else if (profile && profile.favoriteGenres?.length >= 3) {
           this.router.navigate(['/home']);
         } else {
           this.router.navigate(['/complete-profile']);
         }
-        // Nos desuscribimos DENTRO, cuando ya tenemos la respuesta
         this.authSub?.unsubscribe();
       }
     });

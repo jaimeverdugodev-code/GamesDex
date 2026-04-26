@@ -52,7 +52,9 @@ export class GameService {
    * Caché en memoria para las secciones de la Home.
    * Se usa shareReplay(1) para no repetir peticiones HTTP.
    */
-  private trendingCache = new Map<string, Observable<RawgResponse>>();
+  // Caché de trending con rotación diaria: se invalida en día nuevo y rota de página.
+  private trendingCached$:  Observable<RawgResponse> | null = null;
+  private trendingCacheDay = '';
   private forYouCache = new Map<string, Observable<RawgResponse>>();
   private newReleasesCache = new Map<string, Observable<RawgResponse>>();
   private topRatedCache = new Map<string, Observable<RawgResponse>>();
@@ -123,14 +125,17 @@ export class GameService {
   }
 
   /**
-   * Tendencias: juegos más populares del último año, ordenados por rating.
-   * Implementa caché con shareReplay(1).
+   * Tendencias: juegos más populares del último año, ordenados por añadidos.
+   * La caché se invalida una vez al día. Cada día se elige una página aleatoria
+   * del catálogo (1-5) para que la sección muestre juegos distintos.
    */
-  getTrendingGames(page: number = 1, pageSize: number = 12): Observable<RawgResponse> {
-    const cacheKey = `${page}:${pageSize}`;
+  getTrendingGames(pageSize: number = 10): Observable<RawgResponse> {
+    const today = new Date();
+    const cacheKey = `${today.toISOString().substring(0, 10)}:${pageSize}`;
 
-    if (!this.trendingCache.has(cacheKey)) {
-      const today = new Date();
+    if (!this.trendingCached$ || this.trendingCacheDay !== cacheKey) {
+      this.trendingCacheDay = cacheKey;
+      const randomPage = Math.floor(Math.random() * 5) + 1;
       const lastYear = new Date(today.getFullYear() - 1, today.getMonth(), today.getDate());
       const formatDate = (d: Date) => d.toISOString().split('T')[0];
 
@@ -138,17 +143,15 @@ export class GameService {
         .set('key', environment.rawgApiKey)
         .set('dates', `${formatDate(lastYear)},${formatDate(today)}`)
         .set('ordering', '-added')
-        .set('page', page)
+        .set('page', randomPage)
         .set('page_size', pageSize);
 
-      const request$ = this.http.get<RawgResponse>(`${this.baseUrl}/games`, { params }).pipe(
+      this.trendingCached$ = this.http.get<RawgResponse>(`${this.baseUrl}/games`, { params }).pipe(
         shareReplay(1)
       );
-
-      this.trendingCache.set(cacheKey, request$);
     }
 
-    return this.trendingCache.get(cacheKey)!;
+    return this.trendingCached$;
   }
 
   /**

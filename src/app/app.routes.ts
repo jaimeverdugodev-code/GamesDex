@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { adminGuard } from './core/guards/admin.guard';
 
 export const routes: Routes = [
   {
@@ -63,5 +64,10 @@ export const routes: Routes = [
   {
     path: 'add-friends',
     loadComponent: () => import('./UI/friends/add-friends/add-friends.page').then(m => m.AddFriendsPage)
+  },
+  {
+    path: 'admin',
+    loadComponent: () => import('./UI/admin/admin.page').then(m => m.AdminPage),
+    canActivate: [adminGuard]
   }
 ];

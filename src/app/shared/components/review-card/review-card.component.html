@@ -1,0 +1,33 @@
+<div class="review-card">
+  <div class="review-flex-container">
+    <div class="review-body">
+      <div class="review-author-row">
+        <img class="review-author-avatar app-avatar-img"
+             [src]="avatarSrc"
+             (error)="onAvatarError($event)"
+             [alt]="review.authorName" />
+        <span class="review-author-name">{{ review.authorName }}</span>
+      </div>
+      <div class="review-stars">
+        <ion-icon name="star" *ngFor="let s of starsArray" [class.filled]="s <= review.rating"></ion-icon>
+      </div>
+      <p class="review-text">{{ review.text }}</p>
+      <div class="review-footer">
+        <span class="review-date">{{ review.createdAt?.toDate() | date:'dd MMM yyyy' }}</span>
+        <div class="review-actions" *ngIf="showActions">
+          <button class="review-action-btn edit-btn" (click)="onEdit()">
+            <ion-icon name="create-outline"></ion-icon>
+          </button>
+          <button class="review-action-btn delete-btn" (click)="onDelete()">
+            <ion-icon name="trash-outline"></ion-icon>
+          </button>
+        </div>
+      </div>
+    </div>
+    <a *ngIf="gameId" class="review-game-sidebar" [routerLink]="['/game', gameId]">
+      <img *ngIf="gameImage" [src]="gameImage" class="review-game-thumb" [alt]="gameName" />
+      <div *ngIf="!gameImage" class="review-game-thumb review-game-thumb--empty"></div>
+      <span class="review-game-name">{{ gameName }}</span>
+    </a>
+  </div>
+</div>

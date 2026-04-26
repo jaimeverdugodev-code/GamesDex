@@ -80,7 +80,7 @@ export class SearchPage implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     // Cargar populares para el estado vacío (cacheados con shareReplay)
-    this.gameService.getTrendingGames(1, 12).subscribe(res => {
+    this.gameService.getTrendingGames(12).subscribe(res => {
       this.popularGames = res.results;
     });
 

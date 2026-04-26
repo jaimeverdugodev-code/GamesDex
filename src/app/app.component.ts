@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { IonApp, IonSplitPane, IonMenu, IonContent, IonMenuToggle, IonIcon, IonRouterOutlet } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
@@ -9,8 +9,10 @@ import {
   pulseOutline, pulseSharp,
   peopleOutline, peopleSharp,
   logOutOutline, logOutSharp,
-  closeOutline
+  closeOutline, shieldOutline
 } from 'ionicons/icons';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { AuthService } from './core/services/auth.service';
 
 @Component({
@@ -19,9 +21,12 @@ import { AuthService } from './core/services/auth.service';
   styleUrls: ['app.component.scss'],
   imports: [RouterLink, RouterLinkActive, IonApp, IonSplitPane, IonMenu, IonContent, IonMenuToggle, IonIcon, IonRouterOutlet],
 })
-export class AppComponent {
+export class AppComponent implements OnInit, OnDestroy {
   private authService = inject(AuthService);
   private router = inject(Router);
+  private destroy$ = new Subject<void>();
+
+  isAdmin = false;
 
   // Menú Figma: Home, Search, Activity Feed, Friends, Profile
   public appPages = [
@@ -40,8 +45,19 @@ export class AppComponent {
       pulseOutline, pulseSharp,
       peopleOutline, peopleSharp,
       logOutOutline, logOutSharp,
-      closeOutline
+      closeOutline, shieldOutline
     });
+  }
+
+  ngOnInit(): void {
+    this.authService.isAdmin$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(isAdmin => { this.isAdmin = isAdmin; });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   async logout(): Promise<void> {

@@ -125,30 +125,13 @@
             <p class="empty-subtitle">Sé el primero en opinar sobre este juego.</p>
           </div>
 
-          <div class="review-card" *ngFor="let review of reviews">
-            <div class="review-header">
-              <div class="author-info">
-                <img [src]="review.authorPhoto || 'assets/img/default-avatar.svg'" class="author-avatar app-avatar-img" (error)="$event.target.src='assets/img/default-avatar.svg'">
-                <span class="author-name">{{ review.authorName }}</span>
-              </div>
-              <div class="review-rating">
-                <ion-icon name="star"></ion-icon>
-                <span>{{ review.rating }}</span>
-              </div>
-            </div>
-            <p class="review-text">{{ review.text }}</p>
-            <div class="review-footer">
-              <span class="review-date">{{ review.createdAt?.toDate() | date:'dd/MM/yyyy' }}</span>
-              <div class="review-actions" *ngIf="review.userId === currentUserId">
-                <button class="review-action-btn edit-btn" (click)="editReview(review)">
-                  <ion-icon name="create-outline"></ion-icon>
-                </button>
-                <button class="review-action-btn delete-btn" (click)="deleteReviewById(review.id!)">
-                  <ion-icon name="trash-outline"></ion-icon>
-                </button>
-              </div>
-            </div>
-          </div>
+          <app-review-card
+            *ngFor="let review of reviews"
+            [review]="review"
+            [showActions]="review.userId === currentUserId"
+            (edit)="editReview(review)"
+            (delete)="deleteReviewById(review.id!)">
+          </app-review-card>
         </div>
       </section>
     </div>

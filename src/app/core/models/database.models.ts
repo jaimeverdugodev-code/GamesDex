@@ -10,6 +10,7 @@ export interface User {
   photoUrl?: string;
   bio?: string;
   favoriteGenres: string[]; // Lista de géneros preferidos
+  role?: 'admin' | 'user';
 }
 
 // Colección 'reviews'
