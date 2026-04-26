@@ -163,41 +163,17 @@
           </div>
 
           <ng-container *ngIf="!loadingReviews">
-            <div class="review-card" *ngFor="let rg of userReviews; let i = index">
-              <div class="review-flex-container">
-                <!-- Texto de la reseña (izquierda) -->
-                <div class="review-body">
-                  <div class="review-author-row">
-                    <img class="review-author-avatar app-avatar-img"
-                         [src]="userPhoto || 'assets/img/default-avatar.svg'"
-                         (error)="$event.target.src='assets/img/default-avatar.svg'"
-                         [alt]="rg.review.authorName" />
-                    <span class="review-author-name">{{ rg.review.authorName }}</span>
-                  </div>
-                  <div class="review-stars">
-                    <ion-icon name="star" *ngFor="let i of starsArray" [class.filled]="i <= rg.review.rating"></ion-icon>
-                  </div>
-                  <p class="review-text">{{ rg.review.text }}</p>
-                  <div class="review-footer">
-                    <span class="review-date">{{ rg.review.createdAt?.toDate() | date:'dd MMM yyyy' }}</span>
-                    <div class="review-actions" *ngIf="isMyProfile">
-                      <button class="review-action-btn edit-btn" (click)="editReview(rg)">
-                        <ion-icon name="create-outline"></ion-icon>
-                      </button>
-                      <button class="review-action-btn delete-btn" (click)="deleteReview(rg.review.id!, i)">
-                        <ion-icon name="trash-outline"></ion-icon>
-                      </button>
-                    </div>
-                  </div>
-                </div>
-                <!-- Miniatura del juego (derecha) -->
-                <a class="review-game-sidebar" [routerLink]="['/game', rg.review.gameId]">
-                  <img *ngIf="rg.gameImage" [src]="rg.gameImage" class="review-game-thumb" [alt]="rg.gameName" />
-                  <div *ngIf="!rg.gameImage" class="review-game-thumb review-game-thumb--empty"></div>
-                  <span class="review-game-name">{{ rg.gameName }}</span>
-                </a>
-              </div>
-            </div>
+            <app-review-card
+              *ngFor="let rg of userReviews; let i = index"
+              [review]="rg.review"
+              [authorPhoto]="userPhoto"
+              [showActions]="isMyProfile"
+              [gameName]="rg.gameName"
+              [gameImage]="rg.gameImage"
+              [gameId]="rg.review.gameId"
+              (edit)="editReview(rg)"
+              (delete)="deleteReview(rg.review.id!, i)">
+            </app-review-card>
 
             <div class="empty-collection" *ngIf="userReviews.length === 0">
               <p class="empty-title">Sin reseñas todavía</p>

@@ -1,20 +1,94 @@
-import { Component } from '@angular/core';
+// src/app/UI/activity/activity.page.ts
+
+import { Component, inject, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
 import {
   IonHeader, IonToolbar, IonTitle, IonContent,
-  IonButtons, IonMenuButton, IonIcon
+  IonButtons, IonMenuButton, IonIcon,
+  IonSegment, IonSegmentButton, IonLabel,
+  IonSkeletonText
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
-import { pulseOutline } from 'ionicons/icons';
+import { pulseOutline, peopleOutline, flashOutline, searchOutline, sadOutline } from 'ionicons/icons';
+import { Subject, of } from 'rxjs';
+import { switchMap, takeUntil, catchError } from 'rxjs/operators';
+import { ReviewService } from '../../core/services/review.service';
+import { SocialService } from '../../core/services/social.service';
+import { AuthService } from '../../core/services/auth.service';
+import { Review } from '../../core/models/database.models';
+import { ReviewCardComponent } from '../../shared/components/review-card/review-card.component';
 
 @Component({
   selector: 'app-activity',
   templateUrl: './activity.page.html',
   styleUrls: ['./activity.page.scss'],
-  imports: [CommonModule, IonHeader, IonToolbar, IonTitle, IonContent, IonButtons, IonMenuButton, IonIcon]
+  imports: [
+    CommonModule,
+    RouterModule,
+    IonHeader, IonToolbar, IonTitle, IonContent,
+    IonButtons, IonMenuButton, IonIcon,
+    IonSegment, IonSegmentButton, IonLabel,
+    IonSkeletonText,
+    ReviewCardComponent
+  ]
 })
-export class ActivityPage {
+export class ActivityPage implements OnInit, OnDestroy {
+  private reviewService = inject(ReviewService);
+  private socialService = inject(SocialService);
+  private authService   = inject(AuthService);
+  private destroy$ = new Subject<void>();
+
+  activeTab: 'foryou' | 'following' = 'foryou';
+
+  forYouReviews:    Review[] = [];
+  followingReviews: Review[] = [];
+
+  loadingForYou    = true;
+  loadingFollowing = true;
+
+  skeletonItems = Array(5);
+
   constructor() {
-    addIcons({ pulseOutline });
+    addIcons({ pulseOutline, peopleOutline, flashOutline, searchOutline, sadOutline });
+  }
+
+  ngOnInit(): void {
+    // Tab "Para ti": feed global, independiente del usuario autenticado
+    this.reviewService.getGlobalReviews(20)
+      .pipe(takeUntil(this.destroy$), catchError(() => of([])))
+      .subscribe(reviews => {
+        this.forYouReviews = reviews;
+        this.loadingForYou = false;
+      });
+
+    // Tab "Siguiendo": cadena auth → lista de seguidos → sus reseñas
+    this.authService.user$.pipe(
+      takeUntil(this.destroy$),
+      switchMap(user => {
+        if (!user) {
+          this.loadingFollowing = false;
+          return of([]);
+        }
+        return this.socialService.getFollowing(user.uid).pipe(
+          switchMap(followed =>
+            this.reviewService.getFollowingReviews(followed.map(u => u.uid))
+          ),
+          catchError(() => of([]))
+        );
+      })
+    ).subscribe(reviews => {
+      this.followingReviews = reviews;
+      this.loadingFollowing = false;
+    });
+  }
+
+  setTab(tab: string): void {
+    this.activeTab = tab as 'foryou' | 'following';
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

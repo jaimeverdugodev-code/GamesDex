@@ -8,11 +8,82 @@
 </ion-header>
 
 <ion-content class="activity-content">
-  <div class="empty-state">
-    <div class="empty-icon">
-      <ion-icon name="pulse-outline"></ion-icon>
+  <div class="activity-body">
+
+    <!-- SEGMENTO PRINCIPAL -->
+    <ion-segment
+      [value]="activeTab"
+      (ionChange)="setTab($event.detail.value!.toString())"
+      class="main-segment">
+      <ion-segment-button value="foryou">
+        <ion-icon name="flash-outline"></ion-icon>
+        <ion-label>Para ti</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="following">
+        <ion-icon name="people-outline"></ion-icon>
+        <ion-label>Siguiendo</ion-label>
+      </ion-segment-button>
+    </ion-segment>
+
+    <!-- TAB: PARA TI -->
+    <div *ngIf="activeTab === 'foryou'" class="tab-content">
+
+      <div *ngIf="loadingForYou" class="review-skeleton-list">
+        <div class="review-skeleton" *ngFor="let s of skeletonItems">
+          <ion-skeleton-text [animated]="true" style="height:88px; border-radius:0.75rem;"></ion-skeleton-text>
+        </div>
+      </div>
+
+      <div *ngIf="!loadingForYou && forYouReviews.length > 0" class="review-list">
+        <app-review-card
+          *ngFor="let review of forYouReviews"
+          [review]="review"
+          [showActions]="false">
+        </app-review-card>
+      </div>
+
+      <div *ngIf="!loadingForYou && forYouReviews.length === 0" class="empty-state">
+        <div class="empty-icon">
+          <ion-icon name="sad-outline"></ion-icon>
+        </div>
+        <p class="empty-title">Sin actividad reciente</p>
+        <p class="empty-subtitle">Aún no hay reseñas en la comunidad. ¡Sé el primero!</p>
+        <a routerLink="/search" class="empty-action-btn">
+          <ion-icon name="search-outline"></ion-icon>
+          Explorar juegos
+        </a>
+      </div>
     </div>
-    <p class="empty-title">Feed de Actividad</p>
-    <p class="empty-subtitle">Aquí verás la actividad de tus amigos: reseñas, juegos añadidos y logros.</p>
+
+    <!-- TAB: SIGUIENDO -->
+    <div *ngIf="activeTab === 'following'" class="tab-content">
+
+      <div *ngIf="loadingFollowing" class="review-skeleton-list">
+        <div class="review-skeleton" *ngFor="let s of skeletonItems">
+          <ion-skeleton-text [animated]="true" style="height:88px; border-radius:0.75rem;"></ion-skeleton-text>
+        </div>
+      </div>
+
+      <div *ngIf="!loadingFollowing && followingReviews.length > 0" class="review-list">
+        <app-review-card
+          *ngFor="let review of followingReviews"
+          [review]="review"
+          [showActions]="false">
+        </app-review-card>
+      </div>
+
+      <div *ngIf="!loadingFollowing && followingReviews.length === 0" class="empty-state">
+        <div class="empty-icon">
+          <ion-icon name="people-outline"></ion-icon>
+        </div>
+        <p class="empty-title">Sin actividad de tus amigos</p>
+        <p class="empty-subtitle">Las personas que sigues aún no han escrito reseñas, o todavía no sigues a nadie.</p>
+        <a routerLink="/search" class="empty-action-btn">
+          <ion-icon name="search-outline"></ion-icon>
+          Explorar juegos
+        </a>
+      </div>
+    </div>
+
   </div>
 </ion-content>

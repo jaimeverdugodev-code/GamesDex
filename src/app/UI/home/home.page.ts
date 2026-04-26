@@ -1,9 +1,11 @@
 // src/app/UI/home/home.page.ts
 
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { ViewWillEnter } from '@ionic/angular';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import {
   IonHeader, IonToolbar, IonTitle, IonContent,
   IonButtons, IonMenuButton, IonIcon,
@@ -30,9 +32,10 @@ import { HomeGameCardComponent } from '../../shared/components/home-game-card/ho
     HomeGameCardComponent
   ]
 })
-export class HomePage implements OnInit, ViewWillEnter {
+export class HomePage implements OnInit, OnDestroy, ViewWillEnter {
   private gameService = inject(GameService);
   private authService = inject(AuthService);
+  private destroy$ = new Subject<void>();
 
   // Secciones
   trendingGames: Game[] = [];
@@ -70,35 +73,38 @@ export class HomePage implements OnInit, ViewWillEnter {
 
   ionViewWillEnter(): void {
     this.refreshUserData();
-  }
-
-  ngOnInit(): void {
-    this.refreshUserData();
-
-    this.gameService.getTrendingGames(1, 10).subscribe({
+    this.gameService.getTrendingGames(10).pipe(takeUntil(this.destroy$)).subscribe({
       next: (res) => { this.trendingGames = res.results; this.loadingTrending = false; },
       error: () => { this.loadingTrending = false; }
     });
+  }
 
-    this.gameService.getTopRated(1, 12).subscribe({
+  ngOnInit(): void {
+
+    this.gameService.getTopRated(1, 12).pipe(takeUntil(this.destroy$)).subscribe({
       next: (res) => { this.topRated = res.results; this.loadingTopRated = false; },
       error: () => { this.loadingTopRated = false; }
     });
 
-    this.gameService.getNewReleases(1, 12).subscribe({
+    this.gameService.getNewReleases(1, 12).pipe(takeUntil(this.destroy$)).subscribe({
       next: (res) => { this.newReleases = res.results; this.loadingNewReleases = false; },
       error: () => { this.loadingNewReleases = false; }
     });
 
-    this.gameService.getForYouGames(1, 12).subscribe({
+    this.gameService.getForYouGames(1, 12).pipe(takeUntil(this.destroy$)).subscribe({
       next: (res) => { this.forYouGames = res.results; this.loadingForYou = false; },
       error: () => { this.loadingForYou = false; }
     });
 
-    this.gameService.getIndieGems(1, 12).subscribe({
+    this.gameService.getIndieGems(1, 12).pipe(takeUntil(this.destroy$)).subscribe({
       next: (res) => { this.indieGems = res.results; this.loadingIndie = false; },
       error: () => { this.loadingIndie = false; }
     });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   private visibleCount(section: string): number {
@@ -137,7 +143,7 @@ export class HomePage implements OnInit, ViewWillEnter {
   }
 
   private refreshUserData(): void {
-    this.authService.user$.subscribe(async user => {
+    this.authService.user$.pipe(takeUntil(this.destroy$)).subscribe(async user => {
       if (user) {
         this.userName = user.displayName || '';
         this.userPhoto = user.photoURL || '';

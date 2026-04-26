@@ -12,8 +12,8 @@ import {
   User as FirebaseAuthUser
 } from '@angular/fire/auth';
 import { Firestore, doc, setDoc, getDoc } from '@angular/fire/firestore';
-import { Observable, from } from 'rxjs';
-import { switchMap } from 'rxjs/operators';
+import { Observable, from, of } from 'rxjs';
+import { switchMap, map } from 'rxjs/operators';
 import { User } from '../models/database.models';
 
 @Injectable({
@@ -26,6 +26,16 @@ export class AuthService {
 
   // Observable que emite el estado actual del usuario (Reactividad con RxJS)
   public readonly user$ = authState(this.auth);
+
+  public readonly isAdmin$ = this.user$.pipe(
+    switchMap(user => {
+      if (!user) return of(false);
+      const userRef = doc(this.firestore, `users/${user.uid}`);
+      return from(getDoc(userRef)).pipe(
+        map(snap => snap.exists() ? (snap.data() as User).role === 'admin' : false)
+      );
+    })
+  );
 
   constructor() {}
 

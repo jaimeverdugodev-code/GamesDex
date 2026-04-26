@@ -3,7 +3,8 @@
 import { Injectable, inject } from '@angular/core';
 import {
   Firestore, collection, addDoc, query,
-  where, collectionData, deleteDoc, doc, serverTimestamp, docData, updateDoc, getDocs
+  where, collectionData, deleteDoc, doc, serverTimestamp, docData, updateDoc, getDocs,
+  orderBy, limit
 } from '@angular/fire/firestore';
 import { Observable, of, combineLatest, from } from 'rxjs';
 import { map, switchMap } from 'rxjs/operators';
@@ -81,5 +82,30 @@ export class ReviewService {
   async deleteReview(reviewId: string): Promise<void> {
     const reviewDoc = doc(this.firestore, `reviews/${reviewId}`);
     await deleteDoc(reviewDoc);
+  }
+
+  // 6. Feed global: últimas N reseñas de toda la base de datos
+  getGlobalReviews(limitNum: number = 20): Observable<Review[]> {
+    const q = query(
+      collection(this.firestore, 'reviews'),
+      orderBy('createdAt', 'desc'),
+      limit(limitNum)
+    );
+    return collectionData(q, { idField: 'id' }) as Observable<Review[]>;
+  }
+
+  // 7. Feed de siguiendo: reseñas de los usuarios que sigues
+  // Nota: el operador 'in' de Firestore soporta máximo 30 valores.
+  getFollowingReviews(userIds: string[]): Observable<Review[]> {
+    if (userIds.length === 0) return of([]);
+    const q = query(
+      collection(this.firestore, 'reviews'),
+      where('userId', 'in', userIds)
+    );
+    return (collectionData(q, { idField: 'id' }) as Observable<Review[]>).pipe(
+      map(reviews =>
+        reviews.sort((a, b) => (b.createdAt?.toMillis() || 0) - (a.createdAt?.toMillis() || 0))
+      )
+    );
   }
 }
