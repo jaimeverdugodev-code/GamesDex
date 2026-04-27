@@ -16,7 +16,7 @@ import {
   star, createOutline, gameControllerOutline,
   peopleOutline, timeOutline, libraryOutline,
   personAddOutline, checkmarkOutline, personRemoveOutline,
-  chatbubbleOutline
+  chatbubbleOutline, shieldCheckmark
 } from 'ionicons/icons';
 import { ReviewModalComponent } from '../game-detail/review-modal.component';
 import { ReviewCardComponent } from '../../shared/components/review-card/review-card.component';
@@ -104,7 +104,7 @@ export class ProfilePage implements ViewWillEnter, OnDestroy {
       star, createOutline, gameControllerOutline,
       peopleOutline, timeOutline, libraryOutline,
       personAddOutline, checkmarkOutline, personRemoveOutline,
-      chatbubbleOutline
+      chatbubbleOutline, shieldCheckmark
     });
   }
 

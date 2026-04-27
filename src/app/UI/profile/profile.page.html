@@ -42,7 +42,10 @@
           <div class="profile-header-left">
             <img [src]="userPhoto || 'assets/img/default-avatar.svg'" alt="Avatar" class="profile-avatar" (error)="$event.target.src='assets/img/default-avatar.svg'" />
             <div class="profile-header-info">
-              <h1 class="profile-name">{{ userName }}</h1>
+              <div class="profile-name-row">
+                <h1 class="profile-name">{{ userName }}</h1>
+                <ion-icon name="shield-checkmark" class="admin-badge" *ngIf="profile?.role === 'admin'"></ion-icon>
+              </div>
               <p class="profile-bio" *ngIf="profile?.bio">{{ profile!.bio }}</p>
               <p class="profile-bio" *ngIf="!profile?.bio && isMyProfile">{{ userEmail }}</p>
             </div>

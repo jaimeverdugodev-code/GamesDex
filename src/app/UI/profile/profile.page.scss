@@ -20,6 +20,21 @@ ion-title { color: white; font-weight: 700; }
 
 .profile-avatar { width: 10rem; height: 10rem; border-radius: 50%; border: 6px solid #121212; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); object-fit: cover; flex-shrink: 0; }
 .profile-header-info { padding-bottom: 1rem; }
+.profile-name-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+
+  .profile-name { margin-bottom: 0; }
+}
+
+.admin-badge {
+  font-size: 1.75rem;
+  color: #fbbf24;
+  flex-shrink: 0;
+}
+
 .profile-name { font-size: 2.25rem; font-weight: 700; color: white; margin: 0 0 0.5rem 0; line-height: 1.1; }
 .profile-bio { color: #9ca3af; font-size: 1rem; line-height: 1.5; max-width: 42rem; margin: 0; }
 
