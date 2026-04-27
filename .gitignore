@@ -74,6 +74,11 @@ firebase-debug.log
 firestore-debug.log
 ui-debug.log
 
+# Environments (Variables de entorno y secretos)
+src/environments/environment.ts
+src/environments/environment.prod.ts
+src/environments/environment.*.ts
+
 # Capacitor (Android/iOS)
 # Solo ignoramos los recursos generados, NO las carpetas /android o /ios si las creas
 /android/build/

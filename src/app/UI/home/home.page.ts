@@ -4,8 +4,8 @@ import { Component, inject, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { ViewWillEnter } from '@ionic/angular';
-import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { Subject, of, forkJoin } from 'rxjs';
+import { takeUntil, switchMap, catchError } from 'rxjs/operators';
 import {
   IonHeader, IonToolbar, IonTitle, IonContent,
   IonButtons, IonMenuButton, IonIcon,
@@ -16,6 +16,8 @@ import { chevronBackOutline, chevronForwardOutline, star } from 'ionicons/icons'
 import { firstValueFrom } from 'rxjs';
 import { GameService } from '../../core/services/game.service';
 import { AuthService } from '../../core/services/auth.service';
+import { AiService } from '../../core/services/ai.service';
+import { UserGamesService } from '../../core/services/user-games.service';
 import { Game } from '../../core/models/game.model';
 import { HomeGameCardComponent } from '../../shared/components/home-game-card/home-game-card.component';
 
@@ -35,6 +37,8 @@ import { HomeGameCardComponent } from '../../shared/components/home-game-card/ho
 export class HomePage implements OnInit, OnDestroy, ViewWillEnter {
   private gameService = inject(GameService);
   private authService = inject(AuthService);
+  private aiService = inject(AiService);
+  private userGamesService = inject(UserGamesService);
   private destroy$ = new Subject<void>();
 
   // Secciones
@@ -144,14 +148,49 @@ export class HomePage implements OnInit, OnDestroy, ViewWillEnter {
 
   private refreshUserData(): void {
     this.authService.user$.pipe(takeUntil(this.destroy$)).subscribe(async user => {
-      if (user) {
-        this.userName = user.displayName || '';
-        this.userPhoto = user.photoURL || '';
-        const profile = await firstValueFrom(this.authService.getProfileData(user.uid));
-        if (profile) {
-          this.userName = profile.displayName || this.userName;
-          this.userPhoto = profile.photoUrl || this.userPhoto;
-        }
+      if (!user) return;
+      this.userName = user.displayName || '';
+      this.userPhoto = user.photoURL || '';
+
+      const profile = await firstValueFrom(this.authService.getProfileData(user.uid));
+      if (!profile) return;
+      this.userName = profile.displayName || this.userName;
+      this.userPhoto = profile.photoUrl || this.userPhoto;
+
+      const userGames = await firstValueFrom(
+        this.userGamesService.getUserGames(user.uid).pipe(catchError(() => of([])))
+      );
+
+      if (userGames.length > 0) {
+        const recent = [...userGames]
+          .sort((a, b) => b.addedAt.toMillis() - a.addedAt.toMillis())
+          .slice(0, 3);
+
+        forkJoin(recent.map(ug =>
+          this.gameService.getGameDetails(ug.gameId).pipe(catchError(() => of(null)))
+        )).pipe(
+          switchMap(details => {
+            const names = details.filter(g => g !== null).map(g => g!.name);
+            if (names.length === 0) return of([]);
+            return this.aiService.getRecommendationsByGames(names).pipe(
+              switchMap(titles => this.gameService.getGamesByTitles(titles)),
+              catchError(() => of([]))
+            );
+          }),
+          catchError(() => of([])),
+          takeUntil(this.destroy$)
+        ).subscribe({
+          next: (games) => { if (games.length > 0) this.forYouGames = games; }
+        });
+
+      } else if (profile.favoriteGenres?.length > 0) {
+        this.aiService.getPersonalizedRecommendations(profile.favoriteGenres).pipe(
+          switchMap(titles => this.gameService.getGamesByTitles(titles)),
+          catchError(() => of([])),
+          takeUntil(this.destroy$)
+        ).subscribe({
+          next: (games) => { if (games.length > 0) this.forYouGames = games; }
+        });
       }
     });
   }

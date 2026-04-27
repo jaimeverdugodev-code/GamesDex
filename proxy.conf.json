@@ -1,0 +1,11 @@
+{
+  "/hf-api": {
+    "target": "https://router.huggingface.co",
+    "changeOrigin": true,
+    "pathRewrite": {
+      "^/hf-api": ""
+    },
+    "secure": true,
+    "logLevel": "debug"
+  }
+}
