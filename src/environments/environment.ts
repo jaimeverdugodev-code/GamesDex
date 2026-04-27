@@ -5,6 +5,7 @@
 export const environment = {
   production: false,
   rawgApiKey: '0a285f6b75464e54aaab84f10b477997',
+  huggingFaceToken: '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',
   firebase: {
     apiKey: "AIzaSyDigeGxEZcnwSBfPTuHU8qzuqIOHn6Z4N8",
     authDomain: "gamesdex-f3fef.firebaseapp.com",
@@ -14,6 +15,8 @@ export const environment = {
     appId: "1:348392018043:web:67c11ff5abc9d992f812de"
   }
 };
+
+//HUGGINGFACE TOKEN: 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
 
 /*
  * For easier debugging in development mode, you can import the following file

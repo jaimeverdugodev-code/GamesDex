@@ -3,8 +3,8 @@
 
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { shareReplay, map } from 'rxjs/operators';
+import { Observable, of, forkJoin } from 'rxjs';
+import { shareReplay, map, catchError } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 import { Game, RawgResponse } from '../models/game.model';
 
@@ -260,13 +260,31 @@ export class GameService {
     return this.indieCache.get(cacheKey)!;
   }
 
-// Añade esto en src/app/core/services/game.service.ts
   getSimilarGames(id: number): Observable<Game[]> {
     const params = new HttpParams().set('key', environment.rawgApiKey);
-    
-    // Usamos el endpoint de RAWG para juegos de la misma saga/estilo
     return this.http.get<any>(`${this.baseUrl}/games/${id}/game-series`, { params }).pipe(
       map(response => response.results.slice(0, 10))
+    );
+  }
+
+  getGamesByTitles(titles: string[]): Observable<Game[]> {
+    if (!titles || titles.length === 0) return of([]);
+
+    const searches$ = titles.map(title => {
+      const params = new HttpParams()
+        .set('key', environment.rawgApiKey)
+        .set('search', title.trim())
+        .set('page_size', 1);
+      return this.http.get<RawgResponse>(`${this.baseUrl}/games`, { params }).pipe(
+        map(res => res.results?.[0] ?? null),
+        catchError(() => of(null))
+      );
+    });
+
+    return forkJoin(searches$).pipe(
+      map(results => results.filter(
+        (g): g is Game => g !== null && (g.rating > 0 || (g.metacritic != null && g.metacritic > 50))
+      ))
     );
   }
 }

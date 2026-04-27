@@ -15,9 +15,10 @@ import {
   chevronBackOutline, chevronForwardOutline
 } from 'ionicons/icons';
 import { Subject, Observable, of } from 'rxjs';
-import { takeUntil, switchMap, filter } from 'rxjs/operators';
+import { takeUntil, switchMap, filter, catchError, map } from 'rxjs/operators';
 
 import { GameService } from '../../core/services/game.service';
+import { AiService } from '../../core/services/ai.service';
 import { AuthService } from '../../core/services/auth.service';
 import { UserGamesService } from '../../core/services/user-games.service';
 import { ReviewService } from '../../core/services/review.service';
@@ -45,6 +46,7 @@ export class GameDetailPage implements OnInit, OnDestroy {
   private authService = inject(AuthService);
   private userGamesService = inject(UserGamesService);
   private reviewService = inject(ReviewService);
+  private aiService = inject(AiService);
   private modalCtrl = inject(ModalController);
   private actionSheetCtrl = inject(ActionSheetController);
   private alertCtrl = inject(AlertController);
@@ -80,40 +82,38 @@ export class GameDetailPage implements OnInit, OnDestroy {
       this.game = null; 
       this.similarGames = []; // Limpiamos la lista anterior al cambiar de juego
 
-      // 1. Obtener detalles
-      this.gameService.getGameDetails(this.gameId).subscribe({
-        next: (game) => { this.game = game; this.isLoading = false; },
+      // 1. Obtener detalles y, una vez resueltos, cargar similares en paralelo
+      this.gameService.getGameDetails(this.gameId).pipe(
+        takeUntil(this.destroy$)
+      ).subscribe({
+        next: (game) => {
+          this.game = game;
+          this.isLoading = false;
+
+          // 2a. RAWG saga: muestra resultados inmediatamente
+          this.gameService.getSimilarGames(this.gameId).pipe(
+            catchError(() => of([])),
+            takeUntil(this.destroy$)
+          ).subscribe(sagaGames => {
+            this.similarGames = sagaGames
+              .filter(g => g.id !== this.gameId)
+              .slice(0, 12);
+          });
+
+          // 2b. IA: enriquece la lista cuando resuelve (no bloquea la UI)
+          this.aiService.getRecommendationsByGame(game.name).pipe(
+            switchMap(titles => this.gameService.getGamesByTitles(titles)),
+            catchError(() => of([])),
+            takeUntil(this.destroy$)
+          ).subscribe(aiGames => {
+            if (aiGames.length === 0) return;
+            const seen = new Set<number>(this.similarGames.map(g => g.id));
+            seen.add(this.gameId);
+            const extras = aiGames.filter(g => !seen.has(g.id));
+            this.similarGames = [...this.similarGames, ...extras].slice(0, 12);
+          });
+        },
         error: () => { this.isLoading = false; }
-      });
-
-      // 2. Obtener juegos similares (Saga + Relleno de Género)
-      this.gameService.getSimilarGames(this.gameId).subscribe(sagaGames => {
-        // Quitamos el juego actual por si la API lo devuelve en la lista
-        let combinedGames = sagaGames ? sagaGames.filter(g => g.id !== this.gameId) : [];
-
-        // Si la saga tiene menos de 10 juegos, rellenamos el hueco
-        if (combinedGames.length < 10) {
-          setTimeout(() => {
-            if (this.game?.genres && this.game.genres.length > 0) {
-              const mainGenre = this.game.genres[0].slug;
-              this.gameService.getGamesByGenre(mainGenre).subscribe(genreGames => {
-                
-                // Filtramos para asegurar que los de relleno no repiten ni el juego actual ni los que ya tenemos de la saga
-                const extraGames = genreGames.results.filter((g: Game) => 
-                  g.id !== this.gameId && !combinedGames.find(cg => cg.id === g.id)
-                );
-
-                // MAGIA AQUÍ: Primero los de la saga (combinedGames) y seguido los de relleno (extraGames), máximo 10.
-                this.similarGames = [...combinedGames, ...extraGames].slice(0, 10);
-              });
-            } else {
-              this.similarGames = combinedGames; 
-            }
-          }, 500); 
-        } else {
-          // Si la saga ya es muy grande, nos quedamos solo con los 10 primeros de la saga
-          this.similarGames = combinedGames.slice(0, 10);
-        }
       });
 
       // 3. Obtener reseñas del juego actual
