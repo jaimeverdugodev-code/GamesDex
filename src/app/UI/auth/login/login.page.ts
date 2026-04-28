@@ -40,6 +40,7 @@ export class LoginPage {
 
   constructor() {
     addIcons({ gameController, eyeOutline, eyeOffOutline, logoGoogle });
+    this.authService.handleGoogleRedirect().then(() => this.checkProfileAndRedirect());
   }
 
   async onSubmit() {
@@ -66,7 +67,8 @@ export class LoginPage {
   async loginWithGoogle() {
     try {
       await this.authService.loginWithGoogle();
-      await this.checkProfileAndRedirect(); // Nueva comprobación
+      // La redirección lleva al usuario fuera de la app; el resultado
+      // se procesa en el constructor via handleGoogleRedirect al volver.
     } catch (error) {
       this.errorMessage = 'Error al conectar con Google.';
       console.error(error);

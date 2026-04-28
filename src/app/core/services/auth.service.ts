@@ -4,7 +4,8 @@ import { Injectable, inject } from '@angular/core';
 import {
   Auth,
   authState,
-  signInWithPopup,
+  signInWithRedirect,
+  getRedirectResult,
   GoogleAuthProvider,
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
@@ -47,8 +48,14 @@ export class AuthService {
    */
   async loginWithGoogle(): Promise<void> {
     const provider = new GoogleAuthProvider();
-    const credential = await signInWithPopup(this.auth, provider);
-    await this.syncUserData(credential.user);
+    await signInWithRedirect(this.auth, provider);
+  }
+
+  async handleGoogleRedirect(): Promise<void> {
+    const result = await getRedirectResult(this.auth);
+    if (result?.user) {
+      await this.syncUserData(result.user);
+    }
   }
 
   /**

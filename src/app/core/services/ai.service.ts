@@ -13,7 +13,7 @@ interface ChatResponse {
 
 @Injectable({ providedIn: 'root' })
 export class AiService {
-  private readonly groqUrl = '/groq-api/openai/v1/chat/completions';
+  private readonly groqUrl = environment.groqApiUrl;
   private readonly model = 'llama-3.3-70b-versatile';
   private http = inject(HttpClient);
 
