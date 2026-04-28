@@ -1,14 +1,17 @@
 // src/app/core/services/auth.service.ts
 
 import { Injectable, inject } from '@angular/core';
-import { 
-  Auth, 
-  authState, 
-  signInWithPopup, 
-  GoogleAuthProvider, 
-  createUserWithEmailAndPassword, 
-  signInWithEmailAndPassword, 
+import {
+  Auth,
+  authState,
+  signInWithPopup,
+  GoogleAuthProvider,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
   signOut,
+  sendPasswordResetEmail,
+  updatePassword,
+  deleteUser,
   User as FirebaseAuthUser
 } from '@angular/fire/auth';
 import { Firestore, doc, setDoc, getDoc } from '@angular/fire/firestore';
@@ -64,11 +67,20 @@ export class AuthService {
     await signInWithEmailAndPassword(this.auth, email, password);
   }
 
-  /**
-   * Cierra la sesión activa
-   */
   async logout(): Promise<void> {
     await signOut(this.auth);
+  }
+
+  async resetPassword(email: string): Promise<void> {
+    await sendPasswordResetEmail(this.auth, email);
+  }
+
+  async changeUserPassword(newPassword: string): Promise<void> {
+    await updatePassword(this.auth.currentUser!, newPassword);
+  }
+
+  async deleteUserAccount(): Promise<void> {
+    await deleteUser(this.auth.currentUser!);
   }
 
   /**

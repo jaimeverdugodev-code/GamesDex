@@ -9,7 +9,7 @@ import {
   pulseOutline, pulseSharp,
   peopleOutline, peopleSharp,
   logOutOutline, logOutSharp,
-  closeOutline, shieldOutline
+  closeOutline, shieldOutline, settingsOutline
 } from 'ionicons/icons';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
@@ -45,7 +45,7 @@ export class AppComponent implements OnInit, OnDestroy {
       pulseOutline, pulseSharp,
       peopleOutline, peopleSharp,
       logOutOutline, logOutSharp,
-      closeOutline, shieldOutline
+      closeOutline, shieldOutline, settingsOutline
     });
   }
 

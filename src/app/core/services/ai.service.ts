@@ -13,48 +13,47 @@ interface ChatResponse {
 
 @Injectable({ providedIn: 'root' })
 export class AiService {
-  private readonly hfUrl = '/hf-api/sambanova/v1/chat/completions';
-  private readonly model = 'Meta-Llama-3.3-70B-Instruct';
+  private readonly groqUrl = '/groq-api/openai/v1/chat/completions';
+  private readonly model = 'llama-3.3-70b-versatile';
   private http = inject(HttpClient);
 
   getRecommendationsByGame(gameName: string): Observable<string[]> {
     const content =
-      `You are a video game recommendation engine. ` +
-      `Recommend ONLY high-quality, well-known, and critically acclaimed AAA or popular indie games. ` +
-      `Avoid obscure titles with no ratings. ` +
-      `Reply with ONLY a comma-separated list of exactly 12 video game titles similar to "${gameName}". ` +
+      `You are a video game recommendation engine focused on similarity. ` +
+      `Your goal is to find games as similar as possible to "${gameName}" in terms of genre, mechanics, setting, and feel. ` +
+      `Include any game that matches well regardless of popularity, reviews, or commercial success. ` +
+      `Reply with ONLY a comma-separated list of exactly 12 video game titles. ` +
       `No explanations, no numbering, no extra text. ` +
       `Example: Game A, Game B, Game C, Game D, Game E, Game F, Game G, Game H, Game I, Game J, Game K, Game L`;
-    return this.callHf(content);
+    return this.callGroq(content);
   }
 
   getRecommendationsByGames(gameTitles: string[]): Observable<string[]> {
     const list = gameTitles.join(', ');
     const content =
-      `You are a video game recommendation engine. ` +
-      `Recommend ONLY high-quality, well-known, and critically acclaimed AAA or popular indie games. ` +
-      `Avoid obscure titles with no ratings. ` +
-      `Based on these games: ${list}, suggest exactly 12 similar top-rated masterpieces. ` +
-      `Reply with ONLY a comma-separated list of exact video game titles. ` +
+      `You are a video game recommendation engine focused on similarity. ` +
+      `Based on these games: ${list}, find games that share the most similar genre, mechanics, setting, and feel. ` +
+      `Include any game that matches well regardless of popularity, reviews, or commercial success. ` +
+      `Reply with ONLY a comma-separated list of exactly 12 video game titles. ` +
       `No explanations, no numbering, no extra text. ` +
       `Example: Game A, Game B, Game C, Game D, Game E, Game F, Game G, Game H, Game I, Game J, Game K, Game L`;
-    return this.callHf(content);
+    return this.callGroq(content);
   }
 
   getPersonalizedRecommendations(genres: string[]): Observable<string[]> {
     const content =
-      `You are a video game recommendation engine. ` +
-      `Recommend ONLY high-quality, well-known, and critically acclaimed AAA or popular indie games. ` +
-      `Avoid obscure titles with no ratings. ` +
-      `Reply with ONLY a comma-separated list of exactly 12 popular video game titles ` +
-      `from these genres: ${genres.join(', ')}. No explanations, no numbering, no extra text. ` +
+      `You are a video game recommendation engine focused on similarity. ` +
+      `Suggest games that best represent these genres: ${genres.join(', ')}. ` +
+      `Include any game that fits well regardless of popularity, reviews, or commercial success. ` +
+      `Reply with ONLY a comma-separated list of exactly 12 video game titles. ` +
+      `No explanations, no numbering, no extra text. ` +
       `Example: Game A, Game B, Game C, Game D, Game E, Game F, Game G, Game H, Game I, Game J, Game K, Game L`;
-    return this.callHf(content);
+    return this.callGroq(content);
   }
 
-  private callHf(userContent: string): Observable<string[]> {
+  private callGroq(userContent: string): Observable<string[]> {
     const headers = new HttpHeaders({
-      Authorization: `Bearer ${environment.huggingFaceToken}`,
+      Authorization: `Bearer ${environment.groqApiKey}`,
       'Content-Type': 'application/json'
     });
     const body = {
@@ -63,7 +62,7 @@ export class AiService {
       max_tokens: 150,
       stream: false
     };
-    return this.http.post<ChatResponse>(this.hfUrl, body, { headers }).pipe(
+    return this.http.post<ChatResponse>(this.groqUrl, body, { headers }).pipe(
       map(res => this.parse(res)),
       catchError(() => of([]))
     );

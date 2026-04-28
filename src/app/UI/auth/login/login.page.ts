@@ -5,8 +5,9 @@ import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { Subscription, firstValueFrom } from 'rxjs';
 
-import { 
-  IonContent, IonIcon, IonSpinner
+import {
+  IonContent, IonIcon, IonSpinner, IonButton,
+  AlertController, ToastController
 } from '@ionic/angular/standalone';
 
 import { addIcons } from 'ionicons';
@@ -18,15 +19,17 @@ import { gameController, eyeOutline, eyeOffOutline, logoGoogle } from 'ionicons/
   styleUrls: ['./login.page.scss'],
   standalone: true,
   imports: [
-    CommonModule, 
+    CommonModule,
     FormsModule,
     RouterLink,
-    IonContent, IonIcon, IonSpinner
+    IonContent, IonIcon, IonSpinner, IonButton
   ]
 })
 export class LoginPage {
   private authService = inject(AuthService);
   private router = inject(Router);
+  private alertCtrl = inject(AlertController);
+  private toastCtrl = inject(ToastController);
   private authSub?: Subscription;
 
   email = '';
@@ -88,5 +91,42 @@ export class LoginPage {
 
   togglePasswordVisibility() {
     this.showPassword = !this.showPassword;
+  }
+
+  async presentResetPasswordAlert(): Promise<void> {
+    const alert = await this.alertCtrl.create({
+      header: 'Recuperar Contraseña',
+      message: 'Introduce tu email y te enviaremos un enlace para restablecer tu contraseña.',
+      inputs: [{ name: 'email', type: 'email', placeholder: 'tu@email.com' }],
+      buttons: [
+        { text: 'Cancelar', role: 'cancel' },
+        {
+          text: 'Enviar',
+          handler: async (data) => {
+            if (!data.email?.trim()) return false;
+            try {
+              await this.authService.resetPassword(data.email.trim());
+              const toast = await this.toastCtrl.create({
+                message: 'Correo de recuperación enviado. Revisa tu bandeja de entrada.',
+                duration: 4000,
+                position: 'top',
+                color: 'success'
+              });
+              await toast.present();
+            } catch {
+              const toast = await this.toastCtrl.create({
+                message: 'No se encontró ninguna cuenta con ese email.',
+                duration: 3000,
+                position: 'top',
+                color: 'danger'
+              });
+              await toast.present();
+            }
+            return true;
+          }
+        }
+      ]
+    });
+    await alert.present();
   }
 }

@@ -1,9 +1,9 @@
 {
-  "/hf-api": {
-    "target": "https://router.huggingface.co",
+  "/groq-api": {
+    "target": "https://api.groq.com",
     "changeOrigin": true,
     "pathRewrite": {
-      "^/hf-api": ""
+      "^/groq-api": ""
     },
     "secure": true,
     "logLevel": "debug"

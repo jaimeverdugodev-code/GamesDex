@@ -161,6 +161,20 @@
       accent-color: #bb86fc;
     }
   }
+
+  ion-button {
+    --color: #bb86fc;
+    --padding-start: 0;
+    --padding-end: 0;
+    font-size: 0.875rem;
+    font-weight: 500;
+    margin: 0;
+    height: auto;
+    text-transform: none;
+    letter-spacing: 0;
+
+    &:hover { --color: #03dac6; }
+  }
 }
 
 .link-primary {

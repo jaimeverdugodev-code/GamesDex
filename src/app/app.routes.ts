@@ -69,5 +69,9 @@ export const routes: Routes = [
     path: 'admin',
     loadComponent: () => import('./UI/admin/admin.page').then(m => m.AdminPage),
     canActivate: [adminGuard]
+  },
+  {
+    path: 'settings',
+    loadComponent: () => import('./UI/settings/settings.page').then(m => m.SettingsPage)
   }
 ];

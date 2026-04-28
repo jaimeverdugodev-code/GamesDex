@@ -53,7 +53,7 @@
               <input type="checkbox" class="custom-checkbox" />
               <span>Recordarme</span>
             </label>
-            <a routerLink="/forgot-password" class="link-primary">¿Olvidaste tu contraseña?</a>
+            <ion-button fill="clear" size="small" (click)="presentResetPasswordAlert()">¿Olvidaste tu contraseña?</ion-button>
           </div>
 
           <div class="error-msg" *ngIf="errorMessage">

@@ -1,0 +1,90 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/profile" text="" color="light"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Ajustes</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="settings-content">
+
+  <div class="settings-hero">
+    <div class="hero-glow"></div>
+    <ion-icon name="game-controller-outline" class="hero-icon"></ion-icon>
+    <h2 class="hero-title">GamesDex</h2>
+    <p class="hero-sub">Configuración de tu cuenta</p>
+  </div>
+
+  <div class="settings-body">
+
+    <!-- SEGURIDAD -->
+    <p class="section-label">Seguridad</p>
+    <div class="settings-card">
+
+      <button class="settings-item" (click)="changePassword()">
+        <div class="item-left">
+          <span class="icon-wrap icon-wrap--purple">
+            <ion-icon name="lock-closed-outline"></ion-icon>
+          </span>
+          <div class="item-text">
+            <span class="item-title">Cambiar Contraseña</span>
+            <span class="item-desc">Actualiza tu clave de acceso</span>
+          </div>
+        </div>
+        <ion-icon name="chevron-forward-outline" class="item-arrow"></ion-icon>
+      </button>
+
+      <div class="item-divider"></div>
+
+      <button class="settings-item settings-item--danger" (click)="deleteAccount()">
+        <div class="item-left">
+          <span class="icon-wrap icon-wrap--red">
+            <ion-icon name="trash-outline"></ion-icon>
+          </span>
+          <div class="item-text">
+            <span class="item-title text-danger">Eliminar Cuenta</span>
+            <span class="item-desc">Acción permanente e irreversible</span>
+          </div>
+        </div>
+        <ion-icon name="chevron-forward-outline" class="item-arrow item-arrow--danger"></ion-icon>
+      </button>
+
+    </div>
+
+    <!-- INFORMACIÓN -->
+    <p class="section-label">Información</p>
+    <div class="settings-card">
+
+      <div class="settings-item settings-item--static">
+        <div class="item-left">
+          <span class="icon-wrap icon-wrap--teal">
+            <ion-icon name="information-circle-outline"></ion-icon>
+          </span>
+          <div class="item-text">
+            <span class="item-title">Versión</span>
+            <span class="item-desc">Última actualización</span>
+          </div>
+        </div>
+        <span class="item-badge">1.0.0</span>
+      </div>
+
+      <div class="item-divider"></div>
+
+      <div class="settings-item settings-item--static">
+        <div class="item-left">
+          <span class="icon-wrap icon-wrap--purple">
+            <ion-icon name="shield-half-outline"></ion-icon>
+          </span>
+          <div class="item-text">
+            <span class="item-title">Proyecto</span>
+            <span class="item-desc">TFG — DAM 2025</span>
+          </div>
+        </div>
+        <span class="item-badge">GamesDex</span>
+      </div>
+
+    </div>
+
+  </div>
+</ion-content>
