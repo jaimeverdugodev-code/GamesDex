@@ -4,8 +4,9 @@ import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { Subscription } from 'rxjs';
+import { ViewWillEnter, ViewWillLeave } from '@ionic/angular';
 
-import { IonContent, IonIcon, IonSpinner } from '@ionic/angular/standalone';
+import { IonContent, IonIcon, IonSpinner, MenuController } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { gameController, eyeOutline, eyeOffOutline, checkmarkOutline, logoGoogle } from 'ionicons/icons';
 
@@ -16,9 +17,10 @@ import { gameController, eyeOutline, eyeOffOutline, checkmarkOutline, logoGoogle
   standalone: true,
   imports: [CommonModule, FormsModule, RouterLink, IonContent, IonIcon, IonSpinner]
 })
-export class RegisterPage {
+export class RegisterPage implements ViewWillEnter, ViewWillLeave {
   private authService = inject(AuthService);
   private router = inject(Router);
+  private menuCtrl = inject(MenuController);
   private authSub?: Subscription;
 
   username = '';
@@ -36,6 +38,9 @@ export class RegisterPage {
   constructor() {
     addIcons({ gameController, eyeOutline, eyeOffOutline, checkmarkOutline, logoGoogle });
   }
+
+  ionViewWillEnter(): void { this.menuCtrl.enable(false); }
+  ionViewWillLeave(): void { this.menuCtrl.enable(true); }
 
   get passwordStrength() {
     if (this.password.length === 0) return { strength: 0, label: '', color: '#374151' };

@@ -4,10 +4,11 @@ import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { Subscription, firstValueFrom } from 'rxjs';
+import { ViewWillEnter, ViewWillLeave } from '@ionic/angular';
 
 import {
   IonContent, IonIcon, IonSpinner, IonButton,
-  AlertController, ToastController
+  AlertController, ToastController, MenuController
 } from '@ionic/angular/standalone';
 
 import { addIcons } from 'ionicons';
@@ -25,11 +26,12 @@ import { gameController, eyeOutline, eyeOffOutline, logoGoogle } from 'ionicons/
     IonContent, IonIcon, IonSpinner, IonButton
   ]
 })
-export class LoginPage {
+export class LoginPage implements ViewWillEnter, ViewWillLeave {
   private authService = inject(AuthService);
   private router = inject(Router);
   private alertCtrl = inject(AlertController);
   private toastCtrl = inject(ToastController);
+  private menuCtrl = inject(MenuController);
   private authSub?: Subscription;
 
   email = '';
@@ -40,8 +42,10 @@ export class LoginPage {
 
   constructor() {
     addIcons({ gameController, eyeOutline, eyeOffOutline, logoGoogle });
-    this.authService.handleGoogleRedirect().then(() => this.checkProfileAndRedirect());
   }
+
+  ionViewWillEnter(): void { this.menuCtrl.enable(false); }
+  ionViewWillLeave(): void { this.menuCtrl.enable(true); }
 
   async onSubmit() {
     // Validar campos vacíos estrictamente
@@ -65,13 +69,16 @@ export class LoginPage {
   }
 
   async loginWithGoogle() {
+    this.isLoading = true;
+    this.errorMessage = '';
     try {
       await this.authService.loginWithGoogle();
-      // La redirección lleva al usuario fuera de la app; el resultado
-      // se procesa en el constructor via handleGoogleRedirect al volver.
+      await this.checkProfileAndRedirect();
     } catch (error) {
       this.errorMessage = 'Error al conectar con Google.';
       console.error(error);
+    } finally {
+      this.isLoading = false;
     }
   }
 

@@ -100,6 +100,12 @@ export class UserGamesService {
     this.savedGamesMap$.next(new Map(currentMap));
   }
 
+  async deleteUserGames(userId: string): Promise<void> {
+    const q = query(collection(this.firestore, 'user_games'), where('userId', '==', userId));
+    const snapshot = await getDocs(q);
+    await Promise.all(snapshot.docs.map(d => deleteDoc(d.ref)));
+  }
+
   /**
    * Obtiene todos los documentos completos de un usuario.
    */

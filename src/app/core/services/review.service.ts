@@ -84,6 +84,20 @@ export class ReviewService {
     await deleteDoc(reviewDoc);
   }
 
+  // 5b. Actualizar authorPhoto en todas las reseñas de un usuario
+  async updateAuthorPhotoInReviews(userId: string, photoUrl: string): Promise<void> {
+    const q = query(collection(this.firestore, 'reviews'), where('userId', '==', userId));
+    const snapshot = await getDocs(q);
+    await Promise.all(snapshot.docs.map(d => updateDoc(d.ref, { authorPhoto: photoUrl })));
+  }
+
+  // 5c. Borrar todas las reseñas de un usuario
+  async deleteUserReviews(userId: string): Promise<void> {
+    const q = query(collection(this.firestore, 'reviews'), where('userId', '==', userId));
+    const snapshot = await getDocs(q);
+    await Promise.all(snapshot.docs.map(d => deleteDoc(d.ref)));
+  }
+
   // 6. Feed global: últimas N reseñas de toda la base de datos
   getGlobalReviews(limitNum: number = 20): Observable<Review[]> {
     const q = query(

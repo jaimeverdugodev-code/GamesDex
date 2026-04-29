@@ -54,6 +54,7 @@ export class GameDetailPage implements OnInit, OnDestroy {
 
   game: Game | null = null;
   isLoading = true;
+  isDescriptionExpanded = false;
 
   savedStatus: 'played' | 'playing' | 'wishlist' | null = null;
   currentUserId: string | null = null;
@@ -138,6 +139,10 @@ export class GameDetailPage implements OnInit, OnDestroy {
         this.userGamesService.loadUserGames(profile.uid);
       }
     });
+  }
+
+  toggleDescription(): void {
+    this.isDescriptionExpanded = !this.isDescriptionExpanded;
   }
 
   scrollHorizontally(event: WheelEvent) {

@@ -402,6 +402,26 @@ ion-back-button {
   white-space: pre-line;
 }
 
+.game-description.description-collapsed {
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  white-space: normal;
+}
+
+.btn-toggle-desc {
+  background: none;
+  border: none;
+  color: #bb86fc;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0.5rem 0 0;
+  display: block;
+  &:hover { color: #a370e6; }
+}
+
 /* ==========================================
    REVIEWS SECTION (Reseñas de la Comunidad)
 ========================================== */

@@ -85,7 +85,10 @@
     <div class="detail-body">
       <section class="description-section" *ngIf="game.description_raw">
         <h3>Acerca del juego</h3>
-        <p class="game-description">{{ game.description_raw }}</p>
+        <p class="game-description" [class.description-collapsed]="!isDescriptionExpanded">{{ game.description_raw }}</p>
+        <button class="btn-toggle-desc" (click)="toggleDescription()">
+          {{ isDescriptionExpanded ? 'Ver menos' : 'Ver más' }}
+        </button>
       </section>
 
       <section class="similar-games-section" *ngIf="similarGames.length > 0">

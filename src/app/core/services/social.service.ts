@@ -59,14 +59,21 @@ export class SocialService {
     });
   }
 
-async unfollowUser(followerId: string, followingId: string): Promise<void> {
+  async unfollowUser(followerId: string, followingId: string): Promise<void> {
     const followsRef = collection(this.firestore, 'follows');
-    // Buscamos el documento exacto donde tú eres el follower y él es el following
     const q = query(followsRef, where('followerId', '==', followerId), where('followingId', '==', followingId));
     const snapshot = await getDocs(q);
-    
-    // Eliminamos todas las coincidencias (normalmente solo habrá una)
     const deletePromises = snapshot.docs.map(docSnap => deleteDoc(doc(this.firestore, `follows/${docSnap.id}`)));
     await Promise.all(deletePromises);
+  }
+
+  async deleteUserFollows(userId: string): Promise<void> {
+    const followsRef = collection(this.firestore, 'follows');
+    const [asFollower, asFollowing] = await Promise.all([
+      getDocs(query(followsRef, where('followerId', '==', userId))),
+      getDocs(query(followsRef, where('followingId', '==', userId)))
+    ]);
+    const all = [...asFollower.docs, ...asFollowing.docs];
+    await Promise.all(all.map(d => deleteDoc(d.ref)));
   }
 }

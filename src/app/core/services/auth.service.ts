@@ -4,9 +4,8 @@ import { Injectable, inject } from '@angular/core';
 import {
   Auth,
   authState,
-  signInWithRedirect,
-  getRedirectResult,
   GoogleAuthProvider,
+  signInWithCredential,
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   signOut,
@@ -15,6 +14,13 @@ import {
   deleteUser,
   User as FirebaseAuthUser
 } from '@angular/fire/auth';
+import { FirebaseAuthentication } from '@capacitor-firebase/authentication';
+import { Capacitor } from '@capacitor/core';
+import { signInWithPopup } from '@angular/fire/auth';
+import { ReviewService } from './review.service';
+import { SocialService } from './social.service';
+import { UserGamesService } from './user-games.service';
+import { deleteDoc } from '@angular/fire/firestore';
 import { Firestore, doc, setDoc, getDoc } from '@angular/fire/firestore';
 import { Observable, from, of } from 'rxjs';
 import { switchMap, map } from 'rxjs/operators';
@@ -41,20 +47,25 @@ export class AuthService {
     })
   );
 
-  constructor() {}
+  private reviewService = inject(ReviewService);
+  private socialService = inject(SocialService);
+  private userGamesService = inject(UserGamesService);
 
   /**
-   * HU01: Iniciar sesión con Google
+   * HU01: Iniciar sesión con Google (nativo en Android/iOS, popup en web)
    */
   async loginWithGoogle(): Promise<void> {
-    const provider = new GoogleAuthProvider();
-    await signInWithRedirect(this.auth, provider);
-  }
-
-  async handleGoogleRedirect(): Promise<void> {
-    const result = await getRedirectResult(this.auth);
-    if (result?.user) {
-      await this.syncUserData(result.user);
+    if (Capacitor.isNativePlatform()) {
+      const result = await FirebaseAuthentication.signInWithGoogle();
+      const idToken = result.credential?.idToken;
+      if (!idToken) throw new Error('No se obtuvo el idToken de Google.');
+      const credential = GoogleAuthProvider.credential(idToken);
+      const userCredential = await signInWithCredential(this.auth, credential);
+      await this.syncUserData(userCredential.user);
+    } else {
+      const provider = new GoogleAuthProvider();
+      const userCredential = await signInWithPopup(this.auth, provider);
+      await this.syncUserData(userCredential.user);
     }
   }
 
@@ -87,7 +98,15 @@ export class AuthService {
   }
 
   async deleteUserAccount(): Promise<void> {
-    await deleteUser(this.auth.currentUser!);
+    const user = this.auth.currentUser!;
+    const uid = user.uid;
+    await Promise.all([
+      this.reviewService.deleteUserReviews(uid),
+      this.socialService.deleteUserFollows(uid),
+      this.userGamesService.deleteUserGames(uid),
+      deleteDoc(doc(this.firestore, `users/${uid}`))
+    ]);
+    await deleteUser(user);
   }
 
   /**
@@ -127,8 +146,10 @@ export class AuthService {
    */
   async updateUserProfile(uid: string, profileData: Partial<User>): Promise<void> {
     const userRef = doc(this.firestore, `users/${uid}`);
-    // merge: true actualiza solo los campos especificados sin borrar el resto
     await setDoc(userRef, profileData, { merge: true });
+    if (profileData.photoUrl !== undefined) {
+      await this.reviewService.updateAuthorPhotoInReviews(uid, profileData.photoUrl);
+    }
   }
 
   /**

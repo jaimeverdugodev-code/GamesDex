@@ -33,23 +33,24 @@ ion-title {
   justify-content: center;
 }
 
-.nav-logo-icon {
-  width: 2.5rem;
-  height: 2.5rem;
-  background: linear-gradient(to bottom right, #bb86fc, #03dac6);
-  border-radius: 0.5rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  font-weight: 700;
-  font-size: 1.25rem;
+.nav-logo-img {
+  height: 3rem;
+  width: auto;
+  object-fit: contain;
+}
+
+.brand-dex {
+  color: #bb86fc;
 }
 
 .nav-logo-text {
   color: white;
   font-size: 1.25rem;
   font-weight: 700;
+}
+
+.plt-android, .plt-capacitor {
+  .nav-logo-text { display: none; }
 }
 
 .nav-user {
@@ -275,12 +276,14 @@ ion-title {
   }
 
   .slider-big .slide-item {
-    flex: 0 0 calc((100% - 1rem) / 2.3);
+    flex: 0 0 auto !important;
+    width: 65vw;
     scroll-snap-align: start;
   }
 
   .slider-small .slide-item {
-    flex: 0 0 calc((100% - 2rem) / 3.8);
+    flex: 0 0 auto !important;
+    width: 40vw;
     scroll-snap-align: start;
   }
 }

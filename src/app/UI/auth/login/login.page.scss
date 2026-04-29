@@ -53,18 +53,15 @@
   margin-bottom: 2rem;
 
   .logo-box {
-    display: inline-flex;
+    display: flex;
     align-items: center;
     justify-content: center;
-    width: 4rem;
-    height: 4rem;
-    border-radius: 1rem;
-    background-color: #bb86fc;
     margin-bottom: 1rem;
 
-    .logo-icon {
-      font-size: 2.5rem;
-      color: white;
+    .logo-img {
+      height: 5rem;
+      width: auto;
+      object-fit: contain;
     }
   }
 

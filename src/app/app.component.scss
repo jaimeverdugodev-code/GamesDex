@@ -37,7 +37,21 @@ ion-menu.gamesdex-menu {
 .menu-logo {
   display: flex;
   align-items: center;
-  gap: 0.75rem; // gap-3
+  gap: 0.6rem;
+}
+
+.menu-logo-img {
+  height: 3rem;
+  width: auto;
+  object-fit: contain;
+}
+
+.brand-dex {
+  color: #bb86fc;
+}
+
+.plt-android, .plt-capacitor {
+  .logo-text { display: none; }
 }
 
 // Figma: w-10 h-10 bg-gradient-to-br from-[#bb86fc] to-[#03dac6] rounded-lg
