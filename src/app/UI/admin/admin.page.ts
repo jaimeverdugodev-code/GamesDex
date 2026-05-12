@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, OnDestroy } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy, NgZone } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { AlertController, ToastController } from '@ionic/angular';
@@ -36,7 +36,8 @@ export class AdminPage implements OnInit, OnDestroy {
   private adminService = inject(AdminService);
   private gameService  = inject(GameService);
   private alertCtrl    = inject(AlertController);
-  private toastCtrl   = inject(ToastController);
+  private toastCtrl    = inject(ToastController);
+  private zone         = inject(NgZone);
   private destroy$     = new Subject<void>();
 
   activeTab: 'dashboard' | 'users' | 'reviews' = 'dashboard';
@@ -81,19 +82,21 @@ export class AdminPage implements OnInit, OnDestroy {
   }
 
   async confirmDeleteUser(user: User, index: number): Promise<void> {
-    const alert = await this.alertCtrl.create({
-      header: 'Eliminar usuario',
-      message: `¿Eliminar a ${user.displayName}? Esta acción no se puede deshacer.`,
-      cssClass: 'app-alert app-alert--danger',
-      buttons: [
-        { text: 'Cancelar', role: 'cancel' },
-        {
-          text: 'Eliminar', role: 'destructive',
-          handler: () => { this.executeDeleteUser(user, index); }
-        }
-      ]
+    await this.zone.run(async () => {
+      const alert = await this.alertCtrl.create({
+        header: 'Eliminar usuario',
+        message: `¿Eliminar a ${user.displayName}? Esta acción no se puede deshacer.`,
+        cssClass: 'app-alert app-alert--danger',
+        buttons: [
+          { text: 'Cancelar', role: 'cancel' },
+          {
+            text: 'Eliminar', role: 'destructive',
+            handler: () => { this.executeDeleteUser(user, index); }
+          }
+        ]
+      });
+      await alert.present();
     });
-    await alert.present();
   }
 
   private async executeDeleteUser(user: User, index: number): Promise<void> {
