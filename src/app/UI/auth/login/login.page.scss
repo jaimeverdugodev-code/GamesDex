@@ -1,3 +1,16 @@
+.auth-check-spinner {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  ion-spinner {
+    color: var(--ion-color-primary);
+    width: 2.5rem;
+    height: 2.5rem;
+  }
+}
+
 .login-wrapper {
   min-height: 100%;
   display: flex;

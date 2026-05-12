@@ -11,7 +11,7 @@ import { environment } from './environments/environment';
 
 // 2. Importamos las herramientas de Firebase
 import { provideFirebaseApp, initializeApp, getApp } from '@angular/fire/app';
-import { provideAuth, initializeAuth, indexedDBLocalPersistence, browserLocalPersistence } from '@angular/fire/auth';
+import { provideAuth, initializeAuth, indexedDBLocalPersistence, browserLocalPersistence, browserPopupRedirectResolver } from '@angular/fire/auth';
 import { provideFirestore, initializeFirestore } from '@angular/fire/firestore';
 
 bootstrapApplication(AppComponent, {
@@ -24,7 +24,8 @@ bootstrapApplication(AppComponent, {
     // 3. Conectamos Firebase usando tus claves del environment
     provideFirebaseApp(() => initializeApp(environment.firebase)),
     provideAuth(() => initializeAuth(getApp(), {
-      persistence: [indexedDBLocalPersistence, browserLocalPersistence]
+      persistence: [indexedDBLocalPersistence, browserLocalPersistence],
+      popupRedirectResolver: browserPopupRedirectResolver
     })),
     // getApp() obtiene la instancia ya registrada por provideFirebaseApp. initializeFirestore con
     // experimentalForceLongPolling + experimentalAutoDetectLongPolling evita que CapacitorHttp

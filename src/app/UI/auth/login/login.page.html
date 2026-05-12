@@ -1,12 +1,16 @@
 <ion-content>
   <div class="login-wrapper">
-    
+
     <div class="bg-decorations">
       <div class="glow-circle top-left"></div>
       <div class="glow-circle bottom-right"></div>
     </div>
 
-    <div class="content-container">
+    <div *ngIf="isCheckingAuth" class="auth-check-spinner">
+      <ion-spinner name="crescent"></ion-spinner>
+    </div>
+
+    <div class="content-container" *ngIf="!isCheckingAuth">
       
       <div class="header-section">
         <div class="logo-box">

@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
-import { Subscription, firstValueFrom } from 'rxjs';
+import { Subscription, firstValueFrom, take } from 'rxjs';
 import { ViewWillEnter, ViewWillLeave } from '@ionic/angular';
 
 import {
@@ -37,6 +37,7 @@ export class LoginPage implements ViewWillEnter, ViewWillLeave {
   email = '';
   password = '';
   isLoading = false;
+  isCheckingAuth = true;
   showPassword = false;
   errorMessage = '';
 
@@ -44,8 +45,22 @@ export class LoginPage implements ViewWillEnter, ViewWillLeave {
     addIcons({ gameController, eyeOutline, eyeOffOutline, logoGoogle });
   }
 
-  ionViewWillEnter(): void { this.menuCtrl.enable(false); }
-  ionViewWillLeave(): void { this.menuCtrl.enable(true); }
+  ionViewWillEnter(): void {
+    this.menuCtrl.enable(false);
+    // Si Firebase restaura una sesión persistida, redirigir sin mostrar el login
+    this.authSub = this.authService.user$.pipe(take(1)).subscribe(user => {
+      if (user) {
+        this.checkProfileAndRedirect();
+      } else {
+        this.isCheckingAuth = false;
+      }
+    });
+  }
+
+  ionViewWillLeave(): void {
+    this.menuCtrl.enable(true);
+    this.authSub?.unsubscribe();
+  }
 
   async onSubmit() {
     // Validar campos vacíos estrictamente
