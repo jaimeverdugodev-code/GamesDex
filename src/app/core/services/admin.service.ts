@@ -3,8 +3,13 @@ import {
   Firestore, collection, collectionData, query,
   orderBy, doc, deleteDoc, getCountFromServer
 } from '@angular/fire/firestore';
-import { Observable } from 'rxjs';
+import { Auth } from '@angular/fire/auth';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { Observable, firstValueFrom } from 'rxjs';
 import { User, Review } from '../models/database.models';
+import { ReviewService } from './review.service';
+import { SocialService } from './social.service';
+import { UserGamesService } from './user-games.service';
 
 export interface PlatformStats {
   totalUsers:   number;
@@ -14,7 +19,12 @@ export interface PlatformStats {
 
 @Injectable({ providedIn: 'root' })
 export class AdminService {
-  private firestore = inject(Firestore);
+  private firestore        = inject(Firestore);
+  private auth             = inject(Auth);
+  private http             = inject(HttpClient);
+  private reviewService    = inject(ReviewService);
+  private socialService    = inject(SocialService);
+  private userGamesService = inject(UserGamesService);
 
   getAllUsers(): Observable<User[]> {
     return collectionData(
@@ -23,8 +33,22 @@ export class AdminService {
     ) as Observable<User[]>;
   }
 
-  deleteUser(uid: string): Promise<void> {
-    return deleteDoc(doc(this.firestore, `users/${uid}`));
+  async deleteUser(uid: string): Promise<void> {
+    await Promise.all([
+      this.reviewService.deleteUserReviews(uid),
+      this.socialService.deleteUserFollows(uid),
+      this.userGamesService.deleteUserGames(uid),
+      deleteDoc(doc(this.firestore, `users/${uid}`))
+    ]);
+
+    const idToken = await this.auth.currentUser?.getIdToken();
+    if (idToken) {
+      await firstValueFrom(
+        this.http.post('/api/delete-auth-user', { uid }, {
+          headers: new HttpHeaders({ Authorization: `Bearer ${idToken}` })
+        })
+      );
+    }
   }
 
   getAllReviews(): Observable<Review[]> {

@@ -88,9 +88,13 @@ export class AdminPage implements OnInit, OnDestroy {
         { text: 'Cancelar', role: 'cancel' },
         {
           text: 'Eliminar', role: 'destructive',
-          handler: () => {
-            this.users.splice(index, 1);
-            this.adminService.deleteUser(user.uid);
+          handler: async () => {
+            try {
+              await this.adminService.deleteUser(user.uid);
+              this.users.splice(index, 1);
+            } catch (e) {
+              console.error('Error al eliminar usuario:', e);
+            }
           }
         }
       ]
