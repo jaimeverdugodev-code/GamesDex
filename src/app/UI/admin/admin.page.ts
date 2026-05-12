@@ -1,7 +1,7 @@
 import { Component, inject, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
-import { AlertController } from '@ionic/angular';
+import { AlertController, ToastController } from '@ionic/angular';
 import {
   IonHeader, IonToolbar, IonTitle, IonContent,
   IonButtons, IonMenuButton, IonSegment, IonSegmentButton,
@@ -36,6 +36,7 @@ export class AdminPage implements OnInit, OnDestroy {
   private adminService = inject(AdminService);
   private gameService  = inject(GameService);
   private alertCtrl    = inject(AlertController);
+  private toastCtrl   = inject(ToastController);
   private destroy$     = new Subject<void>();
 
   activeTab: 'dashboard' | 'users' | 'reviews' = 'dashboard';
@@ -88,18 +89,27 @@ export class AdminPage implements OnInit, OnDestroy {
         { text: 'Cancelar', role: 'cancel' },
         {
           text: 'Eliminar', role: 'destructive',
-          handler: async () => {
-            try {
-              await this.adminService.deleteUser(user.uid);
-              this.users.splice(index, 1);
-            } catch (e) {
-              console.error('Error al eliminar usuario:', e);
-            }
-          }
+          handler: () => { this.executeDeleteUser(user, index); }
         }
       ]
     });
     await alert.present();
+  }
+
+  private async executeDeleteUser(user: User, index: number): Promise<void> {
+    try {
+      await this.adminService.deleteUser(user.uid);
+      this.users.splice(index, 1);
+    } catch (e: any) {
+      console.error('Error al eliminar usuario:', e);
+      const toast = await this.toastCtrl.create({
+        message: `Error: ${e?.message ?? e}`,
+        duration: 4000,
+        position: 'top',
+        color: 'danger'
+      });
+      await toast.present();
+    }
   }
 
   async confirmDeleteReview(review: Review, index: number): Promise<void> {
