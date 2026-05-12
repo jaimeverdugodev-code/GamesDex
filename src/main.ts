@@ -33,7 +33,7 @@ bootstrapApplication(AppComponent, {
     provideFirestore(() => {
       const app = getApp();
       return initializeFirestore(app, {
-        experimentalForceLongPolling: true
+        experimentalAutoDetectLongPolling: true
       });
     }),
   ],
