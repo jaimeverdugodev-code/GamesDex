@@ -38,7 +38,10 @@
         <app-review-card
           *ngFor="let review of forYouReviews"
           [review]="review"
-          [showActions]="false">
+          [showActions]="false"
+          [gameId]="review.gameId"
+          [gameName]="gameMeta[review.gameId]?.name"
+          [gameImage]="gameMeta[review.gameId]?.image">
         </app-review-card>
       </div>
 
@@ -68,7 +71,10 @@
         <app-review-card
           *ngFor="let review of followingReviews"
           [review]="review"
-          [showActions]="false">
+          [showActions]="false"
+          [gameId]="review.gameId"
+          [gameName]="gameMeta[review.gameId]?.name"
+          [gameImage]="gameMeta[review.gameId]?.image">
         </app-review-card>
       </div>
 

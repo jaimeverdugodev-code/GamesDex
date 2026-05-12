@@ -1,6 +1,6 @@
 // src/app/core/services/review.service.ts
 
-import { Injectable, inject } from '@angular/core';
+import { Injectable, inject, Injector, runInInjectionContext } from '@angular/core';
 import {
   Firestore, collection, addDoc, query,
   where, collectionData, deleteDoc, doc, serverTimestamp, docData, updateDoc, getDocs,
@@ -15,6 +15,7 @@ import { Review } from '../models/database.models';
 })
 export class ReviewService {
   private firestore = inject(Firestore);
+  private injector = inject(Injector);
 
   // 1. Obtener todas las reseñas de un juego, enriquecidas con la foto actual del autor
   getGameReviews(gameId: number): Observable<Review[]> {
@@ -27,12 +28,16 @@ export class ReviewService {
 
         const uniqueUserIds = [...new Set(reviews.map(r => r.userId))];
         const userDocs$ = uniqueUserIds.map(uid =>
-          docData(doc(this.firestore, `users/${uid}`), { idField: 'uid' }) as Observable<any>
+          runInInjectionContext(this.injector, () =>
+            docData(doc(this.firestore, `users/${uid}`), { idField: 'uid' }) as Observable<any>
+          )
         );
 
         return combineLatest(userDocs$).pipe(
           map(users => {
-            const photoMap = new Map(users.map((u: any) => [u['uid'], u['photoUrl'] || '']));
+            const photoMap = new Map(
+              users.filter((u: any) => !!u?.uid).map((u: any) => [u['uid'], u['photoUrl'] || ''])
+            );
             return reviews
               .map(review => ({ ...review, authorPhoto: photoMap.get(review.userId) || '' }))
               .sort((a, b) => {

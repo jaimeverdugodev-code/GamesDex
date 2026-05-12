@@ -1,8 +1,8 @@
 // src/app/core/services/social.service.ts
-import { Injectable, inject } from '@angular/core';
+import { Injectable, inject, Injector, runInInjectionContext } from '@angular/core';
 import { Firestore, collection, collectionData, query, limit, where, doc, docData, addDoc, getDocs, deleteDoc } from '@angular/fire/firestore';
 import { Observable, of, combineLatest } from 'rxjs';
-import { switchMap } from 'rxjs/operators';
+import { switchMap, map } from 'rxjs/operators';
 import { User, Follow } from '../models/database.models';
 
 @Injectable({
@@ -10,6 +10,7 @@ import { User, Follow } from '../models/database.models';
 })
 export class SocialService {
   private firestore = inject(Firestore);
+  private injector = inject(Injector);
 
   // Obtener todos los usuarios
   getAllUsers(maxLimit: number = 50): Observable<User[]> {
@@ -27,9 +28,13 @@ export class SocialService {
       switchMap((follows: any[]) => {
         if (!follows || follows.length === 0) return of([]);
         const userDocs = follows.map(f =>
-          docData(doc(this.firestore, `users/${f.followerId}`), { idField: 'uid' }) as Observable<User>
+          runInInjectionContext(this.injector, () =>
+            docData(doc(this.firestore, `users/${f.followerId}`), { idField: 'uid' }) as Observable<User>
+          )
         );
-        return combineLatest(userDocs);
+        return combineLatest(userDocs).pipe(
+          map(users => users.filter((u): u is User => !!u && !!u.uid))
+        );
       })
     );
   }
@@ -38,14 +43,18 @@ export class SocialService {
   getFollowing(currentUserId: string): Observable<User[]> {
     const followsRef = collection(this.firestore, 'follows');
     const q = query(followsRef, where('followerId', '==', currentUserId));
-    
+
     return collectionData(q).pipe(
       switchMap((follows: any[]) => {
         if (!follows || follows.length === 0) return of([]);
-        const userDocs = follows.map(f => 
-          docData(doc(this.firestore, `users/${f.followingId}`), { idField: 'uid' }) as Observable<User>
+        const userDocs = follows.map(f =>
+          runInInjectionContext(this.injector, () =>
+            docData(doc(this.firestore, `users/${f.followingId}`), { idField: 'uid' }) as Observable<User>
+          )
         );
-        return combineLatest(userDocs);
+        return combineLatest(userDocs).pipe(
+          map(users => users.filter((u): u is User => !!u && !!u.uid))
+        );
       })
     );
   }

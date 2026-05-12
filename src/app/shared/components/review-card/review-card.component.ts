@@ -16,6 +16,7 @@ import { Review } from '../../../core/models/database.models';
 export class ReviewCardComponent {
   @Input({ required: true }) review!: Review;
   @Input() showActions = false;
+  @Input() showEdit = true;
   @Input() authorPhoto?: string;
   @Input() gameName?: string;
   @Input() gameImage?: string | null;

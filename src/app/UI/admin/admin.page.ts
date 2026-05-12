@@ -13,6 +13,7 @@ import { peopleOutline, documentTextOutline, trashOutline, shieldOutline, barCha
 import { Subject, of } from 'rxjs';
 import { takeUntil, catchError } from 'rxjs/operators';
 import { AdminService, PlatformStats } from '../../core/services/admin.service';
+import { GameService } from '../../core/services/game.service';
 import { User, Review } from '../../core/models/database.models';
 import { ReviewCardComponent } from '../../shared/components/review-card/review-card.component';
 
@@ -33,6 +34,7 @@ import { ReviewCardComponent } from '../../shared/components/review-card/review-
 })
 export class AdminPage implements OnInit, OnDestroy {
   private adminService = inject(AdminService);
+  private gameService  = inject(GameService);
   private alertCtrl    = inject(AlertController);
   private destroy$     = new Subject<void>();
 
@@ -40,6 +42,7 @@ export class AdminPage implements OnInit, OnDestroy {
   users:    User[]   = [];
   reviews:  Review[] = [];
   stats:    PlatformStats | null = null;
+  reviewGameMeta: Record<number, { name: string; image: string | null }> = {};
   loadingUsers   = true;
   loadingReviews = true;
   loadingStats   = true;
@@ -60,7 +63,16 @@ export class AdminPage implements OnInit, OnDestroy {
 
     this.adminService.getAllReviews()
       .pipe(takeUntil(this.destroy$), catchError(() => of([])))
-      .subscribe(reviews => { this.reviews = reviews; this.loadingReviews = false; });
+      .subscribe(reviews => {
+        this.reviews = reviews;
+        this.loadingReviews = false;
+        const ids = reviews.map(r => r.gameId).filter(id => !!id);
+        if (ids.length > 0) {
+          this.gameService.getGamesMeta(ids)
+            .pipe(takeUntil(this.destroy$))
+            .subscribe(meta => { this.reviewGameMeta = { ...this.reviewGameMeta, ...meta }; });
+        }
+      });
   }
 
   setTab(tab: string): void {

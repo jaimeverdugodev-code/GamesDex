@@ -108,6 +108,10 @@
           *ngFor="let review of reviews; let i = index"
           [review]="review"
           [showActions]="true"
+          [showEdit]="false"
+          [gameId]="review.gameId"
+          [gameName]="reviewGameMeta[review.gameId]?.name"
+          [gameImage]="reviewGameMeta[review.gameId]?.image"
           (delete)="confirmDeleteReview(review, i)">
         </app-review-card>
       </div>

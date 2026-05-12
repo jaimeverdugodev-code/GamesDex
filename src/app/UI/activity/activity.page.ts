@@ -1,6 +1,6 @@
 // src/app/UI/activity/activity.page.ts
 
-import { Component, inject, OnInit, OnDestroy } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy, Injector, runInInjectionContext } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import {
@@ -16,6 +16,7 @@ import { switchMap, takeUntil, catchError } from 'rxjs/operators';
 import { ReviewService } from '../../core/services/review.service';
 import { SocialService } from '../../core/services/social.service';
 import { AuthService } from '../../core/services/auth.service';
+import { GameService } from '../../core/services/game.service';
 import { Review } from '../../core/models/database.models';
 import { ReviewCardComponent } from '../../shared/components/review-card/review-card.component';
 
@@ -37,12 +38,15 @@ export class ActivityPage implements OnInit, OnDestroy {
   private reviewService = inject(ReviewService);
   private socialService = inject(SocialService);
   private authService   = inject(AuthService);
+  private gameService   = inject(GameService);
+  private injector      = inject(Injector);
   private destroy$ = new Subject<void>();
 
   activeTab: 'foryou' | 'following' = 'foryou';
 
   forYouReviews:    Review[] = [];
   followingReviews: Review[] = [];
+  gameMeta: Record<number, { name: string; image: string | null }> = {};
 
   loadingForYou    = true;
   loadingFollowing = true;
@@ -60,6 +64,7 @@ export class ActivityPage implements OnInit, OnDestroy {
       .subscribe(reviews => {
         this.forYouReviews = reviews;
         this.loadingForYou = false;
+        this.loadGameMeta(reviews);
       });
 
     // Tab "Siguiendo": cadena auth → lista de seguidos → sus reseñas
@@ -70,9 +75,11 @@ export class ActivityPage implements OnInit, OnDestroy {
           this.loadingFollowing = false;
           return of([]);
         }
-        return this.socialService.getFollowing(user.uid).pipe(
+        return runInInjectionContext(this.injector, () => this.socialService.getFollowing(user.uid)).pipe(
           switchMap(followed =>
-            this.reviewService.getFollowingReviews(followed.map(u => u.uid))
+            runInInjectionContext(this.injector, () =>
+              this.reviewService.getFollowingReviews(followed.map(u => u.uid))
+            )
           ),
           catchError(() => of([]))
         );
@@ -80,7 +87,16 @@ export class ActivityPage implements OnInit, OnDestroy {
     ).subscribe(reviews => {
       this.followingReviews = reviews;
       this.loadingFollowing = false;
+      this.loadGameMeta(reviews);
     });
+  }
+
+  private loadGameMeta(reviews: Review[]): void {
+    const ids = reviews.map(r => r.gameId).filter(id => !!id);
+    if (ids.length === 0) return;
+    this.gameService.getGamesMeta(ids)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(meta => { this.gameMeta = { ...this.gameMeta, ...meta }; });
   }
 
   setTab(tab: string): void {

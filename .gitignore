@@ -87,6 +87,10 @@ src/environments/environment.*.ts
 /ios/App/public
 /ios/App/build
 
+# Google Services (contiene API keys y secretos)
+google-services.json
+GoogleService-Info.plist
+
 # Claude Code AI
 CLAUDE.md
 .claudeignore

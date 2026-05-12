@@ -59,6 +59,7 @@ export class GameService {
   private newReleasesCache = new Map<string, Observable<RawgResponse>>();
   private topRatedCache = new Map<string, Observable<RawgResponse>>();
   private indieCache = new Map<string, Observable<RawgResponse>>();
+  private gameDetailsCache = new Map<number, Observable<Game>>();
 
   /**
    * HU02: Buscar juegos con filtros opcionales server-side.
@@ -109,6 +110,32 @@ export class GameService {
   getGameDetails(id: number): Observable<Game> {
     const params = new HttpParams().set('key', environment.rawgApiKey);
     return this.http.get<Game>(`${this.baseUrl}/games/${id}`, { params });
+  }
+
+  /**
+   * Obtiene nombre e imagen de portada para una lista de IDs de juego.
+   * Usa caché en memoria para no repetir peticiones a RAWG.
+   */
+  getGamesMeta(ids: number[]): Observable<Record<number, { name: string; image: string | null }>> {
+    const uniqueIds = [...new Set(ids.filter(id => !!id))];
+    if (uniqueIds.length === 0) return of({});
+
+    const requests$ = uniqueIds.map(id => {
+      if (!this.gameDetailsCache.has(id)) {
+        const params = new HttpParams().set('key', environment.rawgApiKey);
+        this.gameDetailsCache.set(id,
+          this.http.get<Game>(`${this.baseUrl}/games/${id}`, { params }).pipe(shareReplay(1))
+        );
+      }
+      return this.gameDetailsCache.get(id)!.pipe(
+        map(g => ({ id, name: g.name, image: g.background_image })),
+        catchError(() => of({ id, name: '', image: null as string | null }))
+      );
+    });
+
+    return forkJoin(requests$).pipe(
+      map(results => results.reduce((acc, r) => { acc[r.id] = { name: r.name, image: r.image }; return acc; }, {} as Record<number, { name: string; image: string | null }>))
+    );
   }
 
   /**

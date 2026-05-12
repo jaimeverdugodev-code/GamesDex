@@ -15,7 +15,7 @@
       <div class="review-footer">
         <span class="review-date">{{ review.createdAt?.toDate() | date:'dd MMM yyyy' }}</span>
         <div class="review-actions" *ngIf="showActions">
-          <button class="review-action-btn edit-btn" (click)="onEdit()">
+          <button *ngIf="showEdit" class="review-action-btn edit-btn" (click)="onEdit()">
             <ion-icon name="create-outline"></ion-icon>
           </button>
           <button class="review-action-btn delete-btn" (click)="onDelete()">
