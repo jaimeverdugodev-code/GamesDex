@@ -71,7 +71,9 @@
       </div>
 
       <ion-list *ngIf="!loadingUsers && users.length > 0">
-        <ion-item *ngFor="let user of users; let i = index">
+        <ion-item *ngFor="let user of users; let i = index"
+                  [routerLink]="['/profile', user.uid]"
+                  button detail="false">
           <ion-avatar slot="start">
             <img [src]="user.photoUrl || 'assets/img/default-avatar.svg'"
                  class="app-avatar-img"
@@ -83,7 +85,7 @@
             <p>{{ user.email }}</p>
           </ion-label>
           <ion-button slot="end" fill="clear" color="danger"
-                      (click)="confirmDeleteUser(user, i)">
+                      (click)="$event.stopPropagation(); confirmDeleteUser(user, i)">
             <ion-icon slot="icon-only" name="trash-outline"></ion-icon>
           </ion-button>
         </ion-item>

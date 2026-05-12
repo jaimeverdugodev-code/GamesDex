@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, OnDestroy } from '@angular/core';
+import { Component, inject, NgZone, OnInit, OnDestroy } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { IonApp, IonSplitPane, IonMenu, IonContent, IonMenuToggle, IonIcon, IonRouterOutlet } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
@@ -27,6 +27,7 @@ export class AppComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
 
   isAdmin = false;
+  private zone = inject(NgZone);
 
   // Menú Figma: Home, Search, Activity Feed, Friends, Profile
   public appPages = [
@@ -52,7 +53,7 @@ export class AppComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.authService.isAdmin$
       .pipe(takeUntil(this.destroy$))
-      .subscribe(isAdmin => { this.isAdmin = isAdmin; });
+      .subscribe(isAdmin => { this.zone.run(() => { this.isAdmin = isAdmin; }); });
   }
 
   ngOnDestroy(): void {
