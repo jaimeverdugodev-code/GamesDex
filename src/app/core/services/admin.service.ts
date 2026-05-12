@@ -6,6 +6,7 @@ import {
 import { Auth } from '@angular/fire/auth';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, firstValueFrom } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { User, Review } from '../models/database.models';
 import { ReviewService } from './review.service';
 import { SocialService } from './social.service';
