@@ -1,0 +1,95 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>{{ title }}</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="dismiss()">
+        <ion-icon slot="icon-only" name="close-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="legal-content">
+
+  <!-- TÉRMINOS Y CONDICIONES -->
+  <div *ngIf="type === 'terms'" class="legal-body">
+    <p class="legal-date">Última actualización: mayo de 2026</p>
+
+    <h2>1. Aceptación de los términos</h2>
+    <p>Al crear una cuenta en GamesDex, aceptas quedar vinculado por estos Términos y Condiciones. Si no estás de acuerdo con alguno de ellos, no podrás usar el servicio.</p>
+
+    <h2>2. Descripción del servicio</h2>
+    <p>GamesDex es una red social para jugadores donde podrás registrar tus juegos, escribir reseñas, seguir a otros usuarios y recibir recomendaciones basadas en tus preferencias.</p>
+
+    <h2>3. Uso aceptable</h2>
+    <p>Te comprometes a:</p>
+    <ul>
+      <li>Proporcionar información veraz en tu perfil.</li>
+      <li>No publicar contenido ofensivo, discriminatorio o ilegal.</li>
+      <li>No suplantar la identidad de otras personas.</li>
+      <li>No intentar acceder a cuentas ajenas ni a sistemas internos de la plataforma.</li>
+    </ul>
+
+    <h2>4. Contenido del usuario</h2>
+    <p>Las reseñas y datos que publiques son de tu responsabilidad. GamesDex se reserva el derecho de eliminar contenido que incumpla estas normas.</p>
+
+    <h2>5. Cancelación de cuenta</h2>
+    <p>Puedes eliminar tu cuenta en cualquier momento desde los ajustes. Al hacerlo, se borrarán todos tus datos personales, reseñas y conexiones sociales de forma permanente.</p>
+
+    <h2>6. Modificaciones</h2>
+    <p>Podemos actualizar estos términos en cualquier momento. Te notificaremos de cambios significativos. El uso continuado del servicio implica la aceptación de los nuevos términos.</p>
+
+    <h2>7. Limitación de responsabilidad</h2>
+    <p>GamesDex se proporciona "tal cual". No garantizamos disponibilidad continua ni nos hacemos responsables de pérdidas derivadas del uso del servicio.</p>
+
+    <h2>8. Contacto</h2>
+    <p>Para cualquier consulta sobre estos términos, puedes contactar a través de los ajustes de la aplicación.</p>
+  </div>
+
+  <!-- POLÍTICA DE PRIVACIDAD -->
+  <div *ngIf="type === 'privacy'" class="legal-body">
+    <p class="legal-date">Última actualización: mayo de 2026</p>
+
+    <h2>1. Responsable del tratamiento</h2>
+    <p>GamesDex es el responsable del tratamiento de los datos personales que recopila a través de esta aplicación, desarrollada como Trabajo de Fin de Grado (TFG/DAM).</p>
+
+    <h2>2. Datos que recopilamos</h2>
+    <ul>
+      <li><strong>Datos de cuenta:</strong> nombre de usuario, dirección de email y foto de perfil.</li>
+      <li><strong>Datos de actividad:</strong> juegos registrados, reseñas escritas y conexiones con otros usuarios.</li>
+      <li><strong>Datos de preferencias:</strong> géneros favoritos seleccionados al configurar el perfil.</li>
+    </ul>
+
+    <h2>3. Finalidad del tratamiento</h2>
+    <p>Utilizamos tus datos para:</p>
+    <ul>
+      <li>Gestionar tu cuenta y autenticación.</li>
+      <li>Mostrarte contenido personalizado y recomendaciones de juegos.</li>
+      <li>Permitir la interacción social con otros usuarios.</li>
+    </ul>
+
+    <h2>4. Base legal</h2>
+    <p>El tratamiento se basa en el consentimiento que otorgas al aceptar estos términos durante el registro.</p>
+
+    <h2>5. Servicios de terceros</h2>
+    <p>GamesDex utiliza los siguientes servicios externos:</p>
+    <ul>
+      <li><strong>Firebase (Google):</strong> autenticación y base de datos. Consulta la política de privacidad de Google.</li>
+      <li><strong>RAWG API:</strong> catálogo de videojuegos.</li>
+      <li><strong>Groq API:</strong> recomendaciones mediante inteligencia artificial.</li>
+    </ul>
+
+    <h2>6. Conservación de datos</h2>
+    <p>Tus datos se conservan mientras mantengas una cuenta activa. Al eliminar tu cuenta, todos los datos asociados se borran de forma permanente e irrecuperable.</p>
+
+    <h2>7. Tus derechos</h2>
+    <p>Tienes derecho a acceder, rectificar y suprimir tus datos en cualquier momento desde los ajustes de la aplicación.</p>
+
+    <h2>8. Seguridad</h2>
+    <p>Aplicamos medidas técnicas razonables para proteger tus datos. La autenticación se gestiona de forma segura a través de Firebase Auth.</p>
+
+    <h2>9. Contacto</h2>
+    <p>Para ejercer tus derechos o resolver dudas sobre privacidad, puedes contactarnos a través de los ajustes de la aplicación.</p>
+  </div>
+
+</ion-content>

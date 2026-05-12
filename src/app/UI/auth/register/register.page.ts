@@ -6,9 +6,10 @@ import { AuthService } from '../../../core/services/auth.service';
 import { Subscription } from 'rxjs';
 import { ViewWillEnter, ViewWillLeave } from '@ionic/angular';
 
-import { IonContent, IonIcon, IonSpinner, MenuController } from '@ionic/angular/standalone';
+import { IonContent, IonIcon, IonSpinner, MenuController, ModalController } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { gameController, eyeOutline, eyeOffOutline, checkmarkOutline, logoGoogle } from 'ionicons/icons';
+import { LegalModalComponent } from '../../../shared/components/legal-modal/legal-modal.component';
 
 @Component({
   selector: 'app-register',
@@ -18,9 +19,10 @@ import { gameController, eyeOutline, eyeOffOutline, checkmarkOutline, logoGoogle
   imports: [CommonModule, FormsModule, RouterLink, IonContent, IonIcon, IonSpinner]
 })
 export class RegisterPage implements ViewWillEnter, ViewWillLeave {
-  private authService = inject(AuthService);
-  private router = inject(Router);
-  private menuCtrl = inject(MenuController);
+  private authService  = inject(AuthService);
+  private router       = inject(Router);
+  private menuCtrl     = inject(MenuController);
+  private modalCtrl    = inject(ModalController);
   private authSub?: Subscription;
 
   username = '';
@@ -114,6 +116,16 @@ export class RegisterPage implements ViewWillEnter, ViewWillLeave {
       this.errorMessage = 'Error al conectar con Google.';
       console.error(error);
     }
+  }
+
+  async openLegal(type: 'terms' | 'privacy'): Promise<void> {
+    const modal = await this.modalCtrl.create({
+      component: LegalModalComponent,
+      componentProps: { type },
+      breakpoints: [0, 1],
+      initialBreakpoint: 1
+    });
+    await modal.present();
   }
 
   togglePassword() { this.showPassword = !this.showPassword; }

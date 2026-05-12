@@ -83,7 +83,10 @@
                 <ion-icon name="checkmark-outline" class="check-icon" *ngIf="agreedToTerms"></ion-icon>
               </div>
               <span>
-                Acepto los <a class="link-primary">términos y condiciones</a> y la <a class="link-primary">política de privacidad</a>
+                Acepto los
+                <a class="link-primary" (click)="$event.preventDefault(); openLegal('terms')">términos y condiciones</a>
+                y la
+                <a class="link-primary" (click)="$event.preventDefault(); openLegal('privacy')">política de privacidad</a>
               </span>
             </label>
           </div>
