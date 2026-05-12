@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { IonIcon } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
-import { star, createOutline, trashOutline } from 'ionicons/icons';
+import { star, createOutline, trashOutline, shieldCheckmark } from 'ionicons/icons';
 import { Review } from '../../../core/models/database.models';
 
 @Component({
@@ -17,6 +17,7 @@ export class ReviewCardComponent {
   @Input({ required: true }) review!: Review;
   @Input() showActions = false;
   @Input() showEdit = true;
+  @Input() isAdminAuthor = false;
   @Input() authorPhoto?: string;
   @Input() gameName?: string;
   @Input() gameImage?: string | null;
@@ -28,7 +29,7 @@ export class ReviewCardComponent {
   readonly starsArray = [1, 2, 3, 4, 5];
 
   constructor() {
-    addIcons({ star, createOutline, trashOutline });
+    addIcons({ star, createOutline, trashOutline, shieldCheckmark });
   }
 
   get avatarSrc(): string {

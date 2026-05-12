@@ -31,6 +31,14 @@
   align-items: center;
   gap: 0.6rem;
   margin-bottom: 0.25rem;
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+  .admin-badge {
+    font-size: 1rem;
+    color: #fbbf24;
+    flex-shrink: 0;
+  }
 }
 
 .review-author-avatar {

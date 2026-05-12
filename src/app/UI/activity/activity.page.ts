@@ -47,6 +47,7 @@ export class ActivityPage implements OnInit, OnDestroy {
   forYouReviews:    Review[] = [];
   followingReviews: Review[] = [];
   gameMeta: Record<number, { name: string; image: string | null }> = {};
+  userMeta: Record<string, { role?: string }> = {};
 
   loadingForYou    = true;
   loadingFollowing = true;
@@ -65,6 +66,7 @@ export class ActivityPage implements OnInit, OnDestroy {
         this.forYouReviews = reviews;
         this.loadingForYou = false;
         this.loadGameMeta(reviews);
+        this.loadUserMeta(reviews);
       });
 
     // Tab "Siguiendo": cadena auth → lista de seguidos → sus reseñas
@@ -88,7 +90,16 @@ export class ActivityPage implements OnInit, OnDestroy {
       this.followingReviews = reviews;
       this.loadingFollowing = false;
       this.loadGameMeta(reviews);
+      this.loadUserMeta(reviews);
     });
+  }
+
+  private loadUserMeta(reviews: Review[]): void {
+    const uids = [...new Set(reviews.map(r => r.userId).filter(uid => !!uid))];
+    if (uids.length === 0) return;
+    runInInjectionContext(this.injector, () => this.authService.getUsersMeta(uids))
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(meta => { this.userMeta = { ...this.userMeta, ...meta }; });
   }
 
   private loadGameMeta(reviews: Review[]): void {

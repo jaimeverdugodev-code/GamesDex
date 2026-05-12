@@ -106,6 +106,7 @@ export class LoginPage implements ViewWillEnter, ViewWillLeave {
     const alert = await this.alertCtrl.create({
       header: 'Recuperar Contraseña',
       message: 'Introduce tu email y te enviaremos un enlace para restablecer tu contraseña.',
+      cssClass: 'app-alert',
       inputs: [{ name: 'email', type: 'email', placeholder: 'tu@email.com' }],
       buttons: [
         { text: 'Cancelar', role: 'cancel' },

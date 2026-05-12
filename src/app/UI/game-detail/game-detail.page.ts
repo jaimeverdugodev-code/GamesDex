@@ -12,9 +12,9 @@ import { addIcons } from 'ionicons';
 import {
   star, calendarOutline, addOutline, createOutline, chatbubbleOutline, chatbubblesOutline,
   checkmarkCircle, time, bookmark, checkmarkCircleOutline, timeOutline, bookmarkOutline, trashOutline,
-  chevronBackOutline, chevronForwardOutline
+  chevronBackOutline, chevronForwardOutline, closeOutline
 } from 'ionicons/icons';
-import { Subject, Observable, of } from 'rxjs';
+import { Subject, Observable, of, forkJoin } from 'rxjs';
 import { takeUntil, switchMap, filter, catchError, map } from 'rxjs/operators';
 
 import { GameService } from '../../core/services/game.service';
@@ -23,7 +23,7 @@ import { AuthService } from '../../core/services/auth.service';
 import { UserGamesService } from '../../core/services/user-games.service';
 import { ReviewService } from '../../core/services/review.service';
 
-import { Game } from '../../core/models/game.model';
+import { Game, Screenshot, GameMovie } from '../../core/models/game.model';
 import { Review } from '../../core/models/database.models';
 import { ReviewModalComponent } from './review-modal.component';
 import { GameCardComponent } from '../../shared/components/game-card/game-card.component';
@@ -34,7 +34,7 @@ import { ReviewCardComponent } from '../../shared/components/review-card/review-
   templateUrl: './game-detail.page.html',
   styleUrls: ['./game-detail.page.scss'],
   imports: [
-    CommonModule, RouterModule, IonHeader, IonToolbar, 
+    CommonModule, RouterModule, IonHeader, IonToolbar,
     IonContent, IonButtons, IonBackButton, IonIcon, IonSkeletonText,
     GameCardComponent,
     ReviewCardComponent
@@ -62,7 +62,10 @@ export class GameDetailPage implements OnInit, OnDestroy {
   private gameId = 0;
 
   reviews$: Observable<Review[]> = of([]);
-  similarGames: Game[] = []; 
+  similarGames: Game[] = [];
+  screenshots: Screenshot[] = [];
+  trailer: GameMovie | null = null;
+  lightboxIndex = -1;
 
   @ViewChild('scrollContainer', { read: ElementRef }) scrollContainer!: ElementRef;
 
@@ -70,7 +73,7 @@ export class GameDetailPage implements OnInit, OnDestroy {
     addIcons({
       star, calendarOutline, addOutline, createOutline, chatbubbleOutline, chatbubblesOutline,
       checkmarkCircle, time, bookmark, checkmarkCircleOutline, timeOutline, bookmarkOutline, trashOutline,
-      chevronBackOutline, chevronForwardOutline
+      chevronBackOutline, chevronForwardOutline, closeOutline
     });
   }
 
@@ -80,10 +83,12 @@ export class GameDetailPage implements OnInit, OnDestroy {
       if (!this.gameId) return;
 
       this.isLoading = true;
-      this.game = null; 
-      this.similarGames = []; // Limpiamos la lista anterior al cambiar de juego
+      this.game = null;
+      this.similarGames = [];
+      this.screenshots = [];
+      this.trailer = null;
+      this.lightboxIndex = -1;
 
-      // 1. Obtener detalles y, una vez resueltos, cargar similares en paralelo
       this.gameService.getGameDetails(this.gameId).pipe(
         takeUntil(this.destroy$)
       ).subscribe({
@@ -91,7 +96,14 @@ export class GameDetailPage implements OnInit, OnDestroy {
           this.game = game;
           this.isLoading = false;
 
-          // 2a. RAWG saga: muestra resultados inmediatamente
+          forkJoin({
+            screenshots: this.gameService.getGameScreenshots(this.gameId),
+            movies: this.gameService.getGameMovies(this.gameId)
+          }).pipe(takeUntil(this.destroy$)).subscribe(({ screenshots, movies }) => {
+            this.screenshots = screenshots.slice(0, 10);
+            this.trailer = movies[0] ?? null;
+          });
+
           this.gameService.getSimilarGames(this.gameId).pipe(
             catchError(() => of([])),
             takeUntil(this.destroy$)
@@ -101,7 +113,6 @@ export class GameDetailPage implements OnInit, OnDestroy {
               .slice(0, 12);
           });
 
-          // 2b. IA: enriquece la lista cuando resuelve (no bloquea la UI)
           this.aiService.getRecommendationsByGame(game.name).pipe(
             switchMap(titles => this.gameService.getGamesByTitles(titles)),
             catchError(() => of([])),
@@ -117,10 +128,8 @@ export class GameDetailPage implements OnInit, OnDestroy {
         error: () => { this.isLoading = false; }
       });
 
-      // 3. Obtener reseñas del juego actual
       this.reviews$ = this.reviewService.getGameReviews(this.gameId);
 
-      // 4. Comprobar el estado en la biblioteca
       this.userGamesService.getGameStatus(this.gameId).pipe(
         takeUntil(this.destroy$)
       ).subscribe(status => {
@@ -141,13 +150,18 @@ export class GameDetailPage implements OnInit, OnDestroy {
     });
   }
 
+  openLightbox(i: number): void { this.lightboxIndex = i; }
+  closeLightbox(): void { this.lightboxIndex = -1; }
+  prevLightbox(): void { if (this.lightboxIndex > 0) this.lightboxIndex--; }
+  nextLightbox(): void { if (this.lightboxIndex < this.screenshots.length - 1) this.lightboxIndex++; }
+
   toggleDescription(): void {
     this.isDescriptionExpanded = !this.isDescriptionExpanded;
   }
 
   scrollHorizontally(event: WheelEvent) {
     if (event.deltaY !== 0 && this.scrollContainer) {
-      event.preventDefault(); 
+      event.preventDefault();
       this.scrollContainer.nativeElement.scrollLeft += event.deltaY;
     }
   }
@@ -229,13 +243,13 @@ export class GameDetailPage implements OnInit, OnDestroy {
       initialBreakpoint: 0.75
     });
     await modal.present();
-    // reviews$ es reactivo (collectionData), se actualiza automáticamente
   }
 
   async deleteReviewById(reviewId: string): Promise<void> {
     const alert = await this.alertCtrl.create({
       header: 'Borrar reseña',
       message: '¿Seguro que quieres eliminar esta reseña?',
+      cssClass: 'app-alert app-alert--danger',
       buttons: [
         { text: 'Cancelar', role: 'cancel' },
         {

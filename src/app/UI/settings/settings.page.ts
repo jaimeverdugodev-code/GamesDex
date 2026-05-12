@@ -43,7 +43,7 @@ export class SettingsPage {
     const alert = await this.alertCtrl.create({
       header: 'Cambiar Contraseña',
       message: 'Introduce tu nueva contraseña dos veces para confirmarla.',
-      cssClass: 'settings-alert',
+      cssClass: 'app-alert',
       inputs: [
         {
           name: 'newPassword',
@@ -87,7 +87,7 @@ export class SettingsPage {
     const alert = await this.alertCtrl.create({
       header: '¿Eliminar cuenta?',
       message: 'Esta acción es permanente e irreversible. Todos tus juegos, reseñas y datos serán borrados.',
-      cssClass: 'settings-alert settings-alert--danger',
+      cssClass: 'app-alert app-alert--danger',
       buttons: [
         { text: 'Cancelar', role: 'cancel' },
         {
@@ -113,6 +113,7 @@ export class SettingsPage {
       this.alertCtrl.create({
         header: 'Sesión caducada',
         message: 'Por seguridad, cierra sesión y vuelve a entrar para realizar esta acción.',
+        cssClass: 'app-alert',
         buttons: ['Entendido']
       }).then(a => a.present());
     } else {

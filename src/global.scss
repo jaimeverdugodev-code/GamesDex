@@ -133,3 +133,108 @@ ion-input, ion-textarea {
     }
   }
 }
+
+ion-back-button {
+  --color: white;
+}
+
+/* ==========================================
+   CUSTOM ALERT — GamesDex dark theme
+========================================== */
+.app-alert {
+  --backdrop-opacity: 0.75;
+  --background: #1a1a1a;
+
+  .alert-wrapper {
+    border-radius: 20px !important;
+    border: 1px solid rgba(187, 134, 252, 0.2) !important;
+    background: #1a1a1a !important;
+    box-shadow: 0 24px 64px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(255, 255, 255, 0.04) !important;
+    overflow: hidden !important;
+    min-width: 300px;
+  }
+
+  .alert-head {
+    padding: 1.5rem 1.5rem 0.75rem !important;
+    border-bottom: 1px solid #2a2a2a !important;
+  }
+
+  .alert-title {
+    color: #ffffff !important;
+    font-size: 1.05rem !important;
+    font-weight: 700 !important;
+    letter-spacing: -0.01em !important;
+  }
+
+  .alert-message {
+    color: #9ca3af !important;
+    font-size: 0.9rem !important;
+    line-height: 1.6 !important;
+    padding: 0.9rem 1.5rem 0.75rem !important;
+  }
+
+  .alert-input-group {
+    padding: 0.5rem 1.25rem !important;
+
+    .alert-input {
+      background: #2a2a2a !important;
+      border: 1px solid #3a3a3a !important;
+      border-radius: 10px !important;
+      color: #ffffff !important;
+      padding: 0.55rem 0.85rem !important;
+      font-size: 0.9rem !important;
+      margin-bottom: 0.5rem !important;
+
+      &::placeholder { color: #6b7280 !important; }
+      &:focus { border-color: #bb86fc !important; outline: none !important; }
+    }
+  }
+
+  .alert-button-group {
+    padding: 0.75rem 1.25rem 1.25rem !important;
+    gap: 0.5rem !important;
+    flex-direction: row !important;
+    justify-content: flex-end !important;
+    flex-wrap: nowrap !important;
+  }
+
+  .alert-button {
+    border-radius: 10px !important;
+    font-weight: 600 !important;
+    font-size: 0.875rem !important;
+    padding: 0.5rem 1.25rem !important;
+    margin: 0 !important;
+    border: none !important;
+    min-width: 80px !important;
+    text-transform: none !important;
+    letter-spacing: 0 !important;
+
+    .alert-button-inner {
+      justify-content: center !important;
+    }
+
+    &.alert-button-role-cancel {
+      color: #9ca3af !important;
+      background: rgba(255, 255, 255, 0.06) !important;
+    }
+
+    &.alert-button-role-destructive {
+      color: #f87171 !important;
+      background: rgba(248, 113, 113, 0.12) !important;
+    }
+
+    &:not(.alert-button-role-cancel):not(.alert-button-role-destructive) {
+      color: #bb86fc !important;
+      background: rgba(187, 134, 252, 0.12) !important;
+    }
+  }
+}
+
+.app-alert--danger {
+  .alert-wrapper {
+    border-color: rgba(248, 113, 113, 0.25) !important;
+  }
+  .alert-title {
+    color: #f87171 !important;
+  }
+}

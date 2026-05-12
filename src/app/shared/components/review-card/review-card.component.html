@@ -1,13 +1,14 @@
 <div class="review-card">
   <div class="review-flex-container">
     <div class="review-body">
-      <div class="review-author-row">
+      <a class="review-author-row" [routerLink]="['/profile', review.userId]">
         <img class="review-author-avatar app-avatar-img"
              [src]="avatarSrc"
              (error)="onAvatarError($event)"
              [alt]="review.authorName" />
         <span class="review-author-name">{{ review.authorName }}</span>
-      </div>
+        <ion-icon *ngIf="isAdminAuthor" name="shield-checkmark" class="admin-badge"></ion-icon>
+      </a>
       <div class="review-stars">
         <ion-icon name="star" *ngFor="let s of starsArray" [class.filled]="s <= review.rating"></ion-icon>
       </div>

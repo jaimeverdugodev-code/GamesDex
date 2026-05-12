@@ -3,10 +3,10 @@
 
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable, of, forkJoin } from 'rxjs';
-import { shareReplay, map, catchError } from 'rxjs/operators';
+import { Observable, of, forkJoin, from } from 'rxjs';
+import { shareReplay, map, catchError, mergeMap, toArray } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
-import { Game, RawgResponse } from '../models/game.model';
+import { Game, RawgResponse, Screenshot, GameMovie } from '../models/game.model';
 
 /**
  * Filtros opcionales para búsquedas server-side en RAWG.
@@ -110,6 +110,22 @@ export class GameService {
   getGameDetails(id: number): Observable<Game> {
     const params = new HttpParams().set('key', environment.rawgApiKey);
     return this.http.get<Game>(`${this.baseUrl}/games/${id}`, { params });
+  }
+
+  getGameScreenshots(id: number): Observable<Screenshot[]> {
+    const params = new HttpParams().set('key', environment.rawgApiKey);
+    return this.http.get<{ results: Screenshot[] }>(`${this.baseUrl}/games/${id}/screenshots`, { params }).pipe(
+      map(r => r.results),
+      catchError(() => of([]))
+    );
+  }
+
+  getGameMovies(id: number): Observable<GameMovie[]> {
+    const params = new HttpParams().set('key', environment.rawgApiKey);
+    return this.http.get<{ results: GameMovie[] }>(`${this.baseUrl}/games/${id}/movies`, { params }).pipe(
+      map(r => r.results),
+      catchError(() => of([]))
+    );
   }
 
   /**
@@ -297,18 +313,18 @@ export class GameService {
   getGamesByTitles(titles: string[]): Observable<Game[]> {
     if (!titles || titles.length === 0) return of([]);
 
-    const searches$ = titles.map(title => {
-      const params = new HttpParams()
-        .set('key', environment.rawgApiKey)
-        .set('search', title.trim())
-        .set('page_size', 1);
-      return this.http.get<RawgResponse>(`${this.baseUrl}/games`, { params }).pipe(
-        map(res => res.results?.[0] ?? null),
-        catchError(() => of(null))
-      );
-    });
-
-    return forkJoin(searches$).pipe(
+    return from(titles).pipe(
+      mergeMap(title => {
+        const params = new HttpParams()
+          .set('key', environment.rawgApiKey)
+          .set('search', title.trim())
+          .set('page_size', 1);
+        return this.http.get<RawgResponse>(`${this.baseUrl}/games`, { params }).pipe(
+          map(res => res.results?.[0] ?? null),
+          catchError(() => of(null))
+        );
+      }, 3),
+      toArray(),
       map(results => results.filter(
         (g): g is Game => g !== null && (g.rating > 0 || (g.metacritic != null && g.metacritic > 50))
       ))

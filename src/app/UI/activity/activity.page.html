@@ -41,7 +41,8 @@
           [showActions]="false"
           [gameId]="review.gameId"
           [gameName]="gameMeta[review.gameId]?.name"
-          [gameImage]="gameMeta[review.gameId]?.image">
+          [gameImage]="gameMeta[review.gameId]?.image"
+          [isAdminAuthor]="userMeta[review.userId]?.role === 'admin'">
         </app-review-card>
       </div>
 
@@ -74,7 +75,8 @@
           [showActions]="false"
           [gameId]="review.gameId"
           [gameName]="gameMeta[review.gameId]?.name"
-          [gameImage]="gameMeta[review.gameId]?.image">
+          [gameImage]="gameMeta[review.gameId]?.image"
+          [isAdminAuthor]="userMeta[review.userId]?.role === 'admin'">
         </app-review-card>
       </div>
 

@@ -1,17 +1,17 @@
 // src/app/UI/friends/add-friends/add-friends.page.ts
-import { Component, inject, OnInit, OnDestroy } from '@angular/core';
+import { Component, inject, Injector, runInInjectionContext, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { 
-  IonHeader, IonToolbar, IonTitle, IonContent, IonButtons, 
-  IonBackButton, IonSearchbar, IonIcon, IonSpinner 
+import {
+  IonHeader, IonToolbar, IonTitle, IonContent, IonButtons,
+  IonBackButton, IonSearchbar, IonIcon, IonSpinner
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
-import { searchOutline, personAddOutline } from 'ionicons/icons';
+import { searchOutline, personAddOutline, checkmarkOutline, shieldCheckmark } from 'ionicons/icons';
 import { SocialService } from '../../../core/services/social.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { User } from '../../../core/models/database.models';
-import { Subject, takeUntil, map, Observable, combineLatest } from 'rxjs';
+import { Subject, combineLatest, takeUntil, take } from 'rxjs';
 
 @Component({
   selector: 'app-add-friends',
@@ -19,75 +19,59 @@ import { Subject, takeUntil, map, Observable, combineLatest } from 'rxjs';
   styleUrls: ['./add-friends.page.scss'],
   standalone: true,
   imports: [
-    CommonModule, FormsModule, IonHeader, IonToolbar, IonTitle, 
+    CommonModule, FormsModule, IonHeader, IonToolbar, IonTitle,
     IonContent, IonButtons, IonBackButton, IonSearchbar, IonIcon, IonSpinner
   ]
 })
 export class AddFriendsPage implements OnInit, OnDestroy {
   private socialService = inject(SocialService);
   private authService = inject(AuthService);
+  private injector = inject(Injector);
   private destroy$ = new Subject<void>();
 
   searchTerm = '';
-  users$: Observable<User[]> | null = null;
+  users: User[] = [];
   currentUserId: string | null = null;
-  loading = true;
-  
-  // Lista local de IDs seguidos en esta sesión para ocultarlos al instante
+  loading = false;
   followedInSession: Set<string> = new Set();
 
   constructor() {
-    addIcons({ searchOutline, personAddOutline });
+    addIcons({ searchOutline, personAddOutline, checkmarkOutline, shieldCheckmark });
   }
 
   ngOnInit() {
     this.authService.user$.pipe(takeUntil(this.destroy$)).subscribe(user => {
-      if (user) {
-        this.currentUserId = user.uid;
-        this.loadUsers();
-      }
+      if (user) this.currentUserId = user.uid;
     });
   }
 
   loadUsers() {
-    if (!this.currentUserId) return;
-    this.loading = true;
-    
-    // Comparamos TODOS con los que YA SIGUES
-    this.users$ = combineLatest([
-      this.socialService.getAllUsers(),
-      this.socialService.getFollowing(this.currentUserId)
-    ]).pipe(
-      map(([all, following]) => {
-        this.loading = false;
-        
-        // Creamos un Set de IDs que ya sigues
-        const followingIds = new Set(following.map(f => f.uid));
+    if (!this.currentUserId || !this.searchTerm.trim()) {
+      this.users = [];
+      this.loading = false;
+      return;
+    }
 
-        // Filtramos: 
-        // 1. Que no sea yo.
-        // 2. Que no esté ya en mi lista de seguidos de Firebase.
-        // 3. Que no le haya dado a "Seguir" hace un segundo.
-        let filtered = all.filter(u => 
-          u.uid !== this.currentUserId && 
-          !followingIds.has(u.uid) && 
-          !this.followedInSession.has(u.uid)
-        );
-        
-        if (this.searchTerm.trim()) {
-          const term = this.searchTerm.toLowerCase();
-          filtered = filtered.filter(u => u.displayName.toLowerCase().includes(term));
-        }
-        return filtered;
-      })
-    );
+    this.loading = true;
+    runInInjectionContext(this.injector, () => combineLatest([
+      this.socialService.getAllUsers(),
+      this.socialService.getFollowing(this.currentUserId!)
+    ])).pipe(take(1), takeUntil(this.destroy$)).subscribe(([all, following]) => {
+      const followingIds = new Set(following.map(f => f.uid));
+      const term = this.searchTerm.toLowerCase();
+      this.users = all.filter(u =>
+        u.uid !== this.currentUserId &&
+        !followingIds.has(u.uid) &&
+        u.displayName.toLowerCase().includes(term)
+      );
+      this.loading = false;
+    });
   }
 
   async follow(userId: string) {
     if (!this.currentUserId) return;
     try {
       await this.socialService.followUser(this.currentUserId, userId);
-      // Marcamos como seguido localmente para que desaparezca de la lista
       this.followedInSession.add(userId);
     } catch (error) {
       console.error('Error al seguir:', error);
@@ -97,6 +81,8 @@ export class AddFriendsPage implements OnInit, OnDestroy {
   isFollowed(userId: string): boolean {
     return this.followedInSession.has(userId);
   }
+
+  trackByUid(_: number, user: User): string { return user.uid; }
 
   onSearchChange() { this.loadUsers(); }
   ngOnDestroy() { this.destroy$.next(); this.destroy$.complete(); }

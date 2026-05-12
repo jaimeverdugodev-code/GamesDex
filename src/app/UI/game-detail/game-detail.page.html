@@ -72,7 +72,7 @@
               <ion-icon [name]="getStatusIcon()"></ion-icon>
               <span>{{ getStatusText() }}</span>
             </button>
-            
+
             <button class="btn-secondary" (click)="writeReview()">
               <ion-icon name="create-outline"></ion-icon>
               <span>Escribir Reseña</span>
@@ -91,20 +91,39 @@
         </button>
       </section>
 
+      <!-- STRIP HORIZONTAL: trailer + capturas -->
+      <div class="media-scroll" *ngIf="trailer || screenshots.length > 0">
+        <div class="media-item trailer-item" *ngIf="trailer">
+          <video
+            class="media-thumb"
+            [src]="trailer.data['480'] || trailer.data['max']"
+            [poster]="trailer.preview"
+            controls
+            playsinline
+            preload="none">
+          </video>
+        </div>
+        <div class="media-item"
+             *ngFor="let shot of screenshots; let i = index"
+             (click)="openLightbox(i)">
+          <img [src]="shot.image" [alt]="game!.name" class="media-thumb" loading="lazy" />
+        </div>
+      </div>
+
       <section class="similar-games-section" *ngIf="similarGames.length > 0">
         <div class="section-header">
           <h3>Juegos relacionados</h3>
         </div>
 
         <div class="scroll-wrapper">
-          
+
           <button class="scroll-arrow left" (click)="scrollByAmount(-300)">
             <ion-icon name="chevron-back-outline"></ion-icon>
           </button>
 
           <div class="similar-games-scroll" #scrollContainer (wheel)="scrollHorizontally($event)">
-            <app-game-card 
-              *ngFor="let sim of similarGames" 
+            <app-game-card
+              *ngFor="let sim of similarGames"
               [game]="sim"
               class="scroll-item">
             </app-game-card>
@@ -145,3 +164,24 @@
     <p class="empty-subtitle">No se pudo cargar la información de este juego.</p>
   </div>
 </ion-content>
+
+<!-- LIGHTBOX — fuera de ion-content para que position:fixed funcione correctamente -->
+<div class="lightbox-overlay" *ngIf="lightboxIndex >= 0" (click)="closeLightbox()">
+  <img [src]="screenshots[lightboxIndex].image" class="lightbox-img" (click)="$event.stopPropagation()" />
+
+  <button class="lightbox-close" (click)="$event.stopPropagation(); closeLightbox()">
+    <ion-icon name="close-outline"></ion-icon>
+  </button>
+
+  <button class="lightbox-arrow lightbox-prev"
+          *ngIf="lightboxIndex > 0"
+          (click)="$event.stopPropagation(); prevLightbox()">
+    <ion-icon name="chevron-back-outline"></ion-icon>
+  </button>
+
+  <button class="lightbox-arrow lightbox-next"
+          *ngIf="lightboxIndex < screenshots.length - 1"
+          (click)="$event.stopPropagation(); nextLightbox()">
+    <ion-icon name="chevron-forward-outline"></ion-icon>
+  </button>
+</div>

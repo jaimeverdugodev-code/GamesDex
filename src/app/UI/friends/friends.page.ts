@@ -3,12 +3,13 @@ import { Component, inject, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
-import { 
-  IonHeader, IonToolbar, IonTitle, IonContent, 
-  IonButtons, IonMenuButton, IonSearchbar, IonIcon, IonSpinner 
+import {
+  IonHeader, IonToolbar, IonTitle, IonContent,
+  IonButtons, IonMenuButton, IonSearchbar, IonIcon, IonSpinner,
+  AlertController
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
-import { searchOutline, personAddOutline, chevronForwardOutline, peopleOutline } from 'ionicons/icons';
+import { searchOutline, personAddOutline, chevronForwardOutline, peopleOutline, personRemoveOutline, shieldCheckmark } from 'ionicons/icons';
 import { SocialService } from '../../core/services/social.service';
 import { AuthService } from '../../core/services/auth.service';
 import { User } from '../../core/models/database.models';
@@ -20,14 +21,15 @@ import { Subject, takeUntil, map, Observable } from 'rxjs';
   styleUrls: ['./friends.page.scss'],
   standalone: true,
   imports: [
-    CommonModule, FormsModule, RouterModule, IonHeader, IonToolbar, 
-    IonTitle, IonContent, IonButtons, IonMenuButton, 
+    CommonModule, FormsModule, RouterModule, IonHeader, IonToolbar,
+    IonTitle, IonContent, IonButtons, IonMenuButton,
     IonSearchbar, IonIcon, IonSpinner
   ]
 })
 export class FriendsPage implements OnInit, OnDestroy {
   private socialService = inject(SocialService);
   private authService = inject(AuthService);
+  private alertCtrl = inject(AlertController);
   private router = inject(Router);
   private destroy$ = new Subject<void>();
 
@@ -37,7 +39,7 @@ export class FriendsPage implements OnInit, OnDestroy {
   loading = true;
 
   constructor() {
-    addIcons({ searchOutline, personAddOutline, chevronForwardOutline, peopleOutline });
+    addIcons({ searchOutline, personAddOutline, chevronForwardOutline, peopleOutline, personRemoveOutline, shieldCheckmark });
   }
 
   ngOnInit() {
@@ -60,6 +62,28 @@ export class FriendsPage implements OnInit, OnDestroy {
         return users.filter(u => u.displayName.toLowerCase().includes(term));
       })
     );
+  }
+
+  async confirmUnfollow(userId: string, name: string, event: Event): Promise<void> {
+    event.stopPropagation();
+    const alert = await this.alertCtrl.create({
+      header: 'Dejar de seguir',
+      message: `¿Quieres dejar de seguir a ${name}?`,
+      cssClass: 'app-alert',
+      buttons: [
+        { text: 'Cancelar', role: 'cancel' },
+        {
+          text: 'Confirmar',
+          role: 'destructive',
+          handler: async () => {
+            if (!this.currentUserId) return;
+            await this.socialService.unfollowUser(this.currentUserId, userId);
+            this.loadData();
+          }
+        }
+      ]
+    });
+    await alert.present();
   }
 
   goToAddFriends() { this.router.navigate(['/add-friends']); }

@@ -249,12 +249,27 @@ export class ProfilePage implements ViewWillEnter, OnDestroy {
 
   async unfollowUser() {
     if (this.isMyProfile || !this.currentUserId || !this.profile || !this.isFollowing) return;
-    try {
-      await this.socialService.unfollowUser(this.currentUserId, this.profile.uid);
-      this.isFollowing = false; 
-    } catch (error) {
-      console.error('Error al dejar de seguir usuario', error);
-    }
+    const alert = await this.alertCtrl.create({
+      header: 'Dejar de seguir',
+      message: `¿Quieres dejar de seguir a ${this.profile.displayName}?`,
+      cssClass: 'app-alert',
+      buttons: [
+        { text: 'Cancelar', role: 'cancel' },
+        {
+          text: 'Confirmar',
+          role: 'destructive',
+          handler: async () => {
+            try {
+              await this.socialService.unfollowUser(this.currentUserId!, this.profile!.uid);
+              this.isFollowing = false;
+            } catch (error) {
+              console.error('Error al dejar de seguir usuario', error);
+            }
+          }
+        }
+      ]
+    });
+    await alert.present();
   }
 
   async editReview(rg: ReviewWithGame): Promise<void> {
@@ -281,6 +296,7 @@ export class ProfilePage implements ViewWillEnter, OnDestroy {
     const alert = await this.alertCtrl.create({
       header: 'Borrar reseña',
       message: '¿Seguro que quieres eliminar esta reseña? Esta acción no se puede deshacer.',
+      cssClass: 'app-alert app-alert--danger',
       buttons: [
         { text: 'Cancelar', role: 'cancel' },
         {

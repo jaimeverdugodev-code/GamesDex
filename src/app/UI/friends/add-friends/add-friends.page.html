@@ -1,7 +1,7 @@
 <ion-header class="ion-no-border">
   <ion-toolbar>
     <ion-buttons slot="start">
-      <ion-back-button defaultHref="/friends" color="light" text=""></ion-back-button>
+      <ion-back-button defaultHref="/friends" color="white" text=""></ion-back-button>
     </ion-buttons>
     <ion-title>Descubrir</ion-title>
   </ion-toolbar>
@@ -15,27 +15,37 @@
       <ion-spinner color="primary"></ion-spinner>
     </div>
 
-    <div class="users-list" *ngIf="(users$ | async) as users">
-      <ng-container *ngFor="let user of users">
-        <div class="user-card" *ngIf="!isFollowed(user.uid)">
-          <div class="card-main">
-            <img [src]="user.photoUrl || 'assets/img/default-avatar.svg'" class="user-avatar app-avatar-img" (error)="$event.target.src='assets/img/default-avatar.svg'">
-            <div class="user-info">
-              <span class="username">{{ user.displayName }}</span>
-              <p class="user-bio" *ngIf="user.bio">{{ user.bio }}</p>
-            </div>
-            
-            <button class="add-btn" (click)="follow(user.uid)">
-              <ion-icon name="person-add-outline"></ion-icon>
-              <span>Seguir</span>
-            </button>
-          </div>
-        </div>
-      </ng-container>
+    <div class="search-prompt" *ngIf="!searchTerm.trim() && !loading">
+      <ion-icon name="search-outline"></ion-icon>
+      <p>Escribe un nombre para buscar gente</p>
+    </div>
 
-      <div class="empty-state" *ngIf="users.length === 0 && !loading">
+    <div class="users-list" *ngIf="searchTerm.trim() && !loading">
+      <div class="user-card" *ngFor="let user of users; trackBy: trackByUid">
+        <div class="card-main">
+          <img [src]="user.photoUrl || 'assets/img/default-avatar.svg'" class="user-avatar app-avatar-img" (error)="$event.target.src='assets/img/default-avatar.svg'">
+          <div class="user-info">
+            <span class="username">
+              {{ user.displayName }}
+              <ion-icon *ngIf="user.role === 'admin'" name="shield-checkmark" class="admin-badge-inline"></ion-icon>
+            </span>
+            <p class="user-bio" *ngIf="user.bio">{{ user.bio }}</p>
+          </div>
+
+          <button *ngIf="!isFollowed(user.uid)" class="add-btn" (click)="follow(user.uid)">
+            <ion-icon name="person-add-outline"></ion-icon>
+            <span>Seguir</span>
+          </button>
+          <button *ngIf="isFollowed(user.uid)" class="add-btn add-btn--following" disabled>
+            <ion-icon name="checkmark-outline"></ion-icon>
+            <span>Siguiendo</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="empty-state" *ngIf="users.length === 0">
         <ion-icon name="search-outline"></ion-icon>
-        <p>No hay más gente para descubrir.</p>
+        <p>Sin resultados para "{{ searchTerm }}"</p>
       </div>
     </div>
   </div>

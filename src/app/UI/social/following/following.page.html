@@ -1,7 +1,7 @@
 <ion-header class="ion-no-border">
   <ion-toolbar>
     <ion-buttons slot="start">
-      <ion-back-button [defaultHref]="'/profile/' + profileId" color="light" text=""></ion-back-button>
+      <ion-back-button [defaultHref]="'/profile/' + profileId" color="white" text=""></ion-back-button>
     </ion-buttons>
     <ion-title>Siguiendo</ion-title>
   </ion-toolbar>
@@ -25,7 +25,7 @@
             <p class="user-bio" *ngIf="user.bio">{{ user.bio }}</p>
           </div>
           <button *ngIf="isOwnProfile()" class="unfollow-btn"
-                  (click)="$event.stopPropagation(); unfollowUser(user.uid)">
+                  (click)="$event.stopPropagation(); unfollowUser(user.uid, user.displayName)">
             Dejar de seguir
           </button>
         </div>

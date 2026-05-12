@@ -31,6 +31,20 @@ export interface Platform {
   slug: string;
 }
 
+export interface Screenshot {
+  id: number;
+  image: string;
+  width: number;
+  height: number;
+}
+
+export interface GameMovie {
+  id: number;
+  name: string;
+  preview: string;
+  data: { max: string; '480': string };
+}
+
 /** Estructura de la respuesta paginada de RAWG */
 export interface RawgResponse {
   count: number;                 // Total de resultados

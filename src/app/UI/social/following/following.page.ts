@@ -5,7 +5,7 @@ import { RouterModule } from '@angular/router';
 import { ActivatedRoute } from '@angular/router';
 import {
   IonHeader, IonToolbar, IonTitle, IonContent,
-  IonButtons, IonBackButton, IonSpinner
+  IonButtons, IonBackButton, IonSpinner, AlertController
 } from '@ionic/angular/standalone';
 import { Subject, takeUntil, take } from 'rxjs';
 import { SocialService } from '../../../core/services/social.service';
@@ -26,6 +26,7 @@ import { User } from '../../../core/models/database.models';
 export class FollowingPage implements OnInit, OnDestroy {
   private socialService = inject(SocialService);
   private authService = inject(AuthService);
+  private alertCtrl = inject(AlertController);
   private route = inject(ActivatedRoute);
   private destroy$ = new Subject<void>();
 
@@ -50,15 +51,29 @@ export class FollowingPage implements OnInit, OnDestroy {
       });
   }
 
-  async unfollowUser(targetId: string): Promise<void> {
+  async unfollowUser(targetId: string, name: string): Promise<void> {
     if (!this.currentUserId) return;
-    // Actualización optimista: quita el usuario de la lista al instante
-    this.users = this.users.filter(u => u.uid !== targetId);
-    try {
-      await this.socialService.unfollowUser(this.currentUserId, targetId);
-    } catch (error) {
-      console.error('Error al dejar de seguir', error);
-    }
+    const alert = await this.alertCtrl.create({
+      header: 'Dejar de seguir',
+      message: `¿Quieres dejar de seguir a ${name}?`,
+      cssClass: 'app-alert',
+      buttons: [
+        { text: 'Cancelar', role: 'cancel' },
+        {
+          text: 'Confirmar',
+          role: 'destructive',
+          handler: async () => {
+            this.users = this.users.filter(u => u.uid !== targetId);
+            try {
+              await this.socialService.unfollowUser(this.currentUserId!, targetId);
+            } catch (error) {
+              console.error('Error al dejar de seguir', error);
+            }
+          }
+        }
+      ]
+    });
+    await alert.present();
   }
 
   isOwnProfile(): boolean {

@@ -33,9 +33,15 @@
         <div class="card-main">
           <img [src]="user.photoUrl || 'assets/img/default-avatar.svg'" class="friend-avatar app-avatar-img" (error)="$event.target.src='assets/img/default-avatar.svg'">
           <div class="friend-info">
-            <span class="username">{{ user.displayName }}</span>
+            <span class="username">
+              {{ user.displayName }}
+              <ion-icon *ngIf="user.role === 'admin'" name="shield-checkmark" class="admin-badge-inline"></ion-icon>
+            </span>
             <p class="user-bio" *ngIf="user.bio">{{ user.bio }}</p>
           </div>
+          <button class="unfollow-btn" (click)="confirmUnfollow(user.uid, user.displayName, $event)" title="Dejar de seguir">
+            <ion-icon name="person-remove-outline"></ion-icon>
+          </button>
           <ion-icon name="chevron-forward-outline" class="arrow-icon"></ion-icon>
         </div>
       </div>

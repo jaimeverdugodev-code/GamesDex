@@ -83,6 +83,7 @@ export class AdminPage implements OnInit, OnDestroy {
     const alert = await this.alertCtrl.create({
       header: 'Eliminar usuario',
       message: `¿Eliminar a ${user.displayName}? Esta acción no se puede deshacer.`,
+      cssClass: 'app-alert app-alert--danger',
       buttons: [
         { text: 'Cancelar', role: 'cancel' },
         {
@@ -101,6 +102,7 @@ export class AdminPage implements OnInit, OnDestroy {
     const alert = await this.alertCtrl.create({
       header: 'Eliminar reseña',
       message: `¿Eliminar la reseña de ${review.authorName}?`,
+      cssClass: 'app-alert app-alert--danger',
       buttons: [
         { text: 'Cancelar', role: 'cancel' },
         {

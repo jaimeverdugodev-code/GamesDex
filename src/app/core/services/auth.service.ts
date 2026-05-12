@@ -22,8 +22,8 @@ import { SocialService } from './social.service';
 import { UserGamesService } from './user-games.service';
 import { deleteDoc } from '@angular/fire/firestore';
 import { Firestore, doc, setDoc, getDoc } from '@angular/fire/firestore';
-import { Observable, from, of } from 'rxjs';
-import { switchMap, map } from 'rxjs/operators';
+import { Observable, from, of, forkJoin } from 'rxjs';
+import { switchMap, map, catchError } from 'rxjs/operators';
 import { User } from '../models/database.models';
 
 @Injectable({
@@ -150,6 +150,23 @@ export class AuthService {
     if (profileData.photoUrl !== undefined) {
       await this.reviewService.updateAuthorPhotoInReviews(uid, profileData.photoUrl);
     }
+  }
+
+  getUsersMeta(uids: string[]): Observable<Record<string, { role?: string }>> {
+    const unique = [...new Set(uids.filter(u => !!u))];
+    if (unique.length === 0) return of({});
+    const requests$ = unique.map(uid =>
+      from(getDoc(doc(this.firestore, `users/${uid}`))).pipe(
+        map(snap => ({ uid, role: snap.exists() ? (snap.data() as User).role : undefined })),
+        catchError(() => of({ uid, role: undefined as string | undefined }))
+      )
+    );
+    return forkJoin(requests$).pipe(
+      map(results => results.reduce((acc, r) => {
+        acc[r.uid] = { role: r.role };
+        return acc;
+      }, {} as Record<string, { role?: string }>))
+    );
   }
 
   /**
