@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import {
   Firestore, collection, collectionData, query,
-  orderBy, doc, deleteDoc, getCountFromServer
+  orderBy, doc, deleteDoc
 } from '@angular/fire/firestore';
 import { Auth } from '@angular/fire/auth';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
@@ -63,16 +63,9 @@ export class AdminService {
     return deleteDoc(doc(this.firestore, `reviews/${reviewId}`));
   }
 
-  async getPlatformStats(): Promise<PlatformStats> {
-    const [usersSnap, reviewsSnap, followsSnap] = await Promise.all([
-      getCountFromServer(collection(this.firestore, 'users')),
-      getCountFromServer(collection(this.firestore, 'reviews')),
-      getCountFromServer(collection(this.firestore, 'follows'))
-    ]);
-    return {
-      totalUsers:   usersSnap.data().count,
-      totalReviews: reviewsSnap.data().count,
-      totalFollows: followsSnap.data().count
-    };
+  getFollowsCount(): Observable<number> {
+    return (collectionData(collection(this.firestore, 'follows')) as Observable<unknown[]>).pipe(
+      map(docs => docs.length)
+    );
   }
 }

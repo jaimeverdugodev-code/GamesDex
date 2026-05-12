@@ -10,8 +10,8 @@ import {
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { peopleOutline, documentTextOutline, trashOutline, shieldOutline, barChartOutline, starOutline, heartOutline } from 'ionicons/icons';
-import { Subject, of } from 'rxjs';
-import { takeUntil, catchError } from 'rxjs/operators';
+import { Subject, of, combineLatest } from 'rxjs';
+import { takeUntil, catchError, share } from 'rxjs/operators';
 import { AdminService, PlatformStats } from '../../core/services/admin.service';
 import { GameService } from '../../core/services/game.service';
 import { User, Review } from '../../core/models/database.models';
@@ -55,16 +55,14 @@ export class AdminPage implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.adminService.getPlatformStats()
-      .then(stats => { this.stats = stats; this.loadingStats = false; })
-      .catch(() => { this.loadingStats = false; });
+    const users$ = this.adminService.getAllUsers().pipe(catchError(() => of([])), share());
+    const reviews$ = this.adminService.getAllReviews().pipe(catchError(() => of([])), share());
+    const follows$ = this.adminService.getFollowsCount().pipe(catchError(() => of(0)));
 
-    this.adminService.getAllUsers()
-      .pipe(takeUntil(this.destroy$), catchError(() => of([])))
+    users$.pipe(takeUntil(this.destroy$))
       .subscribe(users => { this.users = users; this.loadingUsers = false; });
 
-    this.adminService.getAllReviews()
-      .pipe(takeUntil(this.destroy$), catchError(() => of([])))
+    reviews$.pipe(takeUntil(this.destroy$))
       .subscribe(reviews => {
         this.reviews = reviews;
         this.loadingReviews = false;
@@ -74,6 +72,13 @@ export class AdminPage implements OnInit, OnDestroy {
             .pipe(takeUntil(this.destroy$))
             .subscribe(meta => { this.reviewGameMeta = { ...this.reviewGameMeta, ...meta }; });
         }
+      });
+
+    combineLatest([users$, reviews$, follows$])
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(([users, reviews, followsCount]) => {
+        this.stats = { totalUsers: users.length, totalReviews: reviews.length, totalFollows: followsCount };
+        this.loadingStats = false;
       });
   }
 
