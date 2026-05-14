@@ -151,8 +151,12 @@
             *ngFor="let review of reviews"
             [review]="review"
             [showActions]="review.userId === currentUserId"
+            [isLiked]="likedReviewIds.has(review.id!)"
+            [currentUserId]="currentUserId"
             (edit)="editReview(review)"
-            (delete)="deleteReviewById(review.id!)">
+            (delete)="deleteReviewById(review.id!)"
+            (likeToggled)="onLikeToggle(review)"
+            (cardClicked)="openReviewDetail(review.id!)">
           </app-review-card>
         </div>
       </section>

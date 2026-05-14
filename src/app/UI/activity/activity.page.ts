@@ -1,117 +1,100 @@
 // src/app/UI/activity/activity.page.ts
 
-import { Component, inject, OnInit, OnDestroy, Injector, runInInjectionContext } from '@angular/core';
+import { Component, inject, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
+import { ViewWillEnter } from '@ionic/angular';
 import {
   IonHeader, IonToolbar, IonTitle, IonContent,
-  IonButtons, IonMenuButton, IonIcon,
-  IonSegment, IonSegmentButton, IonLabel,
-  IonSkeletonText
+  IonButtons, IonMenuButton, IonIcon, IonSkeletonText
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
-import { pulseOutline, peopleOutline, flashOutline, searchOutline, sadOutline } from 'ionicons/icons';
-import { Subject, of } from 'rxjs';
-import { switchMap, takeUntil, catchError } from 'rxjs/operators';
-import { ReviewService } from '../../core/services/review.service';
-import { SocialService } from '../../core/services/social.service';
+import { heart, chatbubble, personAdd, star, notificationsOutline, sadOutline } from 'ionicons/icons';
+import { Subject } from 'rxjs';
+import { takeUntil, filter, take, switchMap } from 'rxjs/operators';
+
+import { NotificationService } from '../../core/services/notification.service';
 import { AuthService } from '../../core/services/auth.service';
-import { GameService } from '../../core/services/game.service';
-import { Review } from '../../core/models/database.models';
-import { ReviewCardComponent } from '../../shared/components/review-card/review-card.component';
+import { AppNotification } from '../../core/models/database.models';
 
 @Component({
   selector: 'app-activity',
   templateUrl: './activity.page.html',
   styleUrls: ['./activity.page.scss'],
+  standalone: true,
   imports: [
-    CommonModule,
-    RouterModule,
+    CommonModule, RouterModule,
     IonHeader, IonToolbar, IonTitle, IonContent,
-    IonButtons, IonMenuButton, IonIcon,
-    IonSegment, IonSegmentButton, IonLabel,
-    IonSkeletonText,
-    ReviewCardComponent
+    IonButtons, IonMenuButton, IonIcon, IonSkeletonText
   ]
 })
-export class ActivityPage implements OnInit, OnDestroy {
-  private reviewService = inject(ReviewService);
-  private socialService = inject(SocialService);
-  private authService   = inject(AuthService);
-  private gameService   = inject(GameService);
-  private injector      = inject(Injector);
+export class ActivityPage implements ViewWillEnter, OnDestroy {
+  private notificationService = inject(NotificationService);
+  private authService = inject(AuthService);
+  private router = inject(Router);
   private destroy$ = new Subject<void>();
 
-  activeTab: 'foryou' | 'following' = 'foryou';
+  notifications: AppNotification[] = [];
+  loading = true;
+  currentUserId: string | null = null;
 
-  forYouReviews:    Review[] = [];
-  followingReviews: Review[] = [];
-  gameMeta: Record<number, { name: string; image: string | null }> = {};
-  userMeta: Record<string, { role?: string }> = {};
-
-  loadingForYou    = true;
-  loadingFollowing = true;
-
-  skeletonItems = Array(5);
+  skeletonItems = Array(6);
 
   constructor() {
-    addIcons({ pulseOutline, peopleOutline, flashOutline, searchOutline, sadOutline });
+    addIcons({ heart, chatbubble, personAdd, star, notificationsOutline, sadOutline });
   }
 
-  ngOnInit(): void {
-    // Tab "Para ti": feed global, independiente del usuario autenticado
-    this.reviewService.getGlobalReviews(20)
-      .pipe(takeUntil(this.destroy$), catchError(() => of([])))
-      .subscribe(reviews => {
-        this.forYouReviews = reviews;
-        this.loadingForYou = false;
-        this.loadGameMeta(reviews);
-        this.loadUserMeta(reviews);
-      });
-
-    // Tab "Siguiendo": cadena auth → lista de seguidos → sus reseñas
+  ionViewWillEnter(): void {
     this.authService.user$.pipe(
-      takeUntil(this.destroy$),
-      switchMap(user => {
-        if (!user) {
-          this.loadingFollowing = false;
-          return of([]);
-        }
-        return runInInjectionContext(this.injector, () => this.socialService.getFollowing(user.uid)).pipe(
-          switchMap(followed =>
-            runInInjectionContext(this.injector, () =>
-              this.reviewService.getFollowingReviews(followed.map(u => u.uid))
-            )
-          ),
-          catchError(() => of([]))
-        );
+      filter(u => !!u),
+      take(1),
+      switchMap(u => {
+        this.currentUserId = u!.uid;
+        this.notificationService.getNotifications(u!.uid)
+          .pipe(takeUntil(this.destroy$))
+          .subscribe(notifs => {
+            this.notifications = notifs;
+            this.loading = false;
+          });
+        return this.notificationService.markAllAsRead(u!.uid);
       })
-    ).subscribe(reviews => {
-      this.followingReviews = reviews;
-      this.loadingFollowing = false;
-      this.loadGameMeta(reviews);
-      this.loadUserMeta(reviews);
-    });
+    ).subscribe();
   }
 
-  private loadUserMeta(reviews: Review[]): void {
-    const uids = [...new Set(reviews.map(r => r.userId).filter(uid => !!uid))];
-    if (uids.length === 0) return;
-    runInInjectionContext(this.injector, () => this.authService.getUsersMeta(uids))
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(meta => { this.userMeta = { ...this.userMeta, ...meta }; });
+  onNotificationTap(notif: AppNotification): void {
+    if (notif.type === 'new_follower') {
+      this.router.navigate(['/profile', notif.fromUserId]);
+    } else if (notif.reviewId) {
+      this.router.navigate(['/review', notif.reviewId]);
+    }
   }
 
-  private loadGameMeta(reviews: Review[]): void {
-    const ids = reviews.map(r => r.gameId).filter(id => !!id);
-    if (ids.length === 0) return;
-    this.gameService.getGamesMeta(ids)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(meta => { this.gameMeta = { ...this.gameMeta, ...meta }; });
+  getIcon(type: AppNotification['type']): string {
+    const icons: Record<AppNotification['type'], string> = {
+      review_liked: 'heart',
+      review_commented: 'chatbubble',
+      new_follower: 'person-add',
+      new_review: 'star'
+    };
+    return icons[type];
   }
 
-  setTab(tab: string): void {
-    this.activeTab = tab as 'foryou' | 'following';
+  getIconColor(type: AppNotification['type']): string {
+    const colors: Record<AppNotification['type'], string> = {
+      review_liked: '#f87171',
+      review_commented: '#93c5fd',
+      new_follower: '#34d399',
+      new_review: '#fbbf24'
+    };
+    return colors[type];
+  }
+
+  getAvatarSrc(photo?: string): string {
+    return photo || 'assets/img/default-avatar.svg';
+  }
+
+  onAvatarError(event: Event): void {
+    (event.target as HTMLImageElement).src = 'assets/img/default-avatar.svg';
   }
 
   ngOnDestroy(): void {

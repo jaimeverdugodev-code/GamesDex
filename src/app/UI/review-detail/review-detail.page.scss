@@ -1,0 +1,262 @@
+ion-content {
+  --background: #0d0d0d;
+}
+
+ion-toolbar {
+  --background: rgba(13, 13, 13, 0.95);
+  --color: #fff;
+}
+
+.skeleton-wrapper {
+  padding-top: 0.5rem;
+}
+
+.detail-review-wrapper {
+  padding: 1rem 1rem 0;
+}
+
+// --- SECCIÓN DE LIKES ---
+
+.likes-section {
+  padding: 0.875rem 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  flex-wrap: wrap;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.like-big-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(249, 168, 212, 0.08);
+  border: 1px solid rgba(249, 168, 212, 0.35);
+  border-radius: 24px;
+  padding: 0.55rem 1.25rem;
+  color: #f9a8d4;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 600;
+  transition: all 0.2s;
+
+  ion-icon {
+    font-size: 1.2rem;
+    color: #f9a8d4;
+  }
+
+  &:hover:not(:disabled) {
+    background: rgba(249, 168, 212, 0.15);
+    border-color: rgba(249, 168, 212, 0.6);
+  }
+
+  &.liked {
+    color: #f87171;
+    border-color: rgba(248, 113, 113, 0.7);
+    background: rgba(248, 113, 113, 0.15);
+    ion-icon { color: #f87171; }
+  }
+
+  &:disabled {
+    cursor: default;
+    opacity: 0.5;
+  }
+}
+
+.likes-total {
+  color: inherit;
+}
+
+.liked-by-avatars {
+  display: flex;
+  align-items: center;
+}
+
+.liker-link {
+  display: block;
+  margin-left: -6px;
+  &:first-child { margin-left: 0; }
+}
+
+.liker-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 2px solid #121212;
+  object-fit: cover;
+  display: block;
+}
+
+.likes-overflow {
+  font-size: 0.75rem;
+  color: #9ca3af;
+  margin-left: 4px;
+}
+
+// --- SECCIÓN DE RESPUESTAS ---
+
+.comments-section {
+  padding: 1rem;
+}
+
+.section-title {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #e5e7eb;
+  margin-bottom: 1rem;
+
+  ion-icon {
+    font-size: 1rem;
+    color: #bb86fc;
+  }
+
+  .comment-count {
+    color: #bb86fc;
+    margin-left: 0.15rem;
+  }
+}
+
+.comments-list {
+  margin-bottom: 1rem;
+}
+
+.comment-item {
+  display: flex;
+  gap: 0.6rem;
+  margin-bottom: 0.875rem;
+  align-items: flex-start;
+}
+
+.comment-avatar-link {
+  display: block;
+  flex-shrink: 0;
+}
+
+.comment-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid rgba(187, 134, 252, 0.2);
+  flex-shrink: 0;
+  display: block;
+}
+
+.comment-body {
+  flex: 1;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+  padding: 0.55rem 0.75rem;
+  min-width: 0;
+}
+
+.comment-header {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-bottom: 0.25rem;
+  flex-wrap: wrap;
+}
+
+.comment-author {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #bb86fc;
+  text-decoration: none;
+  &:hover { text-decoration: underline; }
+}
+
+.comment-date {
+  font-size: 0.7rem;
+  color: #6b7280;
+  margin-left: auto;
+}
+
+.comment-delete-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: #f87171;
+  padding: 0;
+  display: flex;
+  align-items: center;
+
+  ion-icon { font-size: 0.85rem; }
+
+  &:hover { opacity: 0.75; }
+}
+
+.comment-text {
+  font-size: 0.875rem;
+  color: #d1d5db;
+  line-height: 1.5;
+  margin: 0;
+  word-break: break-word;
+}
+
+.no-comments {
+  color: #6b7280;
+  font-size: 0.875rem;
+  text-align: center;
+  padding: 1.25rem 0;
+}
+
+// --- INPUT DE RESPUESTA ---
+
+.comment-input-area {
+  display: flex;
+  gap: 0.6rem;
+  align-items: flex-end;
+  padding-top: 0.75rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.input-wrapper {
+  flex: 1;
+  display: flex;
+  align-items: flex-end;
+  gap: 0.25rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(187, 134, 252, 0.2);
+  border-radius: 12px;
+  padding: 0.2rem 0.2rem 0.2rem 0.6rem;
+  transition: border-color 0.2s;
+
+  &:focus-within {
+    border-color: rgba(187, 134, 252, 0.5);
+  }
+}
+
+.comment-textarea {
+  --background: transparent;
+  --color: #fff;
+  --placeholder-color: #6b7280;
+  flex: 1;
+  font-size: 0.875rem;
+}
+
+.send-btn {
+  --color: #bb86fc;
+  flex-shrink: 0;
+  margin: 0;
+
+  &[disabled] { --color: #374151; }
+}
+
+.login-prompt {
+  text-align: center;
+  color: #6b7280;
+  font-size: 0.875rem;
+  padding: 0.75rem 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.not-found {
+  text-align: center;
+  color: #6b7280;
+  padding: 3rem 1rem;
+}

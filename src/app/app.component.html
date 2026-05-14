@@ -23,6 +23,11 @@
               <a class="menu-item" routerDirection="root" [routerLink]="[p.url]" routerLinkActive="active">
                 <ion-icon [name]="p.icon + '-outline'" aria-hidden="true"></ion-icon>
                 <span>{{ p.title }}</span>
+                @if (p.url === '/activity') {
+                  @if ((unreadCount$ | async); as count) {
+                    <ion-badge class="menu-badge">{{ count > 99 ? '99+' : count }}</ion-badge>
+                  }
+                }
               </a>
             </ion-menu-toggle>
           }

@@ -2,7 +2,7 @@
 
 import { Component, inject, OnInit, OnDestroy, ElementRef, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute, RouterModule } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import {
   IonHeader, IonToolbar, IonContent, IonButtons,
   IonBackButton, IonIcon, IonSkeletonText,
@@ -15,13 +15,15 @@ import {
   chevronBackOutline, chevronForwardOutline, closeOutline
 } from 'ionicons/icons';
 import { Subject, Observable, of, forkJoin } from 'rxjs';
-import { takeUntil, switchMap, filter, catchError, map } from 'rxjs/operators';
+import { takeUntil, switchMap, filter, catchError, map, take } from 'rxjs/operators';
 
 import { GameService } from '../../core/services/game.service';
 import { AiService } from '../../core/services/ai.service';
 import { AuthService } from '../../core/services/auth.service';
 import { UserGamesService } from '../../core/services/user-games.service';
 import { ReviewService } from '../../core/services/review.service';
+import { SocialService } from '../../core/services/social.service';
+import { NotificationService } from '../../core/services/notification.service';
 
 import { Game, Screenshot, GameMovie } from '../../core/models/game.model';
 import { Review } from '../../core/models/database.models';
@@ -42,10 +44,13 @@ import { ReviewCardComponent } from '../../shared/components/review-card/review-
 })
 export class GameDetailPage implements OnInit, OnDestroy {
   private route = inject(ActivatedRoute);
+  private router = inject(Router);
   private gameService = inject(GameService);
   private authService = inject(AuthService);
   private userGamesService = inject(UserGamesService);
   private reviewService = inject(ReviewService);
+  private socialService = inject(SocialService);
+  private notificationService = inject(NotificationService);
   private aiService = inject(AiService);
   private modalCtrl = inject(ModalController);
   private actionSheetCtrl = inject(ActionSheetController);
@@ -62,6 +67,7 @@ export class GameDetailPage implements OnInit, OnDestroy {
   private gameId = 0;
 
   reviews$: Observable<Review[]> = of([]);
+  likedReviewIds = new Set<string>();
   similarGames: Game[] = [];
   screenshots: Screenshot[] = [];
   trailer: GameMovie | null = null;
@@ -129,6 +135,9 @@ export class GameDetailPage implements OnInit, OnDestroy {
       });
 
       this.reviews$ = this.reviewService.getGameReviews(this.gameId);
+      this.reviews$.pipe(take(1), takeUntil(this.destroy$)).subscribe(reviews => {
+        this.loadLikedStates(reviews);
+      });
 
       this.userGamesService.getGameStatus(this.gameId).pipe(
         takeUntil(this.destroy$)
@@ -233,6 +242,20 @@ export class GameDetailPage implements OnInit, OnDestroy {
       initialBreakpoint: 0.75
     });
     await modal.present();
+    const { data } = await modal.onWillDismiss();
+    if (data?.success && data.reviewId) {
+      this.socialService.getFollowers(this.currentUserFull.uid).pipe(take(1)).subscribe(followers => {
+        const followerIds = followers.map((f: any) => f.uid);
+        this.notificationService.createNewReviewNotifications(
+          data.reviewId, this.currentUserFull.uid,
+          this.currentUserFull.displayName || 'Gamer Anónimo',
+          this.currentUserFull.photoUrl || '',
+          this.game?.name || '',
+          this.gameId,
+          followerIds
+        );
+      });
+    }
   }
 
   async editReview(review: Review): Promise<void> {
@@ -243,6 +266,41 @@ export class GameDetailPage implements OnInit, OnDestroy {
       initialBreakpoint: 0.75
     });
     await modal.present();
+  }
+
+  private loadLikedStates(reviews: Review[]): void {
+    if (!this.currentUserId) return;
+    const withId = reviews.filter(r => !!r.id);
+    if (withId.length === 0) return;
+    const uid = this.currentUserId;
+    const checks = withId.map(r => this.reviewService.getLike(r.id!, uid).pipe(take(1)));
+    forkJoin(checks).subscribe(results => {
+      withId.forEach((r, i) => { if (results[i]) this.likedReviewIds.add(r.id!); });
+    });
+  }
+
+  openReviewDetail(reviewId: string): void {
+    this.router.navigate(['/review', reviewId]);
+  }
+
+  async onLikeToggle(review: Review): Promise<void> {
+    if (!this.currentUserId || !review.id) return;
+    const wasLiked = this.likedReviewIds.has(review.id);
+    if (wasLiked) { this.likedReviewIds.delete(review.id); } else { this.likedReviewIds.add(review.id); }
+    try {
+      await this.reviewService.toggleLike(
+        review.id, this.currentUserId,
+        this.currentUserFull?.displayName || '', this.currentUserFull?.photoUrl || '', wasLiked
+      );
+      if (!wasLiked) {
+        this.notificationService.createLikeNotification(
+          review.id, review.userId,
+          this.currentUserId, this.currentUserFull?.displayName || '', this.currentUserFull?.photoUrl || ''
+        );
+      }
+    } catch {
+      if (wasLiked) { this.likedReviewIds.add(review.id); } else { this.likedReviewIds.delete(review.id); }
+    }
   }
 
   async deleteReviewById(reviewId: string): Promise<void> {

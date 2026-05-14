@@ -10,87 +10,63 @@
 <ion-content class="activity-content">
   <div class="activity-body">
 
-    <!-- SEGMENTO PRINCIPAL -->
-    <ion-segment
-      [value]="activeTab"
-      (ionChange)="setTab($event.detail.value!.toString())"
-      class="main-segment">
-      <ion-segment-button value="foryou">
-        <ion-icon name="flash-outline"></ion-icon>
-        <ion-label>Para ti</ion-label>
-      </ion-segment-button>
-      <ion-segment-button value="following">
-        <ion-icon name="people-outline"></ion-icon>
-        <ion-label>Siguiendo</ion-label>
-      </ion-segment-button>
-    </ion-segment>
-
-    <!-- TAB: PARA TI -->
-    <div *ngIf="activeTab === 'foryou'" class="tab-content">
-
-      <div *ngIf="loadingForYou" class="review-skeleton-list">
-        <div class="review-skeleton" *ngFor="let s of skeletonItems">
-          <ion-skeleton-text [animated]="true" style="height:88px; border-radius:0.75rem;"></ion-skeleton-text>
+    <!-- SKELETONS -->
+    <div *ngIf="loading" class="notif-list">
+      <div class="notif-skeleton" *ngFor="let s of skeletonItems">
+        <ion-skeleton-text [animated]="true" class="skeleton-avatar"></ion-skeleton-text>
+        <div class="skeleton-text-block">
+          <ion-skeleton-text [animated]="true" class="skeleton-line skeleton-line--long"></ion-skeleton-text>
+          <ion-skeleton-text [animated]="true" class="skeleton-line skeleton-line--short"></ion-skeleton-text>
         </div>
-      </div>
-
-      <div *ngIf="!loadingForYou && forYouReviews.length > 0" class="review-list">
-        <app-review-card
-          *ngFor="let review of forYouReviews"
-          [review]="review"
-          [showActions]="false"
-          [gameId]="review.gameId"
-          [gameName]="gameMeta[review.gameId]?.name"
-          [gameImage]="gameMeta[review.gameId]?.image"
-          [isAdminAuthor]="userMeta[review.userId]?.role === 'admin'">
-        </app-review-card>
-      </div>
-
-      <div *ngIf="!loadingForYou && forYouReviews.length === 0" class="empty-state">
-        <div class="empty-icon">
-          <ion-icon name="sad-outline"></ion-icon>
-        </div>
-        <p class="empty-title">Sin actividad reciente</p>
-        <p class="empty-subtitle">Aún no hay reseñas en la comunidad. ¡Sé el primero!</p>
-        <a routerLink="/search" class="empty-action-btn">
-          <ion-icon name="search-outline"></ion-icon>
-          Explorar juegos
-        </a>
       </div>
     </div>
 
-    <!-- TAB: SIGUIENDO -->
-    <div *ngIf="activeTab === 'following'" class="tab-content">
+    <!-- LISTA DE NOTIFICACIONES -->
+    <div *ngIf="!loading && notifications.length > 0" class="notif-list">
+      <div
+        class="notif-row"
+        [class.notif-row--unread]="!notif.read"
+        *ngFor="let notif of notifications"
+        (click)="onNotificationTap(notif)">
 
-      <div *ngIf="loadingFollowing" class="review-skeleton-list">
-        <div class="review-skeleton" *ngFor="let s of skeletonItems">
-          <ion-skeleton-text [animated]="true" style="height:88px; border-radius:0.75rem;"></ion-skeleton-text>
+        <!-- Avatar + badge de tipo -->
+        <div class="notif-avatar-wrap">
+          <img
+            class="notif-avatar"
+            [src]="getAvatarSrc(notif.fromUserPhoto)"
+            (error)="onAvatarError($event)"
+            alt="avatar" />
+          <span class="notif-type-badge" [style.background]="getIconColor(notif.type)">
+            <ion-icon [name]="getIcon(notif.type)"></ion-icon>
+          </span>
         </div>
-      </div>
 
-      <div *ngIf="!loadingFollowing && followingReviews.length > 0" class="review-list">
-        <app-review-card
-          *ngFor="let review of followingReviews"
-          [review]="review"
-          [showActions]="false"
-          [gameId]="review.gameId"
-          [gameName]="gameMeta[review.gameId]?.name"
-          [gameImage]="gameMeta[review.gameId]?.image"
-          [isAdminAuthor]="userMeta[review.userId]?.role === 'admin'">
-        </app-review-card>
-      </div>
-
-      <div *ngIf="!loadingFollowing && followingReviews.length === 0" class="empty-state">
-        <div class="empty-icon">
-          <ion-icon name="people-outline"></ion-icon>
+        <!-- Texto -->
+        <div class="notif-body">
+          <p class="notif-text">
+            <span class="notif-author">{{ notif.fromUserName }}</span>
+            <ng-container [ngSwitch]="notif.type">
+              <ng-container *ngSwitchCase="'review_liked'"> le ha dado me gusta a tu reseña</ng-container>
+              <ng-container *ngSwitchCase="'review_commented'"> ha comentado: <em>"{{ (notif.commentText || '') | slice:0:60 }}"</em></ng-container>
+              <ng-container *ngSwitchCase="'new_follower'"> ha empezado a seguirte</ng-container>
+              <ng-container *ngSwitchCase="'new_review'"> ha publicado una reseña de <span class="notif-game">{{ notif.gameName }}</span></ng-container>
+            </ng-container>
+          </p>
+          <span class="notif-date">{{ notif.createdAt?.toDate?.() | date:'d MMM, HH:mm' }}</span>
         </div>
-        <p class="empty-title">Sin actividad de tus amigos</p>
-        <p class="empty-subtitle">Las personas que sigues aún no han escrito reseñas, o todavía no sigues a nadie.</p>
-        <a routerLink="/search" class="empty-action-btn">
-          <ion-icon name="search-outline"></ion-icon>
-          Explorar juegos
-        </a>
+
+        <!-- Punto de no leído -->
+        <div class="notif-unread-dot" *ngIf="!notif.read"></div>
       </div>
+    </div>
+
+    <!-- ESTADO VACÍO -->
+    <div *ngIf="!loading && notifications.length === 0" class="empty-state">
+      <div class="empty-icon">
+        <ion-icon name="notifications-outline"></ion-icon>
+      </div>
+      <p class="empty-title">Sin notificaciones</p>
+      <p class="empty-subtitle">Cuando alguien interactúe contigo, lo verás aquí.</p>
     </div>
 
   </div>

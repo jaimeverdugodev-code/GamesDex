@@ -114,7 +114,7 @@ export class ReviewModalComponent implements OnInit {
           text: this.text.trim()
         });
       } else {
-        await this.reviewService.addReview({
+        const reviewId = await this.reviewService.addReview({
           gameId: this.gameId,
           userId: this.userId,
           authorName: this.authorName,
@@ -122,6 +122,8 @@ export class ReviewModalComponent implements OnInit {
           rating: this.rating,
           text: this.text.trim()
         });
+        this.modalCtrl.dismiss({ success: true, rating: this.rating, text: this.text.trim(), reviewId });
+        return;
       }
       this.modalCtrl.dismiss({ success: true, rating: this.rating, text: this.text.trim() });
     } catch (error) {

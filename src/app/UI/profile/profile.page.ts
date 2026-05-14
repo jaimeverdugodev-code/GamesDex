@@ -20,13 +20,14 @@ import {
 } from 'ionicons/icons';
 import { ReviewModalComponent } from '../game-detail/review-modal.component';
 import { ReviewCardComponent } from '../../shared/components/review-card/review-card.component';
-import { Subject, forkJoin, of } from 'rxjs';
+import { Subject, forkJoin, of, Observable } from 'rxjs';
 import { switchMap, takeUntil, catchError, map, take } from 'rxjs/operators';
 import { AuthService } from '../../core/services/auth.service';
 import { UserGamesService } from '../../core/services/user-games.service';
 import { GameService } from '../../core/services/game.service';
 import { SocialService } from '../../core/services/social.service';
 import { ReviewService } from '../../core/services/review.service';
+import { NotificationService } from '../../core/services/notification.service';
 import { User, Review } from '../../core/models/database.models';
 import { Game } from '../../core/models/game.model';
 
@@ -62,6 +63,7 @@ export class ProfilePage implements ViewWillEnter, OnDestroy {
   private gameService = inject(GameService);
   private socialService = inject(SocialService);
   private reviewService = inject(ReviewService);
+  private notificationService = inject(NotificationService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private modalCtrl = inject(ModalController);
@@ -95,6 +97,10 @@ export class ProfilePage implements ViewWillEnter, OnDestroy {
   // Contadores sociales
   followersCount = 0;
   followingCount = 0;
+
+  likedReviewIds = new Set<string>();
+  myDisplayName = '';
+  myPhotoUrl = '';
 
   skeletonGames = Array(6);
   bannerUrl = 'https://images.unsplash.com/photo-1538481199705-c710c4e965fc?w=1920&h=400&fit=crop';
@@ -181,7 +187,12 @@ export class ProfilePage implements ViewWillEnter, OnDestroy {
           take(1), map(list => list.length), catchError(() => of(0))
         );
 
-        return forkJoin({ profile: profile$, games: games$, reviews: reviews$, isFollowing: following$, followersCount: followersCount$, followingCount: followingCount$ });
+        // Perfil propio del usuario autenticado (para tener nombre/foto al dar like en perfil ajeno)
+        const myProfile$ = this.isMyProfile
+          ? of(undefined)
+          : this.authService.getProfileData(currentUser.uid).pipe(take(1), catchError(() => of(undefined)));
+
+        return forkJoin({ profile: profile$, games: games$, reviews: reviews$, isFollowing: following$, followersCount: followersCount$, followingCount: followingCount$, myProfile: myProfile$ });
       }),
       takeUntil(this.destroy$)
     ).subscribe(result => {
@@ -202,7 +213,54 @@ export class ProfilePage implements ViewWillEnter, OnDestroy {
       this.isFollowing = result.isFollowing;
       this.followersCount = result.followersCount;
       this.followingCount = result.followingCount;
+
+      // Guardar nombre y foto propios para usar al dar like
+      if (this.isMyProfile && result.profile) {
+        this.myDisplayName = result.profile.displayName || '';
+        this.myPhotoUrl = result.profile.photoUrl || '';
+      } else if (result.myProfile) {
+        this.myDisplayName = result.myProfile.displayName || '';
+        this.myPhotoUrl = result.myProfile.photoUrl || '';
+      }
+
+      // Cargar estados de like para las reseñas
+      this.loadLikedStates(result.reviews.map(rg => rg.review));
     });
+  }
+
+  private loadLikedStates(reviews: Review[]): void {
+    if (!this.currentUserId) return;
+    const withId = reviews.filter(r => !!r.id);
+    if (withId.length === 0) return;
+    const uid = this.currentUserId;
+    const checks = withId.map(r => this.reviewService.getLike(r.id!, uid).pipe(take(1)));
+    forkJoin(checks).subscribe(results => {
+      withId.forEach((r, i) => { if (results[i]) this.likedReviewIds.add(r.id!); });
+    });
+  }
+
+  openReviewDetail(reviewId: string): void {
+    this.router.navigate(['/review', reviewId]);
+  }
+
+  async onLikeToggle(review: Review): Promise<void> {
+    if (!this.currentUserId || !review.id) return;
+    const wasLiked = this.likedReviewIds.has(review.id);
+    if (wasLiked) { this.likedReviewIds.delete(review.id); } else { this.likedReviewIds.add(review.id); }
+    try {
+      await this.reviewService.toggleLike(
+        review.id, this.currentUserId,
+        this.myDisplayName, this.myPhotoUrl, wasLiked
+      );
+      if (!wasLiked) {
+        this.notificationService.createLikeNotification(
+          review.id, review.userId,
+          this.currentUserId, this.myDisplayName, this.myPhotoUrl
+        );
+      }
+    } catch {
+      if (wasLiked) { this.likedReviewIds.add(review.id); } else { this.likedReviewIds.delete(review.id); }
+    }
   }
 
   async followUser() {
@@ -210,6 +268,9 @@ export class ProfilePage implements ViewWillEnter, OnDestroy {
     try {
       await this.socialService.followUser(this.currentUserId, this.profile.uid);
       this.isFollowing = true;
+      this.notificationService.createFollowNotification(
+        this.profile.uid, this.currentUserId, this.myDisplayName, this.myPhotoUrl
+      );
     } catch (error) {
       console.error('Error al seguir usuario', error);
     }

@@ -2,74 +2,160 @@ ion-content { --background: #121212; }
 ion-toolbar { --background: #121212; --border-width: 0; --box-shadow: none; --color: white; }
 ion-menu-button { --color: white; color: white; }
 
+.activity-body {
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 1rem 0 3rem;
+}
+
+/* ── LISTA ── */
+.notif-list {
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── FILA ── */
+.notif-row {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  padding: 0.875rem 1rem;
+  cursor: pointer;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  transition: background 0.15s ease;
+
+  &:hover { background: rgba(255, 255, 255, 0.04); }
+
+  &--unread {
+    background: rgba(187, 134, 252, 0.06);
+    &:hover { background: rgba(187, 134, 252, 0.1); }
+  }
+}
+
+/* ── AVATAR ── */
+.notif-avatar-wrap {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.notif-avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  object-fit: cover;
+  background: #1f2937;
+}
+
+.notif-type-badge {
+  position: absolute;
+  bottom: -2px;
+  right: -4px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid #121212;
+
+  ion-icon {
+    font-size: 9px;
+    color: #121212;
+  }
+}
+
+/* ── TEXTO ── */
+.notif-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.notif-text {
+  margin: 0 0 0.2rem 0;
+  font-size: 0.875rem;
+  color: #d1d5db;
+  line-height: 1.4;
+  white-space: normal;
+  word-break: break-word;
+
+  em { font-style: italic; color: #9ca3af; }
+}
+
+.notif-author {
+  font-weight: 700;
+  color: white;
+}
+
+.notif-game {
+  font-weight: 600;
+  color: #bb86fc;
+}
+
+.notif-date {
+  font-size: 0.75rem;
+  color: #6b7280;
+}
+
+/* ── PUNTO NO LEÍDO ── */
+.notif-unread-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #3b82f6;
+  flex-shrink: 0;
+}
+
+/* ── SKELETONS ── */
+.notif-skeleton {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  padding: 0.875rem 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.skeleton-avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.skeleton-text-block {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.skeleton-line {
+  height: 12px;
+  border-radius: 6px;
+  &--long  { width: 75%; }
+  &--short { width: 40%; }
+}
+
+/* ── ESTADO VACÍO ── */
 .empty-state {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 4rem 1.5rem;
+  padding: 5rem 1.5rem;
   text-align: center;
 
   .empty-icon {
     width: 4rem;
     height: 4rem;
     border-radius: 50%;
-    background-color: #1f2937;
+    background: #1f2937;
     display: flex;
     align-items: center;
     justify-content: center;
     margin-bottom: 1.25rem;
     ion-icon { font-size: 1.75rem; color: #6b7280; }
   }
-  .empty-title { color: white; font-size: 1.125rem; font-weight: 600; margin: 0 0 0.5rem 0; }
-  .empty-subtitle { color: #6b7280; font-size: 0.875rem; margin: 0; max-width: 320px; }
 
-  .empty-action-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    margin-top: 1.25rem;
-    padding: 0.65rem 1.5rem;
-    background-color: #bb86fc;
-    color: white;
-    font-weight: 600;
-    font-size: 0.9rem;
-    border-radius: 0.5rem;
-    text-decoration: none;
-    transition: background-color 0.2s ease;
-    ion-icon { font-size: 1rem; }
-    &:hover { background-color: #a370e6; }
-  }
+  .empty-title  { color: white; font-size: 1.1rem; font-weight: 600; margin: 0 0 0.5rem; }
+  .empty-subtitle { color: #6b7280; font-size: 0.875rem; margin: 0; max-width: 280px; }
 }
-
-/* ── LAYOUT ── */
-.activity-body {
-  max-width: 860px;
-  margin: 0 auto;
-  padding: 1.5rem 1rem 3rem;
-}
-
-/* ── SEGMENT ── */
-.main-segment {
-  --background: #1a1a1a;
-  border: 1px solid #1f2937;
-  border-radius: 0.625rem;
-  margin-bottom: 2rem;
-
-  ion-segment-button {
-    --color: #9ca3af;
-    --color-checked: #bb86fc;
-    --indicator-color: #bb86fc;
-    --background-checked: rgba(187, 134, 252, 0.1);
-    --border-radius: 0.5rem;
-    min-height: 3rem;
-    ion-icon  { font-size: 1rem; margin-bottom: 0.1rem; }
-    ion-label { font-size: 0.875rem; font-weight: 600; }
-  }
-}
-
-/* ── TAB / LIST / SKELETONS ── */
-.tab-content { margin-bottom: 2rem; }
-.review-list  { display: flex; flex-direction: column; }
-.review-skeleton-list { display: flex; flex-direction: column; gap: 0.75rem; }
-.review-skeleton      { width: 100%; }

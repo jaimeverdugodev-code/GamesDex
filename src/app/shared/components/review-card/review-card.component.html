@@ -1,7 +1,7 @@
-<div class="review-card">
+<div class="review-card" [class.review-card--clickable]="clickable" (click)="onCardClick()">
   <div class="review-flex-container">
     <div class="review-body">
-      <a class="review-author-row" [routerLink]="['/profile', review.userId]">
+      <a class="review-author-row" [routerLink]="['/profile', review.userId]" (click)="$event.stopPropagation()">
         <img class="review-author-avatar app-avatar-img"
              [src]="avatarSrc"
              (error)="onAvatarError($event)"
@@ -15,17 +15,43 @@
       <p class="review-text">{{ review.text }}</p>
       <div class="review-footer">
         <span class="review-date">{{ review.createdAt?.toDate() | date:'dd MMM yyyy' }}</span>
-        <div class="review-actions" *ngIf="showActions">
-          <button *ngIf="showEdit" class="review-action-btn edit-btn" (click)="onEdit()">
-            <ion-icon name="create-outline"></ion-icon>
+
+        <div class="review-interactions">
+
+          <button *ngIf="showLikeButton && currentUserId"
+                  class="interaction-btn like-btn"
+                  [class.liked]="isLiked"
+                  (click)="onLikeToggle($event)">
+            <ion-icon [name]="isLiked ? 'heart' : 'heart-outline'"></ion-icon>
+            <span *ngIf="(review.likesCount ?? 0) > 0" class="interaction-count">{{ review.likesCount }}</span>
           </button>
-          <button class="review-action-btn delete-btn" (click)="onDelete()">
-            <ion-icon name="trash-outline"></ion-icon>
+
+          <span *ngIf="showLikeButton && !currentUserId && (review.likesCount ?? 0) > 0"
+                class="interaction-count-readonly">
+            <ion-icon name="heart-outline"></ion-icon>
+            {{ review.likesCount }}
+          </span>
+
+          <button class="interaction-btn comment-btn" (click)="onCardClick(); $event.stopPropagation()">
+            <ion-icon name="chatbubble-outline"></ion-icon>
+            <span *ngIf="(review.commentsCount ?? 0) > 0" class="interaction-count">{{ review.commentsCount }}</span>
           </button>
+
+          <ion-icon *ngIf="clickable" name="chevron-forward-outline" class="nav-chevron"></ion-icon>
+
+          <div class="review-actions" *ngIf="showActions" (click)="$event.stopPropagation()">
+            <button *ngIf="showEdit" class="review-action-btn edit-btn" (click)="onEdit()">
+              <ion-icon name="create-outline"></ion-icon>
+            </button>
+            <button class="review-action-btn delete-btn" (click)="onDelete()">
+              <ion-icon name="trash-outline"></ion-icon>
+            </button>
+          </div>
+
         </div>
       </div>
     </div>
-    <a *ngIf="gameId" class="review-game-sidebar" [routerLink]="['/game', gameId]">
+    <a *ngIf="gameId" class="review-game-sidebar" [routerLink]="['/game', gameId]" (click)="$event.stopPropagation()">
       <img *ngIf="gameImage" [src]="gameImage" class="review-game-thumb" [alt]="gameName" />
       <div *ngIf="!gameImage" class="review-game-thumb review-game-thumb--empty"></div>
       <span class="review-game-name">{{ gameName }}</span>

@@ -1,0 +1,131 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/activity" text="" color="white"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Reseña</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="detail-content">
+
+  <!-- SKELETON -->
+  <ng-container *ngIf="isLoadingReview">
+    <div class="skeleton-wrapper">
+      <ion-skeleton-text [animated]="true" style="height:120px; border-radius:12px; margin:1rem;"></ion-skeleton-text>
+      <ion-skeleton-text [animated]="true" style="height:40px; border-radius:20px; margin:0 1rem 1rem;"></ion-skeleton-text>
+      <ion-skeleton-text [animated]="true" style="height:60px; border-radius:8px; margin:0 1rem;"></ion-skeleton-text>
+    </div>
+  </ng-container>
+
+  <ng-container *ngIf="!isLoadingReview && review">
+
+    <!-- LA RESEÑA COMPLETA -->
+    <div class="detail-review-wrapper">
+      <app-review-card
+        [review]="review"
+        [showLikeButton]="false"
+        [showActions]="false"
+        [clickable]="false"
+        [gameId]="review.gameId"
+        [gameName]="gameName"
+        [gameImage]="gameImage">
+      </app-review-card>
+    </div>
+
+    <!-- SECCIÓN DE LIKES -->
+    <div class="likes-section">
+      <button class="like-big-btn"
+              [class.liked]="isLiked"
+              [disabled]="!currentUserId"
+              (click)="toggleLike()">
+        <ion-icon [name]="isLiked ? 'heart' : 'heart-outline'"></ion-icon>
+        <span>{{ isLiked ? 'Te gusta' : 'Me gusta' }}</span>
+        <span class="likes-total" *ngIf="(review.likesCount ?? 0) > 0"> · {{ review.likesCount }}</span>
+      </button>
+
+      <div class="liked-by-avatars" *ngIf="likes.length > 0">
+        <a *ngFor="let like of likes.slice(0, 8)"
+           [routerLink]="['/profile', like.userId]"
+           class="liker-link">
+          <img [src]="getAvatarSrc(like.authorPhoto)"
+               class="liker-avatar"
+               (error)="onAvatarError($event)"
+               [title]="like.authorName" />
+        </a>
+        <span *ngIf="likes.length > 8" class="likes-overflow">+{{ likes.length - 8 }}</span>
+      </div>
+    </div>
+
+    <!-- SECCIÓN DE RESPUESTAS -->
+    <div class="comments-section">
+      <h3 class="section-title">
+        <ion-icon name="chatbubbles-outline"></ion-icon>
+        Respuestas
+        <span class="comment-count" *ngIf="comments.length > 0">({{ comments.length }})</span>
+      </h3>
+
+      <!-- LISTA DE COMENTARIOS -->
+      <div class="comments-list">
+        <div class="comment-item" *ngFor="let comment of comments">
+          <a [routerLink]="['/profile', comment.userId]" class="comment-avatar-link">
+            <img [src]="getAvatarSrc(comment.authorPhoto)"
+                 class="comment-avatar"
+                 (error)="onAvatarError($event)" />
+          </a>
+          <div class="comment-body">
+            <div class="comment-header">
+              <a [routerLink]="['/profile', comment.userId]" class="comment-author">{{ comment.authorName }}</a>
+              <span class="comment-date">{{ comment.createdAt?.toDate() | date:'dd MMM' }}</span>
+              <button *ngIf="comment.userId === currentUserId"
+                      class="comment-delete-btn"
+                      (click)="deleteComment(comment.id!)">
+                <ion-icon name="trash-outline"></ion-icon>
+              </button>
+            </div>
+            <p class="comment-text">{{ comment.text }}</p>
+          </div>
+        </div>
+
+        <div *ngIf="comments.length === 0" class="no-comments">
+          Sé el primero en responder a esta reseña.
+        </div>
+      </div>
+
+      <!-- INPUT DE RESPUESTA -->
+      <div class="comment-input-area" *ngIf="currentUserId">
+        <img [src]="getAvatarSrc(currentUserPhoto)"
+             class="comment-avatar"
+             (error)="onAvatarError($event)" />
+        <div class="input-wrapper">
+          <ion-textarea
+            [(ngModel)]="newCommentText"
+            placeholder="Escribe una respuesta..."
+            [rows]="2"
+            class="comment-textarea"
+            (keydown.enter)="$event.preventDefault(); submitComment()">
+          </ion-textarea>
+          <ion-button
+            fill="clear"
+            class="send-btn"
+            (click)="submitComment()"
+            [disabled]="!newCommentText.trim() || isSubmittingComment">
+            <ion-icon name="send-outline" slot="icon-only"></ion-icon>
+          </ion-button>
+        </div>
+      </div>
+
+      <div class="login-prompt" *ngIf="!currentUserId">
+        <p>Inicia sesión para dejar una respuesta.</p>
+      </div>
+
+    </div>
+
+  </ng-container>
+
+  <!-- RESEÑA NO ENCONTRADA -->
+  <div class="not-found" *ngIf="!isLoadingReview && !review">
+    <p>Reseña no encontrada.</p>
+  </div>
+
+</ion-content>

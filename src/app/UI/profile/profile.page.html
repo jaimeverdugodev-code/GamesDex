@@ -174,8 +174,12 @@
               [gameName]="rg.gameName"
               [gameImage]="rg.gameImage"
               [gameId]="rg.review.gameId"
+              [isLiked]="likedReviewIds.has(rg.review.id!)"
+              [currentUserId]="currentUserId"
               (edit)="editReview(rg)"
-              (delete)="deleteReview(rg.review.id!, i)">
+              (delete)="deleteReview(rg.review.id!, i)"
+              (likeToggled)="onLikeToggle(rg.review)"
+              (cardClicked)="openReviewDetail(rg.review.id!)">
             </app-review-card>
 
             <div class="empty-collection" *ngIf="userReviews.length === 0">

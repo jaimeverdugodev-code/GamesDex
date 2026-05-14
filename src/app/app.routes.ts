@@ -71,6 +71,10 @@ export const routes: Routes = [
     canActivate: [adminGuard]
   },
   {
+    path: 'review/:id',
+    loadComponent: () => import('./UI/review-detail/review-detail.page').then(m => m.ReviewDetailPage)
+  },
+  {
     path: 'settings',
     loadComponent: () => import('./UI/settings/settings.page').then(m => m.SettingsPage)
   }

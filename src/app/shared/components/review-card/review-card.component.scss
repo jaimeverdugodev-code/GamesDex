@@ -9,6 +9,7 @@
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.25);
   transition: border-color 0.2s ease;
   &:hover { border-color: rgba(187, 134, 252, 0.25); }
+  &--clickable { cursor: pointer; }
 }
 
 .review-flex-container {
@@ -78,9 +79,90 @@
   align-items: center;
   justify-content: space-between;
   margin-top: 0.5rem;
+  flex-wrap: wrap;
+  gap: 0.4rem;
 }
 
 .review-date { color: #b0b0b0; font-size: 0.75rem; }
+
+.review-interactions {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.interaction-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.05);
+  cursor: pointer;
+  padding: 0.3rem 0.6rem;
+  border-radius: 20px;
+  transition: all 0.2s;
+  color: #d1d5db;
+  font-size: 0.8rem;
+  font-weight: 500;
+
+  ion-icon { font-size: 1rem; }
+
+  &.like-btn {
+    color: #f9a8d4;
+    border-color: rgba(249, 168, 212, 0.3);
+
+    ion-icon { color: #f9a8d4; }
+
+    &:hover {
+      background: rgba(249, 168, 212, 0.12);
+      border-color: rgba(249, 168, 212, 0.5);
+    }
+
+    &.liked {
+      color: #f87171;
+      border-color: rgba(248, 113, 113, 0.6);
+      background: rgba(248, 113, 113, 0.12);
+      ion-icon { color: #f87171; }
+    }
+  }
+
+  &.comment-btn {
+    color: #93c5fd;
+    border-color: rgba(147, 197, 253, 0.3);
+
+    ion-icon { color: #93c5fd; }
+
+    &:hover {
+      background: rgba(147, 197, 253, 0.1);
+      border-color: rgba(147, 197, 253, 0.5);
+    }
+  }
+}
+
+.interaction-count {
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.interaction-count-readonly {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  color: #f9a8d4;
+  font-size: 0.78rem;
+  font-weight: 500;
+  padding: 0.3rem 0.6rem;
+  border: 1px solid rgba(249, 168, 212, 0.25);
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.04);
+  ion-icon { font-size: 1rem; }
+}
+
+.nav-chevron {
+  color: rgba(187, 134, 252, 0.5);
+  font-size: 1rem;
+  margin-left: 0.1rem;
+}
 
 .review-actions { display: flex; gap: 0.4rem; }
 
